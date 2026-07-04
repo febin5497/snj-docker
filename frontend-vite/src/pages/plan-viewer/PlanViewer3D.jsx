@@ -1,0 +1,850 @@
+import { useEffect, useRef, useState, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import api from "../../api/api";
+import "./PlanViewer3D.css";
+
+const API_URL = import.meta.env.VITE_API_URL || "";
+
+const BUILDING_PRESETS = [
+  {
+    name: "Office Tower",
+    floors: 12, width: 20, depth: 15, floorHeight: 3.5,
+    color: "#4a90d9", roofType: "flat", windowsPerFloor: 6,
+  },
+  {
+    name: "Residential Complex",
+    floors: 6, width: 30, depth: 12, floorHeight: 3,
+    color: "#7eb8da", roofType: "sloped", windowsPerFloor: 8,
+  },
+  {
+    name: "Commercial Plaza",
+    floors: 3, width: 40, depth: 25, floorHeight: 4,
+    color: "#5a9e6f", roofType: "flat", windowsPerFloor: 10,
+  },
+  {
+    name: "Warehouse Facility",
+    floors: 1, width: 50, depth: 30, floorHeight: 6,
+    color: "#b87333", roofType: "sawtooth", windowsPerFloor: 4,
+  },
+];
+
+function createBuildingTexture() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 128; canvas.height = 128;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "rgba(255,255,255,0.08)";
+  ctx.fillRect(0, 0, 128, 128);
+  ctx.strokeStyle = "rgba(255,255,255,0.03)";
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 128; i += 16) {
+    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 128); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(128, i); ctx.stroke();
+  }
+  return new THREE.CanvasTexture(canvas);
+}
+
+function createBuilding(preset, maxFloorsOverride) {
+  const group = new THREE.Group();
+  const { floors, width, depth, floorHeight, color, roofType, windowsPerFloor } = preset;
+  const visibleFloors = maxFloorsOverride != null ? Math.min(maxFloorsOverride, floors) : floors;
+  const totalHeight = visibleFloors * floorHeight;
+  const baseColor = new THREE.Color(color);
+  const darkColor = baseColor.clone().multiplyScalar(0.7);
+  const lightColor = baseColor.clone().multiplyScalar(1.2);
+  const wallTexture = createBuildingTexture();
+
+  const foundationGeo = new THREE.BoxGeometry(width + 1, 0.5, depth + 1);
+  const foundationMat = new THREE.MeshPhysicalMaterial({
+    color: 0x555555, roughness: 0.9, metalness: 0.1,
+  });
+  const foundation = new THREE.Mesh(foundationGeo, foundationMat);
+  foundation.position.y = -0.25;
+  group.add(foundation);
+
+  const floorGroups = [];
+
+  for (let f = 0; f < visibleFloors; f++) {
+    const floorGroup = new THREE.Group();
+    floorGroup.name = `floor-${f}`;
+    const floorY = f * floorHeight + floorHeight / 2;
+
+    const slabGeo = new THREE.BoxGeometry(width + 0.2, 0.15, depth + 0.2);
+    const slabMat = new THREE.MeshPhysicalMaterial({
+      color: 0x888888, roughness: 0.8, metalness: 0.2,
+    });
+    const slab = new THREE.Mesh(slabGeo, slabMat);
+    slab.position.y = floorY - floorHeight / 2;
+    floorGroup.add(slab);
+
+    const wallMat = new THREE.MeshPhysicalMaterial({
+      color: baseColor, roughness: 0.6, metalness: 0.1, map: wallTexture,
+    });
+    const wallHeight = floorHeight - 0.3;
+    const wallGeo = new THREE.BoxGeometry(width, wallHeight, 0.2);
+
+    const frontWall = new THREE.Mesh(wallGeo, wallMat);
+    frontWall.position.set(0, floorY, depth / 2);
+    floorGroup.add(frontWall);
+
+    const backWall = new THREE.Mesh(wallGeo, wallMat);
+    backWall.position.set(0, floorY, -depth / 2);
+    floorGroup.add(backWall);
+
+    const sideWallGeo = new THREE.BoxGeometry(0.2, wallHeight, depth);
+    const leftWall = new THREE.Mesh(sideWallGeo, wallMat);
+    leftWall.position.set(-width / 2, floorY, 0);
+    floorGroup.add(leftWall);
+
+    const rightWall = new THREE.Mesh(sideWallGeo, wallMat);
+    rightWall.position.set(width / 2, floorY, 0);
+    floorGroup.add(rightWall);
+
+    const windowMat = new THREE.MeshPhysicalMaterial({
+      color: 0x88ccff, metalness: 0.3, roughness: 0.1,
+      transparent: true, opacity: 0.6, envMapIntensity: 1,
+    });
+    const windowFrameMat = new THREE.MeshPhysicalMaterial({
+      color: 0x444444, roughness: 0.7, metalness: 0.3,
+    });
+
+    const winSpacing = width / (windowsPerFloor + 1);
+    for (let w = 0; w < windowsPerFloor; w++) {
+      const wx = -width / 2 + winSpacing * (w + 1);
+      const wy = floorY;
+      const winGeo = new THREE.BoxGeometry(0.8, 1.2, 0.05);
+      const win = new THREE.Mesh(winGeo, windowMat);
+      win.position.set(wx, wy, depth / 2 + 0.11);
+      floorGroup.add(win);
+      const frameMat = windowFrameMat;
+      const frameHGeo = new THREE.BoxGeometry(0.9, 0.08, 0.08);
+      const frameVGeo = new THREE.BoxGeometry(0.08, 1.3, 0.08);
+      [-depth / 2 - 0.11, depth / 2 + 0.11].forEach((z) => {
+        const frameTop = new THREE.Mesh(frameHGeo, frameMat);
+        frameTop.position.set(wx, wy + 0.65, z);
+        floorGroup.add(frameTop);
+        const frameBot = new THREE.Mesh(frameHGeo, frameMat);
+        frameBot.position.set(wx, wy - 0.65, z);
+        floorGroup.add(frameBot);
+        const frameL = new THREE.Mesh(frameVGeo, frameMat);
+        frameL.position.set(wx - 0.45, wy, z);
+        floorGroup.add(frameL);
+        const frameR = new THREE.Mesh(frameVGeo, frameMat);
+        frameR.position.set(wx + 0.45, wy, z);
+        floorGroup.add(frameR);
+      });
+    }
+
+    group.add(floorGroup);
+    floorGroups.push(floorGroup);
+  }
+
+  const roofMat = new THREE.MeshPhysicalMaterial({
+    color: darkColor, roughness: 0.8, metalness: 0.1,
+  });
+
+  if (roofType === "flat") {
+    const roofGeo = new THREE.BoxGeometry(width + 0.5, 0.3, depth + 0.5);
+    const roof = new THREE.Mesh(roofGeo, roofMat);
+    roof.position.y = totalHeight + 0.15;
+    group.add(roof);
+
+    const parapetMat = new THREE.MeshPhysicalMaterial({
+      color: 0xcccccc, roughness: 0.6,
+    });
+    const parapetGeo = new THREE.BoxGeometry(width + 1, 0.4, 0.15);
+    [-depth / 2 - 0.2, depth / 2 + 0.2].forEach((z) => {
+      const p = new THREE.Mesh(parapetGeo, parapetMat);
+      p.position.set(0, totalHeight + 0.5, z);
+      group.add(p);
+    });
+    const parapetSideGeo = new THREE.BoxGeometry(0.15, 0.4, depth + 1);
+    [-width / 2 - 0.2, width / 2 + 0.2].forEach((x) => {
+      const p = new THREE.Mesh(parapetSideGeo, parapetMat);
+      p.position.set(x, totalHeight + 0.5, 0);
+      group.add(p);
+    });
+  } else if (roofType === "sloped") {
+    const roofShape = new THREE.Shape();
+    const rw = width / 2 + 1;
+    const rd = depth / 2 + 0.5;
+    const rh = floorHeight * 0.6;
+    roofShape.moveTo(-rw, -rd); roofShape.lineTo(rw, -rd);
+    roofShape.lineTo(rw + 1, 0); roofShape.lineTo(rw, rd);
+    roofShape.lineTo(-rw, rd); roofShape.lineTo(-rw - 1, 0);
+    roofShape.closePath();
+    const extrudeSettings = { steps: 1, depth: 0.15, bevelEnabled: false };
+    const roofGeo = new THREE.ExtrudeGeometry(roofShape, extrudeSettings);
+    const roofMesh = new THREE.Mesh(roofGeo, roofMat);
+    roofMesh.position.set(0, totalHeight, 0);
+    group.add(roofMesh);
+  }
+
+  const groundGeo = new THREE.BoxGeometry(width + 4, 0.2, depth + 4);
+  const groundMat = new THREE.MeshPhysicalMaterial({
+    color: 0x556b2f, roughness: 1, metalness: 0,
+  });
+  const ground = new THREE.Mesh(groundGeo, groundMat);
+  ground.position.y = -0.5;
+  group.add(ground);
+
+  group.userData.floorGroups = floorGroups;
+  return group;
+}
+
+function disposeMesh(obj) {
+  obj.traverse((child) => {
+    if (child.isMesh) {
+      child.geometry?.dispose();
+      if (Array.isArray(child.material)) {
+        child.material.forEach((m) => m.dispose());
+      } else {
+        child.material?.dispose();
+      }
+    }
+  });
+}
+
+export default function PlanViewer3D() {
+  const [searchParams] = useSearchParams();
+  const containerRef = useRef(null);
+  const sceneRef = useRef(null);
+  const cameraRef = useRef(null);
+  const rendererRef = useRef(null);
+  const controlsRef = useRef(null);
+  const buildingRef = useRef(null);
+  const importedModelRef = useRef(null);
+  const animFrameRef = useRef(null);
+
+  const [currentPreset, setCurrentPreset] = useState(0);
+  const [autoRotate, setAutoRotate] = useState(true);
+  const [viewMode, setViewMode] = useState("perspective");
+  const [showInfo, setShowInfo] = useState(true);
+  const [wireframe, setWireframe] = useState(false);
+  const [darkBg, setDarkBg] = useState(true);
+  const [visibleFloors, setVisibleFloors] = useState(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState(null);
+  const [mode, setMode] = useState("preset");
+
+  const [projects, setProjects] = useState([]);
+  const [selectedProjectId, setSelectedProjectId] = useState(null);
+  const [projectSearch, setProjectSearch] = useState("");
+  const [projectDropdownOpen, setProjectDropdownOpen] = useState(false);
+
+  const preset = BUILDING_PRESETS[currentPreset];
+
+  // Preserve default camera position
+  const defaultCamPos = new THREE.Vector3(35, 25, 35);
+  const defaultTarget = new THREE.Vector3(0, 5, 0);
+
+  // Load projects list
+  useEffect(() => {
+    api.get("/api/projects/")
+      .then((res) => {
+        const data = res.data?.data || res.data?.projects || [];
+        setProjects(Array.isArray(data) ? data : []);
+      })
+      .catch(() => {});
+  }, []);
+
+  // Auto-select project from URL query param
+  useEffect(() => {
+    const projectId = searchParams.get("projectId");
+    if (projectId) {
+      setSelectedProjectId(Number(projectId));
+      setMode("project");
+    }
+  }, [searchParams]);
+
+  // Init scene once
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x1a2332);
+    sceneRef.current = scene;
+
+    const aspect = container.clientWidth / container.clientHeight;
+    const camera = new THREE.PerspectiveCamera(45, aspect, 0.1, 1000);
+    camera.position.copy(defaultCamPos);
+    camera.lookAt(0, 0, 0);
+    cameraRef.current = camera;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
+    container.appendChild(renderer.domElement);
+    rendererRef.current = renderer;
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 1.5;
+    controls.minDistance = 5;
+    controls.maxDistance = 100;
+    controls.maxPolarAngle = Math.PI / 2.1;
+    controls.target.copy(defaultTarget);
+    controlsRef.current = controls;
+
+    const ambientLight = new THREE.AmbientLight(0x404060, 0.6);
+    scene.add(ambientLight);
+
+    const hemiLight = new THREE.HemisphereLight(0x87ceeb, 0x362d25, 0.8);
+    scene.add(hemiLight);
+
+    const dirLight = new THREE.DirectionalLight(0xffffff, 2);
+    dirLight.position.set(20, 30, 20);
+    dirLight.castShadow = true;
+    dirLight.shadow.mapSize.width = 2048;
+    dirLight.shadow.mapSize.height = 2048;
+    const d = 40;
+    dirLight.shadow.camera.left = -d;
+    dirLight.shadow.camera.right = d;
+    dirLight.shadow.camera.top = d;
+    dirLight.shadow.camera.bottom = -d;
+    dirLight.shadow.camera.near = 1;
+    dirLight.shadow.camera.far = 60;
+    scene.add(dirLight);
+
+    const fillLight = new THREE.DirectionalLight(0x4488ff, 0.5);
+    fillLight.position.set(-15, 10, -15);
+    scene.add(fillLight);
+
+    const rimLight = new THREE.DirectionalLight(0xffffff, 0.3);
+    rimLight.position.set(0, -10, 20);
+    scene.add(rimLight);
+
+    const gridHelper = new THREE.GridHelper(80, 40, 0x4a90d9, 0x2a3a5a);
+    gridHelper.position.y = -0.5;
+    scene.add(gridHelper);
+
+    const building = createBuilding(BUILDING_PRESETS[0]);
+    building.name = "building";
+    scene.add(building);
+    buildingRef.current = building;
+
+    function animate() {
+      animFrameRef.current = requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    function handleResize() {
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    }
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      cancelAnimationFrame(animFrameRef.current);
+      window.removeEventListener("resize", handleResize);
+      controls.dispose();
+      renderer.dispose();
+      if (container.contains(renderer.domElement)) {
+        container.removeChild(renderer.domElement);
+      }
+      scene.traverse((child) => {
+        if (child.isMesh) {
+          child.geometry?.dispose();
+          if (Array.isArray(child.material)) {
+            child.material.forEach((m) => m.dispose());
+          } else {
+            child.material?.dispose();
+          }
+        }
+      });
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Rebuild procedural building
+  const buildPresetBuilding = useCallback((presetIndex, maxFloors) => {
+    const scene = sceneRef.current;
+    if (!scene) return;
+
+    const oldBuilding = scene.getObjectByName("building");
+    if (oldBuilding) {
+      scene.remove(oldBuilding);
+      disposeMesh(oldBuilding);
+    }
+
+    const p = BUILDING_PRESETS[presetIndex];
+    if (!p) return;
+    const building = createBuilding(p, maxFloors);
+    building.name = "building";
+    scene.add(building);
+    buildingRef.current = building;
+    importedModelRef.current = null;
+
+    setWireframe(false);
+  }, []);
+
+  // Load a project's 3D model
+  const loadProjectModel = useCallback((projectId) => {
+    const scene = sceneRef.current;
+    if (!scene) return;
+
+    setLoadError(null);
+    setLoading(true);
+
+    const loadFromProject = (filename) => {
+      const modelUrl = `${API_URL}/uploads/projects/${projectId}/${filename}`;
+
+    const oldBuilding = scene.getObjectByName("building");
+    if (oldBuilding) {
+      scene.remove(oldBuilding);
+      disposeMesh(oldBuilding);
+      buildingRef.current = null;
+    }
+    if (importedModelRef.current) {
+      scene.remove(importedModelRef.current);
+      disposeMesh(importedModelRef.current);
+      importedModelRef.current = null;
+    }
+
+      const loader = new GLTFLoader();
+      loader.load(
+        modelUrl,
+        (gltf) => {
+          const model = gltf.scene;
+          const box = new THREE.Box3().setFromObject(model);
+          const size = box.getSize(new THREE.Vector3());
+          const maxDim = Math.max(size.x, size.y, size.z);
+          if (maxDim > 40) {
+            const s = 40 / maxDim;
+            model.scale.set(s, s, s);
+          }
+          model.traverse((child) => {
+            if (child.isMesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+            }
+          });
+          scene.add(model);
+          importedModelRef.current = model;
+          buildingRef.current = null;
+          setLoading(false);
+        },
+        undefined,
+        (err) => {
+          setLoading(false);
+          setLoadError("Failed to load model: " + (err?.message || "Unknown error"));
+        }
+      );
+    };
+
+    const project = projects.find((p) => p.id === projectId);
+    if (project?.three_d_plan) {
+      loadFromProject(project.three_d_plan);
+    } else {
+      // Not found in list, fetch project directly
+      api.get("/api/projects/" + projectId)
+        .then((res) => {
+          const p = res.data?.data || res.data;
+          if (p?.three_d_plan) {
+            loadFromProject(p.three_d_plan);
+          } else {
+            setLoading(false);
+            setLoadError("No 3D model uploaded for this project");
+          }
+        })
+        .catch(() => {
+          setLoading(false);
+          setLoadError("Project not found");
+        });
+    }
+  }, [projects]);
+
+  // Effect for mode/preset/project changes
+  useEffect(() => {
+    if (mode === "preset") {
+      buildPresetBuilding(currentPreset, visibleFloors);
+    } else if (mode === "project" && selectedProjectId) {
+      loadProjectModel(selectedProjectId);
+    }
+  }, [mode, currentPreset, selectedProjectId, visibleFloors, buildPresetBuilding, loadProjectModel]);
+
+  // Auto-rotate
+  useEffect(() => {
+    if (controlsRef.current) {
+      controlsRef.current.autoRotate = autoRotate;
+    }
+  }, [autoRotate]);
+
+  // View mode
+  useEffect(() => {
+    if (!controlsRef.current || !sceneRef.current) return;
+    const camera = controlsRef.current.object;
+    if (viewMode === "top") {
+      camera.position.set(0, 50, 0.01);
+      controlsRef.current.maxPolarAngle = 0.1;
+    } else if (viewMode === "front") {
+      camera.position.set(0, 10, 40);
+      controlsRef.current.maxPolarAngle = Math.PI / 2.1;
+    } else if (viewMode === "side") {
+      camera.position.set(45, 10, 0);
+      controlsRef.current.maxPolarAngle = Math.PI / 2.1;
+    } else {
+      camera.position.copy(defaultCamPos);
+      controlsRef.current.maxPolarAngle = Math.PI / 2.1;
+    }
+    controlsRef.current.target.copy(defaultTarget);
+    controlsRef.current.update();
+  }, [viewMode]);
+
+  // Wireframe toggle
+  useEffect(() => {
+    const target = importedModelRef.current || buildingRef.current;
+    if (!target) return;
+    target.traverse((child) => {
+      if (child.isMesh && child.material) {
+        if (Array.isArray(child.material)) {
+          child.material.forEach((m) => { m.wireframe = wireframe; });
+        } else {
+          child.material.wireframe = wireframe;
+        }
+      }
+    });
+  }, [wireframe]);
+
+  // Background toggle
+  useEffect(() => {
+    if (sceneRef.current) {
+      sceneRef.current.background = new THREE.Color(darkBg ? 0x1a2332 : 0xe8eef5);
+    }
+  }, [darkBg]);
+
+  // Fullscreen change handler
+  useEffect(() => {
+    function handler() {
+      setIsFullscreen(!!document.fullscreenElement);
+    }
+    document.addEventListener("fullscreenchange", handler);
+    return () => document.removeEventListener("fullscreenchange", handler);
+  }, []);
+
+  const toggleFullscreen = () => {
+    const el = containerRef.current;
+    if (!document.fullscreenElement) {
+      el?.requestFullscreen?.();
+    } else {
+      document.exitFullscreen?.();
+    }
+  };
+
+  const takeScreenshot = () => {
+    const renderer = rendererRef.current;
+    const camera = cameraRef.current;
+    const scene = sceneRef.current;
+    if (!renderer || !camera || !scene) return;
+
+    const originalBg = scene.background.clone();
+    scene.background = new THREE.Color(0xffffff);
+    renderer.render(scene, camera);
+    const link = document.createElement("a");
+    link.download = "building-viewer-screenshot.png";
+    link.href = renderer.domElement.toDataURL("image/png");
+    link.click();
+    scene.background = originalBg;
+    renderer.render(scene, camera);
+  };
+
+  const resetView = () => {
+    const controls = controlsRef.current;
+    if (!controls) return;
+    controls.object.position.copy(defaultCamPos);
+    controls.target.copy(defaultTarget);
+    controls.update();
+    setViewMode("perspective");
+  };
+
+  const handleProjectSelect = (projectId) => {
+    setSelectedProjectId(projectId);
+    setMode("project");
+    setProjectDropdownOpen(false);
+    setProjectSearch("");
+  };
+
+  const filteredProjects = projects.filter((p) => {
+    const name = (p.name || "").toLowerCase();
+    const loc = (p.location || "").toLowerCase();
+    const q = projectSearch.toLowerCase();
+    return name.includes(q) || loc.includes(q);
+  });
+
+  return (
+    <div className="plan-viewer-page">
+      <div className="viewer-container" ref={containerRef} />
+
+      {/* Top Toolbar */}
+      <div className="viewer-toolbar">
+        <div className="toolbar-left">
+          <h2 className="viewer-title">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            {mode === "preset" ? preset.name : "Project 3D Model"}
+          </h2>
+        </div>
+        <div className="toolbar-right">
+          <button className="viewer-btn" onClick={resetView} title="Reset View">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/>
+            </svg>
+          </button>
+          <button className={`viewer-btn ${autoRotate ? "active" : ""}`} onClick={() => setAutoRotate(!autoRotate)} title="Auto Rotate">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="23 4 23 10 17 10"/>
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+          </button>
+          <button className={`viewer-btn ${wireframe ? "active" : ""}`} onClick={() => setWireframe(!wireframe)} title="Toggle Wireframe">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/>
+              <line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/>
+            </svg>
+          </button>
+          <button className={`viewer-btn ${!darkBg ? "active" : ""}`} onClick={() => setDarkBg(!darkBg)} title="Toggle Background">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              {darkBg ? (
+                <><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></>
+              ) : (
+                <><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></>
+              )}
+            </svg>
+          </button>
+          <button className="viewer-btn" onClick={takeScreenshot} title="Screenshot">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+          </button>
+          <button className={`viewer-btn ${showInfo ? "active" : ""}`} onClick={() => setShowInfo(!showInfo)} title="Toggle Info">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+          </button>
+          <button className={`viewer-btn ${isFullscreen ? "active" : ""}`} onClick={toggleFullscreen} title="Fullscreen">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              {isFullscreen ? (
+                <><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></>
+              ) : (
+                <><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></>
+              )}
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* View Controls */}
+      <div className="view-controls">
+        <button className={`view-btn ${viewMode === "perspective" ? "active" : ""}`} onClick={() => setViewMode("perspective")} title="Perspective">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M3 14h7v7H3z"/><path d="M14 14h7v7h-7z"/>
+          </svg>
+        </button>
+        <button className={`view-btn ${viewMode === "top" ? "active" : ""}`} onClick={() => setViewMode("top")} title="Top">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/>
+          </svg>
+        </button>
+        <button className={`view-btn ${viewMode === "front" ? "active" : ""}`} onClick={() => setViewMode("front")} title="Front">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/>
+          </svg>
+        </button>
+        <button className={`view-btn ${viewMode === "side" ? "active" : ""}`} onClick={() => setViewMode("side")} title="Side">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/>
+          </svg>
+        </button>
+      </div>
+
+      {/* Bottom Tools Bar */}
+      <div className="bottom-tools">
+        {/* Mode Toggle + Presets */}
+        <div className="bottom-tools-group">
+          <button
+            className={`mode-toggle-btn ${mode === "preset" ? "active" : ""}`}
+            onClick={() => setMode("preset")}
+          >
+            Procedural
+          </button>
+          <button
+            className={`mode-toggle-btn ${mode === "project" ? "active" : ""}`}
+            onClick={() => {
+              setMode("project");
+              if (selectedProjectId) loadProjectModel(selectedProjectId);
+            }}
+          >
+            Project Model
+          </button>
+        </div>
+
+        {mode === "preset" ? (
+          <>
+            {/* Preset Pills */}
+            <div className="preset-pills">
+              {BUILDING_PRESETS.map((p, i) => (
+                <button
+                  key={p.name}
+                  className={`preset-pill ${i === currentPreset ? "active" : ""}`}
+                  onClick={() => { setCurrentPreset(i); setMode("preset"); }}
+                >
+                  <span className="preset-dot" style={{ background: p.color }} />
+                  <span>{p.name}</span>
+                  <span className="preset-floors">{p.floors} fl</span>
+                </button>
+              ))}
+            </div>
+            {/* Floor slider for presets */}
+            <div className="tool-group">
+              <label className="tool-label">Floors: {visibleFloors ?? preset.floors}/{preset.floors}</label>
+              <input
+                type="range"
+                min={1}
+                max={preset.floors}
+                value={visibleFloors ?? preset.floors}
+                onChange={(e) => setVisibleFloors(Number(e.target.value))}
+                className="floor-slider"
+              />
+              {visibleFloors != null && visibleFloors < preset.floors && (
+                <button className="tool-reset-btn" onClick={() => setVisibleFloors(null)} title="Show all floors">Reset</button>
+              )}
+            </div>
+          </>
+        ) : (
+          /* Project Selector */
+          <div className="project-selector-group">
+            <div className="project-selector-wrapper">
+              <input
+                type="text"
+                placeholder="Search projects..."
+                value={projectSearch}
+                onChange={(e) => { setProjectSearch(e.target.value); setProjectDropdownOpen(true); }}
+                onFocus={() => setProjectDropdownOpen(true)}
+                className="project-search-input"
+              />
+              <svg className="project-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              {projectDropdownOpen && (
+                <div className="project-dropdown">
+                  {filteredProjects.length === 0 ? (
+                    <div className="project-dropdown-empty">No projects found</div>
+                  ) : (
+                    filteredProjects.map((p) => (
+                      <button
+                        key={p.id}
+                        className={`project-dropdown-item ${p.id === selectedProjectId ? "active" : ""}`}
+                        onClick={() => handleProjectSelect(p.id)}
+                      >
+                        <span className="project-item-name">{p.name}</span>
+                        <span className="project-item-meta">
+                          {p.three_d_plan ? "3D ✓" : "No model"}
+                        </span>
+                      </button>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+            {loading && <span className="model-loading">Loading model...</span>}
+            {loadError && <span className="model-error">{loadError}</span>}
+            {selectedProjectId && mode === "project" && !loading && !loadError && (
+              <span className="model-loaded">
+                Loaded: {projects.find((p) => p.id === selectedProjectId)?.name || `Project #${selectedProjectId}`}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Info Panel */}
+      {showInfo && mode === "preset" && (
+        <div className="info-panel">
+          <h3 className="info-title">Building Details</h3>
+          <div className="info-grid">
+            <div className="info-item">
+              <span className="info-label">Name</span>
+              <span className="info-value">{preset.name}</span>
+            </div>
+            <div className="info-item">
+              <span className="info-label">Floors</span>
+              <span className="info-value">{preset.floors}</span>
+            </div>
+            <div className="info-item">
+              <span className="info-label">Width</span>
+              <span className="info-value">{preset.width}m</span>
+            </div>
+            <div className="info-item">
+              <span className="info-label">Depth</span>
+              <span className="info-value">{preset.depth}m</span>
+            </div>
+            <div className="info-item">
+              <span className="info-label">Height</span>
+              <span className="info-value">{(visibleFloors ?? preset.floors) * preset.floorHeight}m</span>
+            </div>
+            <div className="info-item">
+              <span className="info-label">Floor Ht</span>
+              <span className="info-value">{preset.floorHeight}m</span>
+            </div>
+            <div className="info-item">
+              <span className="info-label">Windows/F</span>
+              <span className="info-value">{preset.windowsPerFloor}</span>
+            </div>
+            <div className="info-item">
+              <span className="info-label">Roof</span>
+              <span className="info-value">{preset.roofType}</span>
+            </div>
+          </div>
+          <p className="info-hint">Drag to orbit · Scroll to zoom</p>
+        </div>
+      )}
+
+      {showInfo && mode === "project" && selectedProjectId && (
+        <div className="info-panel">
+          <h3 className="info-title">Project Model</h3>
+          {(() => {
+            const p = projects.find((proj) => proj.id === selectedProjectId);
+            return p ? (
+              <div className="info-grid">
+                <div className="info-item">
+                  <span className="info-label">Name</span>
+                  <span className="info-value">{p.name}</span>
+                </div>
+                <div className="info-item">
+                  <span className="info-label">Location</span>
+                  <span className="info-value">{p.location || "-"}</span>
+                </div>
+                <div className="info-item">
+                  <span className="info-label">Status</span>
+                  <span className="info-value">{p.status || "-"}</span>
+                </div>
+              </div>
+            ) : (
+              <p className="info-hint">Select a project to view its 3D model</p>
+            );
+          })()}
+          <p className="info-hint">Drag to orbit · Scroll to zoom</p>
+        </div>
+      )}
+    </div>
+  );
+}

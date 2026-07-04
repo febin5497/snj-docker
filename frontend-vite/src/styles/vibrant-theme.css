@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --v-primary: #6C5CE7;
+  --v-primary-light: #A29BFE;
+  --v-primary-dark: #5A4BD1;
+  --v-secondary: #00CEC9;
+  --v-secondary-light: #81ECEC;
+  --v-accent: #FD79A8;
+  --v-accent-light: #FDCB6E;
+  --v-danger: #FF6B6B;
+  --v-success: #00B894;
+  --v-warning: #FDCB6E;
+
+  --v-bg-dark: #0F0F23;
+  --v-bg-card: rgba(255,255,255,0.06);
+  --v-bg-card-hover: rgba(255,255,255,0.1);
+  --v-bg-input: rgba(255,255,255,0.08);
+  --v-bg-sidebar: rgba(15,15,35,0.95);
+
+  --v-text: #FFFFFF;
+  --v-text-secondary: rgba(255,255,255,0.6);
+  --v-text-muted: rgba(255,255,255,0.35);
+
+  --v-border: rgba(255,255,255,0.08);
+  --v-border-focus: var(--v-primary);
+
+  --v-gradient-1: linear-gradient(135deg, #6C5CE7, #A29BFE, #00CEC9);
+  --v-gradient-2: linear-gradient(135deg, #FD79A8, #6C5CE7);
+  --v-gradient-3: linear-gradient(135deg, #00CEC9, #6C5CE7, #FD79A8);
+  --v-gradient-bg: linear-gradient(135deg, #0F0F23 0%, #1A1A3E 50%, #0F0F23 100%);
+
+  --v-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  --v-shadow-glow: 0 0 40px rgba(108,92,231,0.15);
+  --v-radius: 16px;
+  --v-radius-sm: 10px;
+  --v-radius-xs: 6px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--v-gradient-bg);
+  color: var(--v-text);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--v-primary); border-radius: 3px; }

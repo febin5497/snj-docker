@@ -1,0 +1,334 @@
+/* Register Page Styling */
+
+.register-wrapper {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    padding: 20px;
+}
+
+.register-box {
+    background: var(--bg-primary);
+    padding: 50px;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.register-header {
+    margin-bottom: 30px;
+}
+
+.register-header h1 {
+    margin: 0 0 8px 0;
+    color: var(--text-primary);
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.register-subtitle {
+    color: var(--text-tertiary);
+    font-size: 16px;
+    margin: 0;
+    font-weight: 500;
+}
+
+.register-error {
+    color: var(--color-danger);
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding: 14px;
+    background-color: rgba(220, 38, 38, 0.1);
+    border-left: 4px solid var(--color-danger);
+    border-radius: 6px;
+    font-size: 14px;
+    text-align: left;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Form Styling */
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: capitalize;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.form-group input::placeholder {
+    color: var(--text-muted);
+}
+
+.form-group input:focus {
+    border-color: var(--color-primary);
+    outline: none;
+    background: var(--bg-primary);
+    box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
+}
+
+.form-group input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Password Strength Indicator */
+
+.password-strength {
+    margin-top: 10px;
+    text-align: left;
+}
+
+.strength-bar {
+    height: 4px;
+    background: var(--bg-secondary);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 6px;
+}
+
+.strength-fill {
+    height: 100%;
+    transition: width 0.3s ease, background-color 0.3s ease;
+    border-radius: 2px;
+}
+
+.strength-text {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.password-hint {
+    margin: 8px 0 0 0;
+    font-size: 12px;
+    color: var(--text-tertiary);
+    line-height: 1.4;
+}
+
+/* Buttons */
+
+.register-btn {
+    width: 100%;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    border: none;
+    color: white;
+    font-weight: 700;
+    font-size: 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 20px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.register-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 82, 204, 0.4);
+}
+
+.register-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.register-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Footer Links */
+
+.register-footer {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+    font-size: 14px;
+    color: var(--text-tertiary);
+}
+
+.register-footer p {
+    margin: 0;
+    line-height: 1.6;
+}
+
+.login-link {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.login-link:hover {
+    text-decoration: underline;
+    color: var(--color-primary-dark);
+}
+
+.register-footer-text {
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* Responsive Design */
+
+@media (max-width: 768px) {
+    .register-wrapper {
+        padding: 16px;
+        align-items: flex-start;
+        padding-top: 20px;
+    }
+
+    .register-box {
+        padding: 30px;
+        max-width: 100%;
+    }
+
+    .register-header h1 {
+        font-size: 24px;
+    }
+
+    .register-subtitle {
+        font-size: 14px;
+    }
+
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+    .form-group input {
+        padding: 11px 12px;
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+
+    .register-btn {
+        margin-top: 16px;
+        font-size: 14px;
+        padding: 12px 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .register-wrapper {
+        padding: 12px;
+        padding-top: 16px;
+    }
+
+    .register-box {
+        padding: 20px;
+        border-radius: 12px;
+    }
+
+    .register-header h1 {
+        font-size: 20px;
+        margin-bottom: 6px;
+    }
+
+    .register-subtitle {
+        font-size: 13px;
+    }
+
+    .form-group {
+        margin-bottom: 14px;
+    }
+
+    .form-group label {
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+
+    .form-group input {
+        padding: 10px 12px;
+        font-size: 15px;
+        border-radius: 8px;
+    }
+
+    .password-hint {
+        font-size: 11px;
+    }
+
+    .register-btn {
+        margin-top: 14px;
+        padding: 12px 12px;
+        font-size: 13px;
+        min-height: 44px;
+    }
+
+    .register-footer {
+        font-size: 13px;
+        margin-top: 18px;
+        padding-top: 16px;
+    }
+
+    .register-footer-text {
+        font-size: 11px;
+        margin-top: 12px;
+    }
+}
+
+/* Dark Mode Support (Already included via CSS variables) */
+
+[data-theme="dark"] .register-box {
+    background: var(--bg-primary);
+}
+
+[data-theme="dark"] .register-error {
+    background-color: rgba(220, 38, 38, 0.15);
+}
+
+[data-theme="dark"] .strength-bar {
+    background: var(--bg-secondary);
+}
+
+/* Smooth transitions for theme switching */
+.register-wrapper,
+.register-box,
+.form-group input,
+.register-btn,
+.login-link {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}

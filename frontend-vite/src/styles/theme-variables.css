@@ -1,0 +1,196 @@
+/* Theme Variables - Light and Reading Mode Color System */
+
+:root {
+  /* Light Mode: Primary Colors */
+  --color-primary: #0052CC;
+  --color-primary-dark: #0066FF;
+  --color-primary-light: #8b9ffd;
+  --color-primary-gradient: linear-gradient(135deg, #0052CC 0%, #0066FF 100%);
+
+  /* Light Mode: Backgrounds */
+  --bg-primary: white;
+  --bg-secondary: #f7fafc;
+  --bg-tertiary: #f8fafc;
+  --bg-page: #f4f8ff;
+  --bg-gradient: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+
+  /* Light Mode: Text */
+  --text-primary: #1a202c;
+  --text-secondary: #2d3748;
+  --text-tertiary: #718096;
+  --text-muted: #a0aec0;
+
+  /* Light Mode: Borders & Dividers */
+  --border-color: #e2e8f0;
+  --border-light: #cbd5e0;
+  --border-form: #b3d4fc;
+  --border-form-light: #d3e5ff;
+
+  /* Status Colors */
+  --color-success: #48bb78;
+  --color-warning: #ed8936;
+  --color-accent: #f6ad55;
+  --color-info: #007bff;
+  --color-danger: #dc3545;
+  --success-light: #e6ffed;
+  --warning-light: #fff8e6;
+
+  /* Sidebar */
+  --sidebar-bg: linear-gradient(135deg, #1a202c 0%, #2d3748 50%, #1f2937 100%);
+  --sidebar-text: white;
+  --sidebar-border: rgba(0, 82, 204, 0.2);
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(123, 0, 255, 0.1);
+  --shadow-lg: 0 8px 20px rgba(0, 0, 0, 0.1);
+  --shadow-primary: 0 8px 20px rgba(0, 82, 204, 0.4);
+
+  /* Pie Chart Gradients - Light Mode */
+  --chart-gradient-1: linear-gradient(135deg, #0052CC 0%, #0066FF 100%);
+  --chart-gradient-2: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+  --chart-gradient-3: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+  --chart-gradient-4: linear-gradient(135deg, #4299e1 0%, #2b6cb0 100%);
+  --chart-gradient-5: linear-gradient(135deg, #f56565 0%, #d84343 100%);
+
+  /* Transitions */
+  --transition-color: color 0.3s ease;
+  --transition-bg: background-color 0.3s ease;
+  --transition-all: all 0.3s ease;
+
+  /* ===== GLASSMORPHISM DESIGN TOKENS ===== */
+
+  /* Glass Backgrounds - Frosted glass effect layers */
+  --glass-bg: rgba(255, 255, 255, 0.18);
+  --glass-bg-light: rgba(255, 255, 255, 0.10);
+  --glass-bg-medium: rgba(255, 255, 255, 0.25);
+  --glass-bg-strong: rgba(255, 255, 255, 0.35);
+  --glass-bg-hover: rgba(255, 255, 255, 0.25);
+
+  /* Glass Borders - Subtle translucent edges */
+  --glass-border: rgba(255, 255, 255, 0.22);
+  --glass-border-light: rgba(255, 255, 255, 0.12);
+  --glass-border-strong: rgba(255, 255, 255, 0.35);
+  --glass-border-hover: rgba(0, 82, 204, 0.25);
+
+  /* Glass Shadows - Soft, diffuse for depth */
+  --glass-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  --glass-shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.12);
+  --glass-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.15);
+
+  /* Glass Blur - Backdrop frosted effect strengths */
+  --glass-blur-sm: blur(6px);
+  --glass-blur: blur(12px);
+  --glass-blur-lg: blur(20px);
+
+  /* Glass Radii */
+  --glass-radius-sm: 10px;
+  --glass-radius: 14px;
+  --glass-radius-lg: 20px;
+
+  /* Glass Color Tints - Blue-tinted glass for this theme */
+  --glass-blue-bg: rgba(0, 82, 204, 0.06);
+  --glass-blue-border: rgba(0, 82, 204, 0.18);
+  --glass-blue-glow: rgba(0, 82, 204, 0.20);
+  --glass-blue-hover: rgba(0, 82, 204, 0.10);
+
+  /* Dark Glass - For darker overlays */
+  --glass-dark: rgba(0, 0, 0, 0.06);
+  --glass-dark-medium: rgba(0, 0, 0, 0.10);
+  --glass-dark-strong: rgba(0, 0, 0, 0.15);
+}
+
+/* Reading Mode Theme - Warm, Comfortable Colors for Extended Reading */
+[data-theme="reading"] {
+  /* Reading Mode: Primary Colors - Warm Orange/Brown */
+  --color-primary: #d97706;
+  --color-primary-dark: #b45309;
+  --color-primary-light: #f59e0b;
+  --color-primary-gradient: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+
+  /* Reading Mode: Backgrounds - Warm Cream & Neutral */
+  --bg-primary: #faf6f0;
+  --bg-secondary: #f5ede3;
+  --bg-tertiary: #efe7de;
+  --bg-page: #faf6f0;
+  --bg-gradient: linear-gradient(135deg, #faf6f0 0%, #f5ede3 100%);
+
+  /* Reading Mode: Text - Warm Dark Gray for Comfortable Reading */
+  --text-primary: #3d3d3d;
+  --text-secondary: #525252;
+  --text-tertiary: #6b6b6b;
+  --text-muted: #8a8a8a;
+
+  /* Reading Mode: Borders & Dividers - Warm Subtle Borders */
+  --border-color: #d9cec5;
+  --border-light: #e3d9d0;
+  --border-form: #d9cec5;
+  --border-form-light: #e3d9d0;
+
+  /* Status Colors - Warm Palette */
+  --color-success: #7c5d3f;
+  --color-warning: #b8860b;
+  --color-accent: #d97706;
+  --color-info: #8b5a2b;
+  --color-danger: #a0522d;
+  --success-light: #3d2e1f;
+  --warning-light: #3d2e0b;
+
+  /* Sidebar - Warm Brown Gradient for Reading Mode */
+  --sidebar-bg: linear-gradient(135deg, #8b7355 0%, #a0826d 50%, #936637 100%);
+  --sidebar-text: #faf6f0;
+  --sidebar-border: rgba(217, 119, 6, 0.2);
+
+  /* Shadows (Warm, Soft for Reading Mode) */
+  --shadow-sm: 0 2px 8px rgba(139, 115, 85, 0.08);
+  --shadow-md: 0 4px 12px rgba(139, 115, 85, 0.12);
+  --shadow-lg: 0 8px 20px rgba(139, 115, 85, 0.15);
+  --shadow-primary: 0 8px 20px rgba(217, 119, 6, 0.15);
+
+  /* Pie Chart Gradients - Warm Palette */
+  --chart-gradient-1: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  --chart-gradient-2: linear-gradient(135deg, #b8860b 0%, #8b5a2b 100%);
+  --chart-gradient-3: linear-gradient(135deg, #d2691e 0%, #8b4513 100%);
+  --chart-gradient-4: linear-gradient(135deg, #7c5d3f 0%, #5a4a3a 100%);
+  --chart-gradient-5: linear-gradient(135deg, #a0522d 0%, #6b3410 100%);
+
+  /* Transitions (same for both modes) */
+  --transition-color: color 0.3s ease;
+  --transition-bg: background-color 0.3s ease;
+  --transition-all: all 0.3s ease;
+
+  /* ===== READING MODE GLASSMORPHISM TOKENS ===== */
+  --glass-bg: rgba(250, 246, 240, 0.20);
+  --glass-bg-light: rgba(250, 246, 240, 0.10);
+  --glass-bg-medium: rgba(250, 246, 240, 0.28);
+  --glass-bg-strong: rgba(250, 246, 240, 0.38);
+  --glass-bg-hover: rgba(250, 246, 240, 0.28);
+
+  --glass-border: rgba(217, 119, 6, 0.18);
+  --glass-border-light: rgba(250, 246, 240, 0.12);
+  --glass-border-strong: rgba(250, 246, 240, 0.30);
+  --glass-border-hover: rgba(217, 119, 6, 0.25);
+
+  --glass-shadow-sm: 0 2px 8px rgba(139, 115, 85, 0.06);
+  --glass-shadow: 0 8px 32px rgba(139, 115, 85, 0.10);
+  --glass-shadow-lg: 0 16px 48px rgba(139, 115, 85, 0.14);
+  --glass-shadow-hover: 0 12px 40px rgba(139, 115, 85, 0.16);
+
+  --glass-blur-sm: blur(6px);
+  --glass-blur: blur(12px);
+  --glass-blur-lg: blur(20px);
+
+  --glass-radius-sm: 10px;
+  --glass-radius: 14px;
+  --glass-radius-lg: 20px;
+
+  --glass-warm-bg: rgba(217, 119, 6, 0.06);
+  --glass-warm-border: rgba(217, 119, 6, 0.18);
+  --glass-warm-glow: rgba(217, 119, 6, 0.20);
+  --glass-warm-hover: rgba(217, 119, 6, 0.10);
+
+  --glass-dark: rgba(0, 0, 0, 0.06);
+  --glass-dark-medium: rgba(0, 0, 0, 0.10);
+  --glass-dark-strong: rgba(0, 0, 0, 0.15);
+}

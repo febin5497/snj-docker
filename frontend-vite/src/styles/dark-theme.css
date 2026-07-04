@@ -1,0 +1,248 @@
+/* ============================================================
+   DARK THEME - CSS VARIABLES & UTILITY CLASSES
+   Replaces all hardcoded inline styles in page components
+   ============================================================ */
+
+/* 1. ROOT VARIABLES - Single source of truth */
+:root {
+  --bg-page: #0F0F23;
+  --bg-card: rgba(255,255,255,0.06);
+  --bg-card-solid: #1A1A3E;
+  --bg-card-hover: rgba(255,255,255,0.1);
+  --bg-table-header: rgba(255,255,255,0.04);
+  --bg-table-row: transparent;
+  --bg-table-row-hover: rgba(255,255,255,0.03);
+  --bg-input: rgba(255,255,255,0.08);
+  --bg-input-hover: rgba(255,255,255,0.12);
+  --bg-modal: rgba(25,25,50,0.97);
+  --bg-modal-header: rgba(108,92,231,0.15);
+  --bg-badge: rgba(255,255,255,0.08);
+  --bg-overlay: rgba(0,0,0,0.7);
+  --bg-sidebar: rgba(15,15,35,0.98);
+
+  --text-primary: #FFFFFF;
+  --text-secondary: rgba(255,255,255,0.65);
+  --text-muted: rgba(255,255,255,0.4);
+  --text-accent: #A29BFE;
+
+  --border-default: rgba(255,255,255,0.08);
+  --border-input: rgba(255,255,255,0.12);
+  --border-focus: #6C5CE7;
+
+  --color-primary: #6C5CE7;
+  --color-primary-light: #A29BFE;
+  --color-secondary: #00CEC9;
+  --color-accent: #FD79A8;
+  --color-success: #00B894;
+  --color-warning: #FDCB6E;
+  --color-danger: #FF6B6B;
+  --color-info: #74B9FF;
+
+  --gradient-primary: linear-gradient(135deg, #6C5CE7, #A29BFE);
+  --gradient-success: linear-gradient(135deg, #00B894, #55EFC4);
+  --gradient-danger: linear-gradient(135deg, #FF6B6B, #FDA085);
+  --gradient-page: linear-gradient(135deg, #0F0F23 0%, #1A1A3E 100%);
+
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.5);
+}
+
+/* 2. PAGE-LEVEL BACKGROUNDS */
+body, #root, .app, .main-content {
+  background: var(--bg-page) !important;
+  color: var(--text-primary) !important;
+}
+
+/* 3. UTILITY CLASSES - Replace inline styles */
+.page-bg {
+  background: var(--gradient-page) !important;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.card-bg {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: 8px;
+  backdrop-filter: blur(20px);
+}
+
+.card-solid {
+  background: var(--bg-card-solid) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: 8px;
+}
+
+.card-bg:hover {
+  border-color: rgba(108,92,231,0.2) !important;
+  box-shadow: var(--shadow-md);
+}
+
+.text-primary { color: var(--color-primary) !important; }
+.text-accent { color: var(--text-accent) !important; }
+.text-secondary { color: var(--text-secondary) !important; }
+.text-muted { color: var(--text-muted) !important; }
+.text-success { color: var(--color-success) !important; }
+.text-danger { color: var(--color-danger) !important; }
+.text-white { color: #FFFFFF !important; }
+
+.bg-primary { background: var(--color-primary) !important; }
+.bg-primary-gradient { background: var(--gradient-primary) !important; }
+.bg-success { background: var(--color-success) !important; }
+.bg-danger { background: var(--color-danger) !important; }
+
+.border-primary { border-color: var(--color-primary) !important; }
+.border-default { border-color: var(--border-default) !important; }
+
+/* 4. TABLE OVERRIDES */
+table { background: transparent !important; }
+
+thead, thead tr, thead th {
+  background: var(--bg-table-header) !important;
+  color: var(--text-accent) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 11px;
+  font-weight: 700;
+  border-bottom: 1px solid var(--border-default) !important;
+}
+
+td {
+  color: var(--text-secondary) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.04) !important;
+}
+
+tr:hover td {
+  background: var(--bg-table-row-hover) !important;
+}
+
+/* 5. FORM ELEMENTS */
+input, select, textarea, .form-control, .form-input, .form-select {
+  background: var(--bg-input) !important;
+  border: 1px solid var(--border-input) !important;
+  color: var(--text-primary) !important;
+  border-radius: 8px !important;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--border-focus) !important;
+  box-shadow: 0 0 0 3px rgba(108,92,231,0.2) !important;
+  outline: none !important;
+}
+
+select option { background: #1A1A3E !important; color: #FFF !important; }
+
+label, .form-label, .form-group label {
+  color: var(--text-secondary) !important;
+}
+
+/* 6. BUTTONS */
+.btn-primary, button[type="submit"] {
+  background: var(--gradient-primary) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 15px rgba(108,92,231,0.3) !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(108,92,231,0.4) !important;
+}
+
+.btn-secondary, .btn-cancel {
+  background: var(--bg-card) !important;
+  color: var(--text-secondary) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+}
+
+.btn-danger, .btn-delete {
+  background: rgba(255,107,107,0.15) !important;
+  color: var(--color-danger) !important;
+  border: 1px solid rgba(255,107,107,0.2) !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+}
+
+/* 7. STATUS BADGES */
+.badge-draft, .badge-pending { background: rgba(253,203,110,0.15) !important; color: #FDCB6E !important; }
+.badge-approved, .badge-success, .badge-active { background: rgba(0,184,148,0.15) !important; color: #00B894 !important; }
+.badge-rejected, .badge-danger { background: rgba(255,107,107,0.15) !important; color: #FF6B6B !important; }
+.badge-paid, .badge-info { background: rgba(116,185,255,0.15) !important; color: #74B9FF !important; }
+
+/* 8. STAT CARDS */
+.stat-card {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-default) !important;
+  border-left: 3px solid var(--color-primary) !important;
+  border-radius: 12px !important;
+  padding: 20px !important;
+  backdrop-filter: blur(20px) !important;
+  transition: all 0.3s ease !important;
+}
+
+.stat-card:hover {
+  border-color: rgba(108,92,231,0.3) !important;
+  box-shadow: var(--shadow-md) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* 9. MODALS */
+.modal-overlay, .fixed.inset-0 {
+  background: var(--bg-overlay) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+.modal-content, .modal-dialog .modal-content {
+  background: var(--bg-modal) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: 16px !important;
+  color: var(--text-primary) !important;
+  box-shadow: 0 25px 80px rgba(0,0,0,0.5) !important;
+}
+
+/* 10. SCROLLBAR */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(108,92,231,0.4); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #6C5CE7; }
+
+/* 11. LINKS */
+a { color: var(--text-accent) !important; }
+a:hover { color: var(--color-primary) !important; }
+
+/* 12. HEADINGS */
+h1, h2, h3, h4, h5, h6 { color: var(--text-primary) !important; }
+
+/* 13. PROGRESS BARS */
+.progress-bar-bg {
+  background: rgba(255,255,255,0.08) !important;
+  border-radius: 4px;
+}
+
+.progress-bar-fill {
+  background: var(--gradient-primary) !important;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* 14. DROPDOWN */
+select, .form-select {
+  background: var(--bg-input) !important;
+  border: 1px solid var(--border-input) !important;
+  color: var(--text-primary) !important;
+}
+
+/* 15. PAGINATION */
+button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

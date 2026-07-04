@@ -1,0 +1,736 @@
+/* ========================================
+   Gantt Planner Styling with Dark Mode Support
+   ======================================== */
+
+.gantt-page {
+  padding: 0;
+  background-color: var(--bg-tertiary);
+  min-height: 100vh;
+}
+
+.gantt-container {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Header Section */
+.gantt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.gantt-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.gantt-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Selectors */
+.project-selector,
+.view-mode-selector {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  font-family: inherit;
+}
+
+.project-selector:hover,
+.view-mode-selector:hover {
+  background-color: var(--bg-tertiary);
+  border-color: var(--color-primary);
+}
+
+.project-selector:focus,
+.view-mode-selector:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
+}
+
+/* Add Task Button */
+.add-task-btn {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.add-task-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 82, 204, 0.4);
+}
+
+.add-task-btn:active {
+  transform: translateY(0);
+}
+
+/* Gantt Chart Container */
+.gantt-chart-wrapper {
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  padding: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border: 1px solid var(--border-color);
+  margin-bottom: 20px;
+}
+
+.gantt-chart-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.gantt-chart-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.gantt-chart-wrapper::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 4px;
+}
+
+.gantt-chart-wrapper::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-primary);
+}
+
+/* Task Table */
+.task-table-container {
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.task-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.task-table thead {
+  background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--border-color) 100%);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.task-table th {
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.85rem;
+}
+
+.task-table tbody tr {
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s ease;
+}
+
+.task-table tbody tr:hover {
+  background-color: var(--bg-tertiary);
+}
+
+.task-table td {
+  padding: 14px 16px;
+  color: var(--text-secondary);
+}
+
+.task-status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 500;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.task-status-badge.todo {
+  background-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+.task-status-badge.in-progress {
+  background-color: rgba(245, 169, 66, 0.2);
+  color: #f5a942;
+}
+
+.task-status-badge.done {
+  background-color: rgba(94, 204, 143, 0.2);
+  color: #5ecc8f;
+}
+
+.task-progress-bar {
+  width: 100%;
+  height: 6px;
+  background-color: var(--border-color);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.task-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* Task Actions */
+.task-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.task-action-btn {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.task-action-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background-color: var(--bg-secondary);
+}
+
+.task-action-btn.delete:hover {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+/* Staff Cell Styling */
+.staff-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.staff-names {
+  font-weight: 500;
+  color: var(--text-primary);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.staff-count {
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-style: italic;
+}
+
+.no-staff {
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: 13px;
+}
+
+/* Modal Styling */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.task-modal {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 28px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  margin-bottom: 24px;
+}
+
+.modal-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.modal-body {
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
+.task-form-group {
+  margin-bottom: 18px;
+}
+
+.task-form-group label {
+  display: block;
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.task-form-group input,
+.task-form-group select,
+.task-form-group textarea {
+  width: 100%;
+  padding: 10px 12px;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.task-form-group input:focus,
+.task-form-group select:focus,
+.task-form-group textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
+}
+
+.task-form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.task-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.task-form-row.full {
+  grid-column: 1 / -1;
+}
+
+/* Modal Actions */
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  justify-content: flex-end;
+}
+
+.modal-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.modal-btn-primary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: white;
+}
+
+.modal-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 82, 204, 0.4);
+}
+
+.modal-btn-secondary {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.modal-btn-secondary:hover {
+  background-color: var(--bg-tertiary);
+  border-color: var(--color-primary);
+}
+
+/* Confirmation Dialog */
+.confirmation-dialog {
+  text-align: center;
+}
+
+.confirmation-dialog p {
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.confirmation-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.confirmation-btn {
+  padding: 10px 24px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+  min-width: 120px;
+}
+
+.confirmation-btn-delete {
+  background-color: var(--color-danger);
+  color: white;
+}
+
+.confirmation-btn-delete:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+.confirmation-btn-cancel {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.confirmation-btn-cancel:hover {
+  background-color: var(--bg-tertiary);
+}
+
+/* Loading State */
+.gantt-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  color: var(--text-tertiary);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--border-color);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error Message */
+.gantt-error {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: var(--color-danger);
+  padding: 16px;
+  border-radius: 8px;
+  border-left: 4px solid var(--color-danger);
+  margin-bottom: 16px;
+  font-size: 0.95rem;
+}
+
+/* Empty State */
+.gantt-empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-tertiary);
+}
+
+.gantt-empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.6;
+}
+
+.gantt-empty-text {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+
+.gantt-empty-description {
+  font-size: 0.95rem;
+  margin-bottom: 24px;
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
+/* Tablet (768px and below) */
+@media (max-width: 768px) {
+  .gantt-container {
+    padding: 16px;
+    border-radius: 8px;
+  }
+
+  .gantt-title {
+    font-size: 24px;
+  }
+
+  .gantt-header {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+
+  .gantt-controls {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .project-selector,
+  .view-mode-selector,
+  .add-task-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .task-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .task-table {
+    font-size: 0.9rem;
+  }
+
+  .task-table th,
+  .task-table td {
+    padding: 10px 12px;
+  }
+
+  .task-modal {
+    max-width: calc(100vw - 32px);
+    padding: 20px;
+  }
+
+  .modal-header {
+    margin-bottom: 16px;
+  }
+
+  .modal-title {
+    font-size: 20px;
+  }
+
+  .task-form-group {
+    margin-bottom: 14px;
+  }
+
+  .modal-actions {
+    gap: 8px;
+  }
+
+  .modal-btn {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Mobile (480px and below) */
+@media (max-width: 480px) {
+  .gantt-page {
+    padding: 12px;
+  }
+
+  .gantt-container {
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+  }
+
+  .gantt-title {
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+
+  .gantt-header {
+    gap: 8px;
+  }
+
+  .gantt-controls {
+    gap: 8px;
+  }
+
+  .project-selector,
+  .view-mode-selector,
+  .add-task-btn {
+    font-size: 0.85rem;
+    padding: 8px 12px;
+    min-height: 44px;
+  }
+
+  .add-task-btn {
+    gap: 6px;
+  }
+
+  /* Hide some columns on mobile */
+  .task-table th:nth-child(n+4),
+  .task-table td:nth-child(n+4) {
+    display: none;
+  }
+
+  .task-table {
+    font-size: 0.85rem;
+  }
+
+  .task-table th,
+  .task-table td {
+    padding: 8px 10px;
+  }
+
+  .task-actions {
+    gap: 6px;
+  }
+
+  .task-action-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 0.9rem;
+  }
+
+  .task-modal {
+    max-width: calc(100vw - 16px);
+    padding: 16px;
+    border-radius: 8px;
+  }
+
+  .modal-title {
+    font-size: 18px;
+  }
+
+  .task-form-group {
+    margin-bottom: 12px;
+  }
+
+  .task-form-group label {
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+  }
+
+  .task-form-group input,
+  .task-form-group select,
+  .task-form-group textarea {
+    font-size: 0.9rem;
+    padding: 8px 10px;
+    min-height: 44px;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .modal-btn {
+    width: 100%;
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    min-height: 44px;
+  }
+
+  .confirmation-actions {
+    flex-direction: column;
+  }
+
+  .confirmation-btn {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .gantt-empty-state {
+    padding: 32px 16px;
+  }
+
+  .gantt-empty-icon {
+    font-size: 40px;
+  }
+
+  .gantt-empty-text {
+    font-size: 1rem;
+  }
+
+  .gantt-empty-description {
+    font-size: 0.9rem;
+  }
+}
+
+/* Touch-friendly adjustments */
+@media (hover: none) and (pointer: coarse) {
+  .modal-btn,
+  .task-action-btn,
+  .add-task-btn,
+  .project-selector,
+  .view-mode-selector {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .modal-btn:active,
+  .task-action-btn:active,
+  .add-task-btn:active {
+    opacity: 0.8;
+  }
+}

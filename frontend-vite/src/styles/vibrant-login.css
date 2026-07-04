@@ -1,0 +1,194 @@
+.v-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--v-bg-dark);
+  position: relative;
+  overflow: hidden;
+}
+
+.v-login::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(from 0deg at 50% 50%, #6C5CE7, #00CEC9, #FD79A8, #FDCB6E, #6C5CE7);
+  animation: v-login-spin 20s linear infinite;
+  opacity: 0.08;
+}
+
+@keyframes v-login-spin {
+  100% { transform: rotate(360deg); }
+}
+
+.v-login-card {
+  position: relative;
+  z-index: 1;
+  width: 420px;
+  max-width: 95vw;
+  padding: 48px 40px;
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 24px;
+  box-shadow: 0 32px 64px rgba(0,0,0,0.4), 0 0 80px rgba(108,92,231,0.1);
+}
+
+.v-login-logo {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.v-login-logo img {
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,0.1);
+  box-shadow: 0 8px 32px rgba(108,92,231,0.3);
+}
+
+.v-login-title {
+  margin-top: 16px;
+  font-size: 24px;
+  font-weight: 800;
+  background: var(--v-gradient-1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
+}
+
+.v-login-subtitle {
+  font-size: 13px;
+  color: var(--v-text-muted);
+  margin-top: 4px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.v-login-festival {
+  text-align: center;
+  padding: 10px 16px;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, rgba(108,92,231,0.15), rgba(0,206,201,0.15));
+  border-radius: 12px;
+  border: 1px solid rgba(108,92,231,0.2);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--v-secondary-light);
+}
+
+.v-login-error {
+  background: rgba(255,107,107,0.12);
+  border: 1px solid rgba(255,107,107,0.25);
+  color: #FF6B6B;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.v-login-form { display: flex; flex-direction: column; gap: 20px; }
+
+.v-login-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--v-text-secondary);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.v-login-field input {
+  width: 100%;
+  padding: 14px 16px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  color: var(--v-text);
+  font-size: 15px;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.v-login-field input::placeholder { color: var(--v-text-muted); }
+.v-login-field input:focus {
+  border-color: var(--v-primary);
+  background: rgba(255,255,255,0.08);
+  box-shadow: 0 0 0 3px rgba(108,92,231,0.15);
+}
+
+.v-login-pw-wrap {
+  position: relative;
+}
+
+.v-login-pw-wrap input { padding-right: 48px; }
+
+.v-login-pw-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--v-text-muted);
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: color 0.2s;
+}
+
+.v-login-pw-toggle:hover { color: var(--v-text); }
+
+.v-login-btn {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 12px;
+  background: var(--v-gradient-1);
+  background-size: 200% 200%;
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
+}
+
+.v-login-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.v-login-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(108,92,231,0.4);
+}
+
+.v-login-btn:hover::before { opacity: 1; }
+
+.v-login-btn:active { transform: translateY(0); }
+
+.v-login-footer {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 12px;
+  color: var(--v-text-muted);
+}

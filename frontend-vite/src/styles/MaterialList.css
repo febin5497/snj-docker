@@ -1,0 +1,141 @@
+/* Main Content */
+.main-content {
+    margin-left: 280px;
+    padding: 20px;
+    background-color: var(--bg-page);
+    min-height: 100vh;
+    margin-top: 80px; /* To avoid overlap with the fixed navbar */
+  }
+  
+  /* Material Listing Header */
+  .material-list-header {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+  }
+  
+  /* Button to Add Material */
+  .material-list .add-btn {
+    background-color: var(--color-success);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-bottom: 20px;
+  }
+
+  .material-list .add-btn:hover {
+    background-color: var(--color-success);
+    opacity: 0.8;
+  }
+  
+  /* Table Styling */
+  .material-table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+  }
+  
+  .material-table th,
+  .material-table td {
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    text-align: left;
+    font-size: 1rem;
+    color: var(--text-secondary);
+  }
+
+  .material-table th {
+    background-color: var(--color-info);
+    color: white;
+  }
+
+  .material-table tbody tr:nth-child(even) {
+    background-color: var(--bg-secondary);
+  }
+
+  .material-table tbody tr:hover {
+    background-color: var(--border-color);
+  }
+  
+  /* Error and Success Messages */
+  .material-list .error-message {
+    color: var(--color-danger);
+    font-size: 1rem;
+  }
+
+  .material-list .success-message {
+    color: var(--color-success);
+    font-size: 1rem;
+    margin-top: 20px;
+  }
+  
+  /* Loader */
+  .loader {
+    margin-top: 20px;
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--border-color);
+    border-top: 4px solid var(--color-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    display: inline-block;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+
+  /* MaterialList.css */
+
+/* Add Material Button */
+button {
+    margin-bottom: 20px;
+  }
+  
+  /* Table Styling */
+  .MuiTable-root {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+  .MuiTableCell-root {
+    padding: 16px;
+    border: 1px solid var(--border-color);
+  }
+  
+  .MuiTableRow-root:hover {
+    background-color: #f1f1f1;
+  }
+  
+  .MuiTableHead-root {
+    background-color: #f4f8ff;
+    color: #003366;
+  }
+  
+  .MuiTableCell-head {
+    font-weight: bold;
+  }
+  
+  .MuiTableBody-root .MuiTableCell-root {
+    font-size: 0.9rem;
+  }
+  
+  /* Action Buttons */
+  button {
+    padding: 6px 12px;
+    margin-right: 8px;
+    border-radius: 6px;
+  }
+  
+  button:hover {
+    background-color: #f0f0f0;
+  }
+  

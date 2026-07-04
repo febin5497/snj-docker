@@ -1,0 +1,491 @@
+/* Project Container */
+.projects-container {
+  padding: 0;
+}
+
+.projects-container h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 28px;
+}
+
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+  gap: 16px;
+}
+
+.add-btn {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.add-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 82, 204, 0.4);
+}
+
+/* Form Styling */
+.project-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+  padding: 24px;
+  background: var(--bg-primary);
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.project-form input,
+.project-form select {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 2px solid var(--border-color);
+  background-color: var(--bg-secondary);
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.project-form input::placeholder,
+.project-form select {
+  color: var(--text-muted);
+}
+
+.project-form input:focus,
+.project-form select:focus {
+  border-color: var(--color-primary);
+  outline: none;
+  background: var(--bg-primary);
+  box-shadow: 0 0 0 3px var(--color-primary);
+}
+
+.project-form .form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 12px;
+}
+
+.project-form button {
+  padding: 12px 24px;
+  font-weight: 600;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 13px;
+}
+
+.project-form button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 82, 204, 0.4);
+}
+
+.project-form .cancel-btn {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+/* Search Bar */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border-form);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Project Grid */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 15px;
+}
+
+/* Project Cards */
+.project-card {
+  background: var(--bg-primary);
+  border-radius: 10px;
+  box-shadow: 0 3px 8px rgba(0, 123, 255, 0.1);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 200px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-3px);
+}
+
+.project-card.planned {
+  border-left: 5px solid gray;
+}
+
+.project-card.in-progress {
+  border-left: 5px solid orange;
+}
+
+.project-card.completed {
+  border-left: 5px solid green;
+}
+
+.project-card h3 {
+  font-size: 1.1rem;
+  margin: 0 0 6px;
+  color: var(--text-primary);
+}
+
+.project-card p {
+  margin: 2px 0;
+  font-size: 0.9rem;
+}
+
+/* Tile Buttons */
+.tile-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.tile-actions button {
+  flex: 1;
+  padding: 6px 10px;
+  border-radius: 5px;
+  border: none;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.tile-actions .edit-btn {
+  background-color: var(--color-warning);
+  color: white;
+}
+
+.tile-actions .delete-btn {
+  background-color: var(--color-danger);
+  color: white;
+}
+
+.tile-actions .view-btn {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.status-badge {
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: var(--color-info);
+  color: white;
+  margin-left: auto;
+}
+
+/* Modal */
+.modal.grey-background {
+  background-color: var(--bg-primary);
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 600px;
+  margin: auto;
+}
+
+.modal-overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Assignment Table */
+.assignment-table {
+  width: 100%;
+  margin-top: 10px;
+  border-collapse: collapse;
+}
+
+.assignment-table th,
+.assignment-table td {
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  font-size: 0.85rem;
+}
+
+.assignment-table .active {
+  background-color: var(--color-success);
+  color: white;
+}
+
+.assignment-table .removed {
+  background-color: var(--color-danger);
+  color: white;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.pagination button {
+  padding: 8px 12px;
+  background-color: var(--color-info);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.tile-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.tile-actions button {
+  background: var(--bg-secondary);
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-primary);
+}
+
+.tile-actions .edit-btn {
+  background-color: var(--color-warning);
+  color: white;
+}
+
+.tile-actions .delete-btn {
+  background-color: var(--color-danger);
+  color: white;
+}
+
+.tile-actions .view-btn {
+  background-color: #0d6efd;
+  color: white;
+}
+
+/* File Upload Styling */
+.file-upload-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: var(--color-info);
+}
+
+.file-upload-label input[type="file"] {
+  display: none;
+}
+
+.upload-preview {
+  font-size: 0.85rem;
+  margin-top: 4px;
+  color: var(--text-secondary);
+}
+
+/* Error and Success Messages */
+.error-message {
+  color: var(--color-danger);
+  font-size: 0.9rem;
+  margin-top: 6px;
+}
+
+.success-message {
+  color: var(--color-success);
+  font-size: 0.9rem;
+  margin-top: 6px;
+}
+
+/* Loader Spinner */
+.loader {
+  width: 22px;
+  height: 22px;
+  border: 3px solid var(--border-color);
+  border-top: 3px solid var(--color-info);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive Design */
+
+/* Tablet (768px and below) */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    padding: 16px;
+  }
+
+  .projects-container h1 {
+    font-size: 24px;
+    margin-bottom: 16px;
+  }
+
+  .header-section {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    gap: 12px;
+  }
+
+  .add-btn {
+    padding: 10px 16px;
+    font-size: 12px;
+  }
+
+  .project-card {
+    padding: 16px;
+  }
+
+  .project-header {
+    gap: 12px;
+  }
+
+  .project-title {
+    font-size: 16px;
+  }
+
+  .project-status {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  .project-info {
+    gap: 12px;
+  }
+
+  .info-item {
+    font-size: 12px;
+  }
+
+  .project-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* Mobile (480px and below) */
+@media (max-width: 480px) {
+  .main-content {
+    padding: 12px;
+  }
+
+  .projects-container h1 {
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+
+  .header-section {
+    margin-bottom: 16px;
+  }
+
+  .add-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 12px;
+    font-size: 11px;
+  }
+
+  .project-card {
+    padding: 12px;
+    border-radius: 8px;
+  }
+
+  .project-header {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .project-title {
+    font-size: 14px;
+  }
+
+  .project-progress {
+    height: 4px;
+    margin-top: 8px;
+  }
+
+  .project-info {
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .info-item {
+    font-size: 11px;
+  }
+
+  .info-icon {
+    font-size: 12px;
+    min-width: 16px;
+  }
+
+  .project-actions {
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .action-btn {
+    padding: 6px 8px;
+    font-size: 10px;
+    min-height: 32px;
+    min-width: 32px;
+  }
+
+  .filter-container {
+    gap: 8px;
+  }
+
+  .filter-select {
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  .loader {
+    width: 18px;
+    height: 18px;
+    border-width: 2px;
+  }
+}

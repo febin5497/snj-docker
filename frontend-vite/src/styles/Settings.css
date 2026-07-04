@@ -1,0 +1,247 @@
+/* Settings Page Styling */
+
+.settings-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+  padding: 28px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Settings Header */
+.settings-header {
+  margin-bottom: 28px;
+}
+
+.settings-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--color-primary) 0%, #0066FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 8px 0;
+}
+
+.settings-header p {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Settings Content */
+.settings-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* Settings Section */
+.settings-section {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.settings-section:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Section Header */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--bg-secondary);
+}
+
+.section-icon {
+  font-size: 20px;
+  color: var(--color-primary);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(0, 82, 204, 0.1) 0%, rgba(118, 75, 162, 0.05) 100%);
+  border-radius: 8px;
+}
+
+.section-header h2 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* Settings List */
+.settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+}
+
+.setting-item:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--color-primary);
+}
+
+.setting-info {
+  flex: 1;
+}
+
+.setting-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 4px 0;
+}
+
+.setting-description {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin: 0;
+  font-weight: 400;
+}
+
+/* Toggle Button */
+.toggle-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 24px;
+  color: var(--text-tertiary);
+  transition: all 0.3s ease;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.toggle-btn:hover {
+  color: var(--color-primary);
+  transform: scale(1.1);
+}
+
+.toggle-btn.active {
+  color: var(--color-success);
+}
+
+/* Settings Footer */
+.settings-footer {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.save-btn {
+  background: linear-gradient(135deg, var(--color-primary) 0%, #0066FF 100%);
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  min-width: 200px;
+  justify-content: center;
+}
+
+.save-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 82, 204, 0.3);
+}
+
+.save-btn:active {
+  transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .settings-container {
+    padding: 16px;
+  }
+
+  .settings-header h1 {
+    font-size: 24px;
+  }
+
+  .settings-section {
+    padding: 16px;
+  }
+
+  .setting-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .toggle-btn {
+    align-self: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  .settings-container {
+    padding: 12px;
+  }
+
+  .settings-header h1 {
+    font-size: 20px;
+  }
+
+  .settings-header p {
+    font-size: 12px;
+  }
+
+  .section-header {
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+  }
+
+  .section-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+  }
+
+  .section-header h2 {
+    font-size: 14px;
+  }
+
+  .settings-list {
+    gap: 10px;
+  }
+
+  .setting-item {
+    padding: 12px;
+  }
+
+  .save-btn {
+    width: 100%;
+    padding: 12px 16px;
+  }
+}

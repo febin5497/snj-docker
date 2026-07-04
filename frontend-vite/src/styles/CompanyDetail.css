@@ -1,0 +1,433 @@
+/* Company Detail Page Styling */
+
+.company-detail-container {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0;
+}
+
+/* Detail Header */
+.detail-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.back-btn {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.back-btn:hover {
+    background-color: var(--bg-tertiary);
+    border-color: var(--color-primary);
+    transform: translateX(-2px);
+}
+
+.detail-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 8px 0;
+}
+
+.detail-subtitle {
+    font-size: 14px;
+    color: var(--text-tertiary);
+    margin: 0;
+}
+
+/* Content Layout */
+.detail-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+/* Detail Card */
+.detail-card {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card-header h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+/* Detail Info Display */
+.detail-info {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.info-row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.info-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.info-value {
+    color: var(--text-secondary);
+    font-size: 14px;
+    word-break: break-word;
+    line-height: 1.5;
+}
+
+/* Status & Subscription Badges */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.status-active {
+    background-color: rgba(72, 187, 120, 0.15);
+    color: var(--color-success);
+}
+
+.status-inactive {
+    background-color: rgba(160, 174, 192, 0.15);
+    color: #a0aec0;
+}
+
+.status-suspended {
+    background-color: rgba(245, 87, 108, 0.15);
+    color: #f5576c;
+}
+
+.subscription-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.plan-free {
+    background-color: rgba(0, 82, 204, 0.15);
+    color: var(--color-primary);
+}
+
+.plan-pro {
+    background-color: rgba(79, 172, 254, 0.15);
+    color: #4facfe;
+}
+
+.plan-enterprise {
+    background-color: rgba(237, 137, 54, 0.15);
+    color: #ed8936;
+}
+
+/* Form Styling */
+.detail-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-group input,
+.form-group textarea {
+    padding: 12px 14px;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: var(--text-muted);
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    background-color: var(--bg-primary);
+    box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+/* Buttons */
+.btn {
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    min-height: 44px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 82, 204, 0.3);
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background-color: var(--bg-tertiary);
+    border-color: var(--color-primary);
+}
+
+.btn-secondary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Empty State */
+.empty-state {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--text-tertiary);
+    font-size: 16px;
+}
+
+.loading {
+    padding: 40px;
+    text-align: center;
+    color: var(--text-tertiary);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .company-detail-container {
+        padding: 0;
+    }
+
+    .detail-header {
+        flex-direction: column;
+        align-items: flex-start;
+        margin-bottom: 20px;
+    }
+
+    .back-btn {
+        width: 40px;
+        height: 40px;
+    }
+
+    .detail-title {
+        font-size: 24px;
+    }
+
+    .detail-card {
+        padding: 16px;
+    }
+
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .card-header h2 {
+        font-size: 16px;
+    }
+
+    .card-header .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .info-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .info-label {
+        font-size: 12px;
+    }
+
+    .info-value {
+        font-size: 13px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .detail-title {
+        font-size: 20px;
+    }
+
+    .detail-subtitle {
+        font-size: 12px;
+    }
+
+    .detail-card {
+        padding: 12px;
+    }
+
+    .card-header {
+        padding-bottom: 12px;
+        margin-bottom: 12px;
+    }
+
+    .card-header h2 {
+        font-size: 14px;
+    }
+
+    .info-row {
+        gap: 6px;
+    }
+
+    .info-label {
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .info-value {
+        font-size: 12px;
+    }
+
+    .status-badge,
+    .subscription-badge {
+        padding: 4px 8px;
+        font-size: 10px;
+    }
+
+    .form-group label {
+        font-size: 12px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+
+    .btn {
+        padding: 10px 12px;
+        font-size: 13px;
+        min-height: 40px;
+    }
+}
+
+/* Dark Mode Support (Already included via CSS variables) */
+
+[data-theme="dark"] .detail-card {
+    background: var(--bg-primary);
+}
+
+[data-theme="dark"] .back-btn:hover {
+    background-color: var(--bg-tertiary);
+}
+
+/* Smooth transitions for theme switching */
+.detail-card,
+.back-btn,
+.form-group input,
+.form-group textarea,
+.btn,
+.info-value,
+.status-badge,
+.subscription-badge {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}

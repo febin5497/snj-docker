@@ -1,0 +1,502 @@
+/* ================================
+   ATTENDANCE UNIFIED PAGE - MODERN UI
+   Color Scheme: Ujjwala Blue (var(--color-primary)) + White
+   ================================ */
+
+.attendance-container {
+  width: 100%;
+  padding: 24px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+  margin: 0;
+}
+
+/* ================================
+   HEADER SECTION
+   ================================ */
+.attendance-header {
+  background: linear-gradient(135deg, var(--color-primary) 0%, #0066ff 100%);
+  color: white;
+  padding: 32px 24px;
+  border-radius: 16px;
+  margin-bottom: 32px;
+  box-shadow: 0 8px 24px rgba(0, 82, 204, 0.2);
+  text-align: center;
+}
+
+.attendance-header h1 {
+  margin: 0 0 8px 0;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.attendance-header p {
+  margin: 0;
+  font-size: 15px;
+  opacity: 0.95;
+  font-weight: 500;
+}
+
+/* ================================
+   CURRENT TIME SECTION
+   ================================ */
+.current-time-section {
+  margin-bottom: 32px;
+  animation: slideDown 0.5s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.time-display {
+  background: white;
+  padding: 28px 32px;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 2px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.time-display:hover {
+  box-shadow: 0 8px 24px rgba(0, 82, 204, 0.12);
+  border-color: var(--color-primary);
+}
+
+.time-display h2 {
+  margin: 0 0 12px 0;
+  font-size: 48px;
+  font-weight: 800;
+  color: var(--color-primary);
+  font-family: 'Courier New', monospace;
+  letter-spacing: 2px;
+}
+
+.time-display p {
+  margin: 0;
+  font-size: 16px;
+  color: #475569;
+  font-weight: 600;
+}
+
+/* ================================
+   PUNCH CARD SECTIONS
+   ================================ */
+.punch-card {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 32px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 2px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.punch-card:hover {
+  box-shadow: 0 12px 32px rgba(0, 82, 204, 0.15);
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+}
+
+.punch-card h2 {
+  margin: 0 0 8px 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+.role-badge {
+  margin: 0 0 24px 0;
+  display: inline-block;
+  background: linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%);
+  color: var(--color-primary);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  border: 1px solid var(--color-primary);
+}
+
+/* ================================
+   STATUS DISPLAY
+   ================================ */
+.status-display {
+  margin: 24px 0;
+  padding: 24px;
+  border-radius: 12px;
+  text-align: center;
+  border: 2px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.status-message {
+  animation: fadeIn 0.4s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.status-message p:first-child {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.status-message p {
+  margin: 6px 0;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.status-message.active {
+  background: linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%);
+  border-color: #0284c7;
+}
+
+.status-message.active p:first-child {
+  color: #0284c7;
+}
+
+.status-message.completed {
+  background: linear-gradient(135deg, #d1fae5 0%, #dcfce7 100%);
+  border-color: var(--color-success);
+}
+
+.status-message.completed p:first-child {
+  color: var(--color-success);
+}
+
+.time-ready {
+  color: #64748b !important;
+  font-weight: 500;
+}
+
+.time-active {
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  color: #0284c7 !important;
+  font-family: 'Courier New', monospace;
+}
+
+/* ================================
+   PUNCH BUTTONS
+   ================================ */
+.punch-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: 24px 0;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 14px 32px;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-punch-in {
+  background: linear-gradient(135deg, var(--color-primary) 0%, #0066ff 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 82, 204, 0.3);
+}
+
+.btn-punch-in:hover:not(:disabled) {
+  background: linear-gradient(135deg, #003d99 0%, #004fcc 100%);
+  box-shadow: 0 8px 20px rgba(0, 82, 204, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-punch-out {
+  background: linear-gradient(135deg, var(--color-warning) 0%, #fbbf24 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.btn-punch-out:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--color-warning) 0%, var(--color-warning) 100%);
+  box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-completed {
+  background: #e2e8f0;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+/* ================================
+   INFO BOXES
+   ================================ */
+.manager-info,
+.staff-info {
+  background: linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%);
+  color: var(--color-primary);
+  padding: 16px 20px;
+  border-radius: 12px;
+  margin-top: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  border-left: 4px solid var(--color-primary);
+  text-align: left;
+}
+
+.manager-info p,
+.staff-info p {
+  margin: 6px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ================================
+   RECENT ATTENDANCE SECTION
+   ================================ */
+.recent-section {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 2px solid #e2e8f0;
+}
+
+.recent-section h3 {
+  margin: 0 0 24px 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+/* ================================
+   ATTENDANCE TABLE
+   ================================ */
+.attendance-table-wrapper {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.attendance-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.attendance-table thead {
+  background: linear-gradient(135deg, var(--color-primary) 0%, #0066ff 100%);
+  border-bottom: 2px solid var(--color-primary);
+}
+
+.attendance-table th {
+  padding: 16px 18px;
+  text-align: left;
+  font-weight: 700;
+  color: white;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+.attendance-table td {
+  padding: 16px 18px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #334155;
+  font-weight: 500;
+}
+
+.attendance-table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.attendance-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.attendance-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ================================
+   STATUS BADGE
+   ================================ */
+.status-badge {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.status-badge {
+  background: var(--color-success);
+}
+
+/* ================================
+   RESPONSIVE DESIGN
+   ================================ */
+@media (max-width: 768px) {
+  .attendance-container {
+    padding: 16px;
+  }
+
+  .attendance-header {
+    padding: 24px 16px;
+    margin-bottom: 24px;
+  }
+
+  .attendance-header h1 {
+    font-size: 26px;
+  }
+
+  .attendance-header p {
+    font-size: 14px;
+  }
+
+  .time-display {
+    padding: 20px 16px;
+  }
+
+  .time-display h2 {
+    font-size: 36px;
+    margin-bottom: 8px;
+  }
+
+  .time-display p {
+    font-size: 14px;
+  }
+
+  .punch-card {
+    padding: 24px 16px;
+    margin-bottom: 24px;
+  }
+
+  .punch-card h2 {
+    font-size: 20px;
+  }
+
+  .role-badge {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+
+  .punch-buttons {
+    gap: 12px;
+  }
+
+  .btn {
+    padding: 12px 24px;
+    font-size: 13px;
+    min-height: 44px;
+  }
+
+  .manager-info,
+  .staff-info {
+    padding: 12px 16px;
+    font-size: 12px;
+  }
+
+  .recent-section {
+    padding: 24px 16px;
+  }
+
+  .recent-section h3 {
+    font-size: 18px;
+  }
+
+  .attendance-table {
+    font-size: 13px;
+  }
+
+  .attendance-table th,
+  .attendance-table td {
+    padding: 12px;
+  }
+
+  .status-badge {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .attendance-container {
+    padding: 12px;
+  }
+
+  .attendance-header {
+    padding: 20px 12px;
+    margin-bottom: 20px;
+  }
+
+  .attendance-header h1 {
+    font-size: 22px;
+  }
+
+  .time-display {
+    padding: 16px 12px;
+  }
+
+  .time-display h2 {
+    font-size: 32px;
+  }
+
+  .punch-card {
+    padding: 16px 12px;
+  }
+
+  .punch-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 16px;
+  }
+
+  .attendance-table {
+    font-size: 12px;
+  }
+
+  .attendance-table th,
+  .attendance-table td {
+    padding: 10px 8px;
+  }
+}

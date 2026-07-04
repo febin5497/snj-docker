@@ -1,0 +1,280 @@
+/* Company Settings Page Styling */
+
+.company-settings {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0;
+}
+
+.settings-header {
+    margin-bottom: 28px;
+}
+
+.settings-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 8px 0;
+}
+
+.settings-subtitle {
+    font-size: 14px;
+    color: var(--text-tertiary);
+    margin: 0;
+}
+
+/* Settings Card */
+.settings-card {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 28px;
+}
+
+.settings-list {
+    padding: 0;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.3s ease;
+}
+
+.setting-item:last-child {
+    border-bottom: none;
+}
+
+.setting-item:hover {
+    background-color: var(--bg-secondary);
+}
+
+.setting-label-section {
+    flex: 1;
+    min-width: 200px;
+}
+
+.setting-label {
+    display: block;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 6px 0;
+}
+
+.setting-description {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin: 0;
+    line-height: 1.4;
+}
+
+.setting-value-section {
+    flex: 1;
+    min-width: 250px;
+}
+
+.setting-display {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: space-between;
+}
+
+.setting-value {
+    font-size: 14px;
+    color: var(--text-primary);
+    padding: 8px 12px;
+    background-color: var(--bg-secondary);
+    border-radius: 6px;
+    flex: 1;
+    word-break: break-all;
+}
+
+.setting-edit {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.setting-input {
+    flex: 1;
+    padding: 10px 12px;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 2px solid var(--color-primary);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.3s ease;
+}
+
+.setting-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
+}
+
+.edit-actions {
+    display: flex;
+    gap: 6px;
+}
+
+/* Buttons */
+.btn {
+    padding: 10px 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.btn-sm {
+    padding: 8px 12px;
+    font-size: 13px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 82, 204, 0.3);
+}
+
+.btn-secondary {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background-color: var(--bg-tertiary);
+    border-color: var(--color-primary);
+}
+
+.btn-edit {
+    background-color: transparent;
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.btn-edit:hover {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+/* Info Box */
+.info-box {
+    background: linear-gradient(135deg, rgba(67, 233, 123, 0.1) 0%, rgba(56, 249, 215, 0.1) 100%);
+    border: 1px solid rgba(67, 233, 123, 0.3);
+    border-radius: 12px;
+    padding: 16px;
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.info-box p {
+    margin: 0;
+}
+
+.loading {
+    padding: 40px;
+    text-align: center;
+    color: var(--text-tertiary);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .company-settings {
+        padding: 0;
+    }
+
+    .settings-header {
+        margin-bottom: 20px;
+    }
+
+    .settings-title {
+        font-size: 24px;
+    }
+
+    .setting-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .setting-label-section {
+        width: 100%;
+    }
+
+    .setting-value-section {
+        width: 100%;
+    }
+
+    .setting-display {
+        width: 100%;
+    }
+
+    .setting-input {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .settings-card {
+        border-radius: 8px;
+    }
+
+    .setting-item {
+        padding: 12px;
+        gap: 8px;
+    }
+
+    .setting-label {
+        font-size: 14px;
+    }
+
+    .setting-description {
+        font-size: 12px;
+    }
+
+    .setting-value {
+        font-size: 13px;
+    }
+
+    .btn {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
+    .btn svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .info-box {
+        padding: 12px;
+        font-size: 13px;
+    }
+}

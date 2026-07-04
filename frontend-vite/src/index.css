@@ -1,0 +1,26 @@
+@import "./styles/vibrant-theme.css";
+@import "./styles/vibrant-overrides.css";
+@import "./styles/dark-theme.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--v-bg-dark);
+  color: var(--v-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.login-page-active body,
+.login-page-active {
+  overflow: hidden !important;
+}

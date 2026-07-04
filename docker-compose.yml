@@ -1,0 +1,348 @@
+services:
+  # ═══════════════════════════════════════════
+  # INFRASTRUCTURE
+  # ═══════════════════════════════════════════
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: construction_erp
+      POSTGRES_USER: erp_user
+      POSTGRES_PASSWORD: erp_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U erp_user -d construction_erp"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  # ═══════════════════════════════════════════
+  # FRONTEND
+  # ═══════════════════════════════════════════
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    restart: unless-stopped
+
+  # ═══════════════════════════════════════════
+  # API GATEWAY
+  # ═══════════════════════════════════════════
+  gateway:
+    build:
+      context: ./gateway
+    ports:
+      - "8080:80"
+    depends_on:
+      - frontend
+      - auth-service
+      - user-service
+      - company-service
+      - staff-service
+      - project-service
+      - attendance-service
+      - finance-service
+      - payroll-service
+      - procurement-service
+      - inventory-service
+      - vehicle-service
+      - sales-service
+      - notification-service
+    restart: unless-stopped
+
+  # ═══════════════════════════════════════════
+  # MICROSERVICES
+  # ═══════════════════════════════════════════
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        SERVICE_NAME: auth-service
+    environment:
+      - SERVICE_PORT=5001
+      - WORKERS=2
+      - DATABASE_URL=postgresql://erp_user:erp_password@db:5432/construction_erp
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET=construction-erp-secret-key-2026
+    ports:
+      - "5001:5001"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  user-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        SERVICE_NAME: user-service
+    environment:
+      - SERVICE_PORT=5002
+      - WORKERS=2
+      - DATABASE_URL=postgresql://erp_user:erp_password@db:5432/construction_erp
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET=construction-erp-secret-key-2026
+    ports:
+      - "5002:5002"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  company-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        SERVICE_NAME: company-service
+    environment:
+      - SERVICE_PORT=5003
+      - WORKERS=2
+      - DATABASE_URL=postgresql://erp_user:erp_password@db:5432/construction_erp
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET=construction-erp-secret-key-2026
+    ports:
+      - "5003:5003"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  staff-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        SERVICE_NAME: staff-service
+    environment:
+      - SERVICE_PORT=5004
+      - WORKERS=2
+      - DATABASE_URL=postgresql://erp_user:erp_password@db:5432/construction_erp
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET=construction-erp-secret-key-2026
+    ports:
+      - "5004:5004"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  project-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        SERVICE_NAME: project-service
+    environment:
+      - SERVICE_PORT=5005
+      - WORKERS=2
+      - DATABASE_URL=postgresql://erp_user:erp_password@db:5432/construction_erp
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET=construction-erp-secret-key-2026
+    ports:
+      - "5005:5005"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  attendance-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        SERVICE_NAME: attendance-service
+    environment:
+      - SERVICE_PORT=5006
+      - WORKERS=2
+      - DATABASE_URL=postgresql://erp_user:erp_password@db:5432/construction_erp
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET=construction-erp-secret-key-2026
+    ports:
+      - "5006:5006"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  finance-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        SERVICE_NAME: finance-service
+    environment:
+      - SERVICE_PORT=5007
+      - WORKERS=2
+      - DATABASE_URL=postgresql://erp_user:erp_password@db:5432/construction_erp
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET=construction-erp-secret-key-2026
+    ports:
+      - "5007:5007"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  payroll-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        SERVICE_NAME: payroll-service
+    environment:
+      - SERVICE_PORT=5008
+      - WORKERS=2
+      - DATABASE_URL=postgresql://erp_user:erp_password@db:5432/construction_erp
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET=construction-erp-secret-key-2026
+    ports:
+      - "5008:5008"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  procurement-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        SERVICE_NAME: procurement-service
+    environment:
+      - SERVICE_PORT=5009
+      - WORKERS=2
+      - DATABASE_URL=postgresql://erp_user:erp_password@db:5432/construction_erp
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET=construction-erp-secret-key-2026
+    ports:
+      - "5009:5009"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  inventory-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        SERVICE_NAME: inventory-service
+    environment:
+      - SERVICE_PORT=5010
+      - WORKERS=2
+      - DATABASE_URL=postgresql://erp_user:erp_password@db:5432/construction_erp
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET=construction-erp-secret-key-2026
+    ports:
+      - "5010:5010"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  vehicle-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        SERVICE_NAME: vehicle-service
+    environment:
+      - SERVICE_PORT=5011
+      - WORKERS=2
+      - DATABASE_URL=postgresql://erp_user:erp_password@db:5432/construction_erp
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET=construction-erp-secret-key-2026
+    ports:
+      - "5011:5011"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  sales-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        SERVICE_NAME: sales-service
+    environment:
+      - SERVICE_PORT=5012
+      - WORKERS=2
+      - DATABASE_URL=postgresql://erp_user:erp_password@db:5432/construction_erp
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET=construction-erp-secret-key-2026
+    ports:
+      - "5012:5012"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        SERVICE_NAME: notification-service
+    environment:
+      - SERVICE_PORT=5013
+      - WORKERS=2
+      - DATABASE_URL=postgresql://erp_user:erp_password@db:5432/construction_erp
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET=construction-erp-secret-key-2026
+    ports:
+      - "5013:5013"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  redisdata:

@@ -1,0 +1,22 @@
+FROM python:3.12-slim
+
+ARG SERVICE_NAME
+ARG SERVICE_PORT=5000
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc libpq-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY shared/ /app/shared/
+RUN pip install --no-cache-dir -e /app/shared
+
+COPY services/${SERVICE_NAME}/requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
+
+COPY services/${SERVICE_NAME}/ /app/
+
+EXPOSE ${SERVICE_PORT}
+
+CMD ["sh", "-c", "gunicorn --workers ${WORKERS:-2} --bind 0.0.0.0:${SERVICE_PORT} --timeout 120 'app:create_app()'"]

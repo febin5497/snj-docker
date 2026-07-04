@@ -1,0 +1,379 @@
+/* Mobile Utilities - Responsive Patterns */
+
+/* Touch Target Standards (44x44px minimum) */
+.touch-btn {
+  min-height: 2.75rem; /* 44px */
+  min-width: 2.75rem;  /* 44px */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+}
+
+.touch-btn-lg {
+  min-height: 3rem;    /* 48px */
+  min-width: 3rem;
+  padding: 10px 16px;
+}
+
+.touch-input {
+  min-height: 2.75rem; /* 44px */
+  padding: 10px 12px;
+  font-size: 16px; /* Prevents zoom on iOS */
+}
+
+/* Responsive Padding Scale */
+.p-mobile {
+  padding: 12px; /* Small screens */
+}
+
+@media (min-width: 480px) {
+  .p-mobile {
+    padding: 16px;
+  }
+}
+
+@media (min-width: 768px) {
+  .p-mobile {
+    padding: 20px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .p-mobile {
+    padding: 28px;
+  }
+}
+
+/* Responsive Text Scale */
+.text-responsive {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  .text-responsive {
+    font-size: 16px;
+  }
+}
+
+/* Mobile Table Card View Pattern */
+@media (max-width: 768px) {
+  .table-card-view {
+    display: block;
+  }
+
+  .table-card-view thead {
+    display: none;
+  }
+
+  .table-card-view tbody {
+    display: block;
+  }
+
+  .table-card-view tbody tr {
+    display: block;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    padding: 12px;
+    background: white;
+  }
+
+  .table-card-view td {
+    display: block;
+    padding: 6px 0;
+    border: none;
+    text-align: left;
+  }
+
+  .table-card-view td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--color-primary);
+    display: inline-block;
+    min-width: 80px;
+    font-size: 12px;
+  }
+}
+
+/* Mobile Form Stack */
+.form-stack-mobile {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .form-stack-mobile {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 1024px) {
+  .form-stack-mobile {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+/* Mobile Drawer/Modal */
+.drawer-mobile {
+  position: fixed;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100vh;
+  background: white;
+  transition: left 0.3s ease;
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+.drawer-mobile.open {
+  left: 0;
+}
+
+.drawer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+/* Mobile Navigation Helper */
+.mobile-nav-spacing {
+  padding-top: 56px; /* Account for navbar height on mobile */
+}
+
+@media (min-width: 768px) {
+  .mobile-nav-spacing {
+    padding-top: 0;
+  }
+}
+
+/* Responsive Font Sizing */
+.text-sm-responsive {
+  font-size: 12px;
+}
+
+@media (min-width: 640px) {
+  .text-sm-responsive {
+    font-size: 14px;
+  }
+}
+
+.text-base-responsive {
+  font-size: 14px;
+}
+
+@media (min-width: 640px) {
+  .text-base-responsive {
+    font-size: 16px;
+  }
+}
+
+.text-lg-responsive {
+  font-size: 16px;
+}
+
+@media (min-width: 640px) {
+  .text-lg-responsive {
+    font-size: 20px;
+  }
+}
+
+.text-xl-responsive {
+  font-size: 18px;
+}
+
+@media (min-width: 640px) {
+  .text-xl-responsive {
+    font-size: 24px;
+  }
+}
+
+/* Mobile Button Stack */
+.button-stack-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (min-width: 640px) {
+  .button-stack-mobile {
+    flex-direction: row;
+    gap: 12px;
+  }
+}
+
+/* Mobile Grid Stack */
+.grid-stack-mobile {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .grid-stack-mobile {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-stack-mobile {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Mobile-First Layout */
+.flex-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .flex-mobile {
+    flex-direction: row;
+  }
+}
+
+/* Safe Area for Notched Devices */
+.safe-area-mobile {
+  padding-left: max(12px, env(safe-area-inset-left));
+  padding-right: max(12px, env(safe-area-inset-right));
+  padding-top: max(12px, env(safe-area-inset-top));
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+
+/* Full Width Modal on Mobile */
+.modal-mobile-full {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  border-radius: 12px 12px 0 0;
+}
+
+@media (min-width: 768px) {
+  .modal-mobile-full {
+    width: 90%;
+    max-width: 600px;
+    margin: auto;
+    border-radius: 12px;
+  }
+}
+
+/* Scrollable Container with Top/Bottom Fade */
+.scrollable-fade {
+  position: relative;
+  overflow: hidden;
+}
+
+.scrollable-fade::before,
+.scrollable-fade::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 8px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.scrollable-fade::before {
+  top: 0;
+  background: linear-gradient(to bottom, white, transparent);
+}
+
+.scrollable-fade::after {
+  bottom: 0;
+  background: linear-gradient(to top, white, transparent);
+}
+
+.scrollable-fade-content {
+  overflow-y: auto;
+}
+
+/* Loading Skeleton for Mobile */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, var(--border-color) 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton-text {
+  height: 12px;
+  border-radius: 4px;
+  margin: 8px 0;
+}
+
+.skeleton-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.skeleton-card {
+  height: 120px;
+  border-radius: 8px;
+}
+
+/* Hide on Mobile Helper Classes */
+@media (max-width: 767px) {
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+/* Show only on Mobile */
+@media (min-width: 768px) {
+  .show-mobile-only {
+    display: none !important;
+  }
+}
+
+/* Accessibility - Focus Visible */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Dark Mode Ready (will be used in Task 5) */
+@media (prefers-color-scheme: dark) {
+  .drawer-mobile {
+    background: #1a202c;
+    color: #e2e8f0;
+  }
+
+  .table-card-view tbody tr {
+    background: #2d3748;
+    border-color: #4a5568;
+  }
+
+  .table-card-view td::before {
+    color: var(--color-primary);
+  }
+}

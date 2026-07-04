@@ -1,0 +1,24 @@
+@echo off
+echo Starting Construction ERP Docker Stack...
+docker-compose up -d --build
+echo.
+echo Services starting on http://localhost:8080
+echo.
+echo Service Ports:
+echo   Gateway:       http://localhost:8080
+echo   Auth:          http://localhost:5001
+echo   User:          http://localhost:5002
+echo   Company:       http://localhost:5003
+echo   Staff:         http://localhost:5004
+echo   Project:       http://localhost:5005
+echo   Attendance:    http://localhost:5006
+echo   Finance:       http://localhost:5007
+echo   Payroll:       http://localhost:5008
+echo   Procurement:   http://localhost:5009
+echo   Inventory:     http://localhost:5010
+echo   Vehicle:       http://localhost:5011
+echo   Sales:         http://localhost:5012
+echo   Notification:  http://localhost:5013
+echo.
+echo Database: localhost:5432
+echo Redis:    localhost:6379

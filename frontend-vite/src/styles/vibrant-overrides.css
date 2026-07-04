@@ -1,0 +1,400 @@
+﻿/* ============================================================
+   VIBRANT DARK THEME — GLOBAL OVERRIDES
+   Applies dark glassmorphism to ALL existing page components
+   ============================================================ */
+
+/* 1. Override ALL CSS variables */
+:root {
+  --bg-page: #0F0F23 !important;
+  --bg-primary: rgba(255,255,255,0.06) !important;
+  --bg-secondary: rgba(255,255,255,0.04) !important;
+  --bg-tertiary: rgba(255,255,255,0.02) !important;
+  --bg-card: rgba(255,255,255,0.06) !important;
+  --bg-card-hover: rgba(255,255,255,0.1) !important;
+  --bg-input: rgba(255,255,255,0.08) !important;
+  --bg-table-header: rgba(255,255,255,0.04) !important;
+  --text-primary: #FFFFFF !important;
+  --text-secondary: rgba(255,255,255,0.65) !important;
+  --text-tertiary: rgba(255,255,255,0.4) !important;
+  --text-muted: rgba(255,255,255,0.35) !important;
+  --border-color: rgba(255,255,255,0.08) !important;
+  --border-form: rgba(255,255,255,0.12) !important;
+  --color-primary: #6C5CE7 !important;
+  --color-primary-dark: #5A4BD1 !important;
+  --color-primary-light: #A29BFE !important;
+  --color-secondary: #00CEC9 !important;
+  --color-accent: #FD79A8 !important;
+  --color-success: #00B894 !important;
+  --color-warning: #FDCB6E !important;
+  --color-danger: #FF6B6B !important;
+  --color-info: #74B9FF !important;
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.3) !important;
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.4) !important;
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.5) !important;
+  --shadow-xl: 0 20px 60px rgba(0,0,0,0.6) !important;
+  --db-bg: #0F0F23 !important;
+  --db-card: rgba(255,255,255,0.06) !important;
+  --db-card-hover: rgba(255,255,255,0.1) !important;
+  --db-text: #FFFFFF !important;
+  --db-text-secondary: rgba(255,255,255,0.65) !important;
+  --db-text-muted: rgba(255,255,255,0.4) !important;
+  --db-border: rgba(255,255,255,0.08) !important;
+  --db-sidebar-bg: rgba(15,15,35,0.95) !important;
+  --db-header-bg: rgba(15,15,35,0.8) !important;
+  --db-accent: #6C5CE7 !important;
+  --db-success: #00B894 !important;
+  --db-warning: #FDCB6E !important;
+  --db-danger: #FF6B6B !important;
+}
+
+/* 2. Global backgrounds */
+body, #root, .app, .main-content, .page-wrapper, .page-container {
+  background: #0F0F23 !important;
+  color: #FFFFFF !important;
+}
+
+/* 3. Containers transparent */
+[class*="-container"], [class*="-page"], [class*="-dashboard"],
+[class*="-wrapper"], [class*="finance-"], [class*="staff-"],
+[class*="vehicle-"], [class*="project-"], [class*="attendance-"],
+[class*="store-"], [class*="supplier-"], [class*="purchase-"],
+[class*="material-"], [class*="estimate-"], [class*="report-"],
+[class*="invoice-"], [class*="budget-"], [class*="payroll-"],
+[class*="user-"], [class*="admin-"], [class*="setting-"],
+[class*="profile-"], [class*="document-"] {
+  background: transparent !important;
+}
+
+/* 4. Cards - glassmorphism */
+.card, .stat-card, .kpi-card, .summary-card, .report-card,
+.shift-option-card, .info-card, .detail-card, .form-card,
+[class*="-card"], [class*="Card"] {
+  background: rgba(255,255,255,0.06) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  border-radius: 12px !important;
+  backdrop-filter: blur(20px) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important;
+  transition: all 0.3s ease !important;
+}
+
+.card:hover, .stat-card:hover, .kpi-card:hover,
+.summary-card:hover, .report-card:hover,
+[class*="-card"]:hover {
+  border-color: rgba(108,92,231,0.2) !important;
+  box-shadow: 0 8px 32px rgba(108,92,231,0.1) !important;
+}
+
+.stat-card, .kpi-card, .summary-card {
+  border-left: 3px solid #6C5CE7 !important;
+}
+
+/* 5. Tables - dark theme */
+table, [class*="-table"], [class*="Table"] {
+  background: transparent !important;
+}
+
+thead, thead tr, thead th, .table-header {
+  background: rgba(255,255,255,0.04) !important;
+}
+
+th, .table-header th, [class*="-table"] th {
+  color: rgba(255,255,255,0.5) !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  font-size: 11px !important;
+  border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+}
+
+td, .table-row td, [class*="-table"] td {
+  color: rgba(255,255,255,0.7) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.04) !important;
+}
+
+tr:hover td, .table-row:hover td, [class*="-table"] tbody tr:hover td {
+  background: rgba(255,255,255,0.03) !important;
+}
+
+/* 6. Forms - dark inputs */
+input, select, textarea, .form-control, .form-input,
+.form-select, .form-textarea {
+  background: rgba(255,255,255,0.08) !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+  color: #FFFFFF !important;
+  border-radius: 8px !important;
+  outline: none !important;
+}
+
+input::placeholder, textarea::placeholder {
+  color: rgba(255,255,255,0.3) !important;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: #6C5CE7 !important;
+  box-shadow: 0 0 0 3px rgba(108,92,231,0.2) !important;
+}
+
+select option { background: #1A1A3E !important; color: #FFF !important; }
+
+label, .form-label, .form-group label {
+  color: rgba(255,255,255,0.7) !important;
+  font-weight: 600 !important;
+}
+
+/* 7. Buttons */
+.btn-primary, .add-btn, .create-btn, .submit-btn, .save-btn,
+button[type="submit"], [class*="add-btn"], [class*="create-btn"],
+[class*="add-staff"], [class*="create-estimate"], [class*="add-item"] {
+  background: linear-gradient(135deg, #6C5CE7, #A29BFE) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 15px rgba(108,92,231,0.3) !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-primary:hover, .add-btn:hover, .create-btn:hover,
+button[type="submit"]:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(108,92,231,0.4) !important;
+}
+
+.btn-secondary, .btn-cancel, .cancel-btn, .btn-ghost,
+[class*="cancel-btn"], [class*="btn-secondary"] {
+  background: rgba(255,255,255,0.06) !important;
+  color: rgba(255,255,255,0.7) !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-secondary:hover, .cancel-btn:hover {
+  background: rgba(255,255,255,0.1) !important;
+  color: #FFFFFF !important;
+}
+
+.btn-danger, .delete-btn, .btn-delete,
+[class*="delete-btn"], [class*="btn-danger"] {
+  background: rgba(255,107,107,0.15) !important;
+  color: #FF6B6B !important;
+  border: 1px solid rgba(255,107,107,0.2) !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.action-btn, .edit-btn, .view-btn {
+  background: rgba(108,92,231,0.12) !important;
+  color: #A29BFE !important;
+  border: none !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.action-btn:hover, .edit-btn:hover, .view-btn:hover {
+  background: rgba(108,92,231,0.25) !important;
+}
+
+/* 8. Status badges */
+.status-active, .status-approved, .status-completed,
+.status-success, .badge-active, .badge-approved {
+  background: rgba(0,184,148,0.15) !important;
+  color: #00B894 !important;
+}
+
+.status-pending, .status-draft, .badge-pending, .badge-draft {
+  background: rgba(253,203,110,0.15) !important;
+  color: #FDCB6E !important;
+}
+
+.status-rejected, .status-cancelled, .status-error,
+.badge-rejected, .badge-danger, .badge-cancelled {
+  background: rgba(255,107,107,0.15) !important;
+  color: #FF6B6B !important;
+}
+
+.status-inactive, .badge-inactive {
+  background: rgba(255,255,255,0.08) !important;
+  color: rgba(255,255,255,0.4) !important;
+}
+
+/* 9. Modals */
+.modal-overlay {
+  background: rgba(0,0,0,0.7) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+.modal-content, .modal-body, .modal-dialog .modal-content {
+  background: rgba(25,25,50,0.95) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 25px 80px rgba(0,0,0,0.5) !important;
+  color: #FFFFFF !important;
+}
+
+.modal-header {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+}
+
+.modal-header h2, .modal-header h3, .modal-title { color: #FFF !important; }
+
+.modal-footer {
+  background: transparent !important;
+  border-top: 1px solid rgba(255,255,255,0.08) !important;
+}
+
+.modal-close, .close-btn, .btn-close {
+  color: rgba(255,255,255,0.5) !important;
+  background: none !important;
+  border: none !important;
+}
+
+.modal-close:hover, .close-btn:hover { color: #FFF !important; }
+
+/* 10. Headers & titles */
+h2, h3, h4, h5, h6 { color: #FFFFFF !important; }
+
+.header-section h1, .page-header h1, .section-header h1 {
+  color: #FFFFFF !important;
+  background: linear-gradient(135deg, #6C5CE7, #A29BFE, #00CEC9) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+/* 11. Filter & search bars */
+.filter-section, .filter-container, .filter-group,
+.search-box { background: rgba(255,255,255,0.04) !important; border: 1px solid rgba(255,255,255,0.06) !important; border-radius: 12px !important; }
+
+/* 12. Pagination */
+.pagination, .page-btn, .page-number {
+  background: rgba(255,255,255,0.06) !important;
+  color: rgba(255,255,255,0.6) !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  border-radius: 8px !important;
+}
+
+.pagination .active, .page-btn.active, .page-number.active {
+  background: linear-gradient(135deg, #6C5CE7, #A29BFE) !important;
+  color: white !important;
+}
+
+/* 13. Tabs */
+.tab-btn, .tab-item, [class*="tab-"] {
+  background: rgba(255,255,255,0.04) !important;
+  color: rgba(255,255,255,0.5) !important;
+  border: 1px solid rgba(255,255,255,0.06) !important;
+}
+
+.tab-btn.active, .tab-item.active, [class*="tab-"].active {
+  background: linear-gradient(135deg, #6C5CE7, #A29BFE) !important;
+  color: white !important;
+  border-color: #6C5CE7 !important;
+}
+
+/* 14. Links */
+a { color: #A29BFE !important; }
+a:hover { color: #6C5CE7 !important; }
+
+/* 15. Scrollbar */
+::-webkit-scrollbar { width: 6px !important; height: 6px !important; }
+::-webkit-scrollbar-track { background: transparent !important; }
+::-webkit-scrollbar-thumb { background: rgba(108,92,231,0.4) !important; border-radius: 3px !important; }
+::-webkit-scrollbar-thumb:hover { background: #6C5CE7 !important; }
+
+/* 16. Loading spinner */
+.spinner, .loading {
+  border-color: rgba(255,255,255,0.1) !important;
+  border-top-color: #6C5CE7 !important;
+}
+
+/* 17. Empty state */
+.empty-state, .no-data {
+  color: rgba(255,255,255,0.4) !important;
+  background: transparent !important;
+}
+
+/* 18. Toast / notifications */
+.toast, .notification, [class*="toast"] {
+  background: rgba(25,25,50,0.95) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  color: #FFFFFF !important;
+}
+
+/* 19. Progress / loading bars */
+.progress-bar, .loading-bar {
+  background: rgba(108,92,231,0.2) !important;
+}
+
+.progress-bar-fill, .loading-bar-fill {
+  background: linear-gradient(135deg, #6C5CE7, #A29BFE) !important;
+}
+
+/* 20. Dropdown menus */
+.dropdown-menu, .dropdown, [class*="dropdown"] {
+  background: rgba(25,25,50,0.95) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  color: #FFFFFF !important;
+}
+
+.dropdown-item:hover, [class*="dropdown-item"]:hover {
+  background: rgba(255,255,255,0.08) !important;
+  color: #FFFFFF !important;
+}
+
+/* 21. Tooltips */
+.tooltip, [class*="tooltip"] {
+  background: rgba(25,25,50,0.95) !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+}
+
+/* 22. Alert / callout boxes */
+.alert, .callout, .info-box, .warning-box, .error-box {
+  background: rgba(255,255,255,0.06) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  color: #FFFFFF !important;
+  border-radius: 10px !important;
+}
+
+.alert-success, .callout-success { border-left: 3px solid #00B894 !important; }
+.alert-warning, .callout-warning { border-left: 3px solid #FDCB6E !important; }
+.alert-danger, .callout-danger { border-left: 3px solid #FF6B6B !important; }
+.alert-info, .callout-info { border-left: 3px solid #74B9FF !important; }
+
+/* 23. Chart containers */
+.chart-container, .chart-wrapper, [class*="chart-"] {
+  background: transparent !important;
+  color: #FFFFFF !important;
+}
+
+/* 24. Utility text overrides */
+.text-dark, [class*="text-primary"], [style*="color: #333"],
+[style*="color: #000"], [style*="color: black"] {
+  color: #FFFFFF !important;
+}
+
+.text-muted, [class*="text-secondary"] {
+  color: rgba(255,255,255,0.5) !important;
+}
+
+/* 25. Background overrides for light colors */
+[style*="background: #f"], [style*="background-color: #f"],
+[style*="background: white"], [style*="background: #fff"],
+[style*="background-color: white"], [style*="background-color: #fff"] {
+  background: rgba(255,255,255,0.04) !important;
+  background-color: rgba(255,255,255,0.04) !important;
+}
+
+/* 26. Print-friendly override - disable for dark mode */
+@media print {
+  :root { --bg-page: white !important; --text-primary: black !important; }
+}
