@@ -19,6 +19,12 @@ class AuditMixin(TimestampMixin, CompanyMixin):
     updated_by_id = db.Column(db.Integer, nullable=True)
 
 
+class Company(db.Model):
+    __tablename__ = "companies"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200))
+
+
 def init_db(app):
     db_url = os.getenv("DATABASE_URL", "postgresql://erp_user:erp_password@db:5432/construction_erp")
     app.config["SQLALCHEMY_DATABASE_URI"] = db_url

@@ -1,7 +1,7 @@
 import os
 from functools import wraps
 from flask import request, jsonify
-from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity, create_access_token, create_refresh_token
+from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity, get_jwt, create_access_token, create_refresh_token
 import jwt
 import datetime
 
