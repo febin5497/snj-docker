@@ -1558,3 +1558,34 @@
   background: rgba(255, 255, 255, 0.08);
   margin: 4px 0;
 }
+
+.props-select-group {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.props-select-btn {
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: #888;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.props-select-btn:hover {
+  background: rgba(74, 144, 217, 0.15);
+  border-color: rgba(74, 144, 217, 0.4);
+  color: #ccc;
+}
+
+.props-select-btn.active {
+  background: rgba(0, 200, 100, 0.2);
+  border-color: #00c864;
+  color: #00c864;
+  font-weight: 700;
+}

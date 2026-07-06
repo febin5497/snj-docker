@@ -57,28 +57,34 @@ const COMPONENT_CATALOG = [
 ];
 
 const DEFAULT_COMPONENT_PROPS = {
-  room:      { width: 3, depth: 3, height: 2.8, wallColor: "#bbbbbb", doorWidth: 1, hasDoor: true, windowCount: 1, windowSize: 1.2 },
+  room:      { width: 3, depth: 3, height: 2.8, wallColor: "#bbbbbb", doorWidth: 1, doorHeight: 2.2, doorWall: "front", hasDoor: true, windowCount: 1, windowSize: 1.2, windowHeight: 1, windowWalls: "left,right" },
   balcony:   { width: 2, depth: 1.5, railHeight: 1.1, deckColor: "#999999", glassOpacity: 0.4, hasGate: true },
   staircase: { radius: 0.8, steps: 14, height: 3, poleColor: "#555555", hasDoor: true, wallColor: "#aaaaaa" },
   elevator:  { size: 2, height: 3.2, wallColor: "#777777", doorOpen: 0.5 },
-  canopy:    { width: 4, depth: 2, colHeight: 2.8, roofColor: "#bbbbbb", hasBackWall: false, windowCount: 0 },
+  canopy:    { width: 4, depth: 2, colHeight: 2.8, roofColor: "#bbbbbb", hasBackWall: false, windowCount: 0, windowHeight: 0.8 },
   parking:   { width: 6, depth: 4, levels: 2, levelHeight: 3, hasGate: true, windowCount: 2 },
   pool:      { width: 5, depth: 3, poolDepth: 1.2, waterColor: "#2288dd", hasLadder: true, hasStep: true },
   garden:    { size: 4, treeCount: 3, grassColor: "#3a7d44", hasGate: true, gateWidth: 1.2 },
   tank:      { radius: 0.75, tankHeight: 2, legHeight: 1.5, tankColor: "#88aacc", hasValve: true },
-  generator: { width: 2, depth: 2, height: 2.5, wallColor: "#666666", doorWidth: 1, windowCount: 2, windowSize: 0.8 },
+  generator: { width: 2, depth: 2, height: 2.5, wallColor: "#666666", doorWidth: 1, doorHeight: 2.2, doorWall: "front", hasDoor: true, windowCount: 2, windowSize: 0.8, windowHeight: 0.8, windowWalls: "back" },
 };
+
+const WALL_OPTIONS = ["front", "back", "left", "right"];
 
 const COMPONENT_PROPS_SCHEMA = {
   room: [
-    { key: "width",       label: "Width",       type: "range", min: 1.5, max: 8, step: 0.5, unit: "m" },
-    { key: "depth",       label: "Depth",       type: "range", min: 1.5, max: 8, step: 0.5, unit: "m" },
-    { key: "height",      label: "Height",      type: "range", min: 2, max: 5, step: 0.1, unit: "m" },
-    { key: "wallColor",   label: "Wall Color",  type: "color" },
-    { key: "hasDoor",     label: "Door",        type: "toggle" },
-    { key: "doorWidth",   label: "Door Width",  type: "range", min: 0.6, max: 2, step: 0.1, unit: "m" },
-    { key: "windowCount", label: "Windows",     type: "range", min: 0, max: 4, step: 1, unit: "" },
-    { key: "windowSize",  label: "Window Size",  type: "range", min: 0.6, max: 2, step: 0.1, unit: "m" },
+    { key: "width",       label: "Width",        type: "range", min: 1.5, max: 8, step: 0.5, unit: "m" },
+    { key: "depth",       label: "Depth",        type: "range", min: 1.5, max: 8, step: 0.5, unit: "m" },
+    { key: "height",      label: "Height",       type: "range", min: 2, max: 5, step: 0.1, unit: "m" },
+    { key: "wallColor",   label: "Wall Color",   type: "color" },
+    { key: "hasDoor",     label: "Door",         type: "toggle" },
+    { key: "doorWall",    label: "Door Wall",    type: "select", options: ["front", "back", "left", "right"] },
+    { key: "doorWidth",   label: "Door Width",   type: "range", min: 0.6, max: 2, step: 0.1, unit: "m" },
+    { key: "doorHeight",  label: "Door Height",  type: "range", min: 1.4, max: 3, step: 0.1, unit: "m" },
+    { key: "windowCount", label: "Windows",      type: "range", min: 0, max: 4, step: 1, unit: "" },
+    { key: "windowWalls", label: "Window Walls",  type: "multi", options: ["front", "back", "left", "right"] },
+    { key: "windowSize",  label: "Window Width",  type: "range", min: 0.4, max: 2, step: 0.1, unit: "m" },
+    { key: "windowHeight",label: "Window Height", type: "range", min: 0.4, max: 2, step: 0.1, unit: "m" },
   ],
   balcony: [
     { key: "width",        label: "Width",        type: "range", min: 1, max: 5, step: 0.5, unit: "m" },
@@ -109,6 +115,7 @@ const COMPONENT_PROPS_SCHEMA = {
     { key: "roofColor",    label: "Roof Color",   type: "color" },
     { key: "hasBackWall",  label: "Back Wall",    type: "toggle" },
     { key: "windowCount",  label: "Windows",      type: "range", min: 0, max: 3, step: 1, unit: "" },
+    { key: "windowHeight", label: "Window Height", type: "range", min: 0.4, max: 1.5, step: 0.1, unit: "m" },
   ],
   parking: [
     { key: "width",       label: "Width",       type: "range", min: 4, max: 12, step: 1, unit: "m" },
@@ -145,9 +152,14 @@ const COMPONENT_PROPS_SCHEMA = {
     { key: "depth",       label: "Depth",       type: "range", min: 1.5, max: 4, step: 0.2, unit: "m" },
     { key: "height",      label: "Height",      type: "range", min: 2, max: 4, step: 0.2, unit: "m" },
     { key: "wallColor",   label: "Wall Color",  type: "color" },
+    { key: "hasDoor",     label: "Door",        type: "toggle" },
+    { key: "doorWall",    label: "Door Wall",   type: "select", options: ["front", "back", "left", "right"] },
     { key: "doorWidth",   label: "Door Width",  type: "range", min: 0.6, max: 2, step: 0.1, unit: "m" },
+    { key: "doorHeight",  label: "Door Height", type: "range", min: 1.4, max: 3, step: 0.1, unit: "m" },
     { key: "windowCount", label: "Windows",     type: "range", min: 0, max: 4, step: 1, unit: "" },
-    { key: "windowSize",  label: "Window Size",  type: "range", min: 0.4, max: 1.5, step: 0.1, unit: "m" },
+    { key: "windowWalls", label: "Window Walls", type: "multi", options: ["front", "back", "left", "right"] },
+    { key: "windowSize",  label: "Window Width", type: "range", min: 0.4, max: 1.5, step: 0.1, unit: "m" },
+    { key: "windowHeight",label: "Window Height", type: "range", min: 0.4, max: 1.5, step: 0.1, unit: "m" },
   ],
 };
 
@@ -168,60 +180,121 @@ function createComponentMesh(type, props = {}) {
     case "room": {
       const W = p.width, D = p.depth, H = p.height, T = 0.12;
       const wc = parseInt(p.wallColor.replace("#", ""), 16);
+      const dw = p.hasDoor ? Math.min(p.doorWidth, (p.doorWall === "front" || p.doorWall === "back") ? W - 0.4 : D - 0.4) : 0;
+      const dh = Math.min(p.doorHeight, H - 0.3);
+      const winW = p.windowSize || 1.2;
+      const winH = p.windowHeight || 1;
+      const doorWall = p.doorWall || "front";
+      const windowWalls = (p.windowWalls || "").split(",").filter(Boolean);
       // floor
       const fl = new THREE.Mesh(new THREE.BoxGeometry(W, 0.1, D), concreteMat(0x888888));
       fl.position.y = 0.05; fl.castShadow = true; fl.receiveShadow = true; g.add(fl);
       // ceiling
       const ceil = new THREE.Mesh(new THREE.BoxGeometry(W, 0.08, D), concreteMat(0xaaaaaa));
       ceil.position.y = H; ceil.castShadow = true; g.add(ceil);
-      // walls - front with door
-      const dw = p.hasDoor ? Math.min(p.doorWidth, W - 0.4) : 0;
-      const halfW = (W - dw) / 2;
-      if (p.hasDoor && dw > 0) {
-        [-1, 1].forEach((side) => {
-          const wm = new THREE.Mesh(new THREE.BoxGeometry(halfW, H, T), wallMat(wc));
-          wm.position.set(side * (halfW / 2 + dw / 2), H / 2, D / 2);
-          wm.castShadow = true; g.add(wm);
-        });
-        const hdr = new THREE.Mesh(new THREE.BoxGeometry(dw, 0.4, T), wallMat(wc));
-        hdr.position.set(0, H - 0.2, D / 2); hdr.castShadow = true; g.add(hdr);
-        // door frame
-        const frameMat2 = metalMat(0x555555);
-        [-dw / 2, dw / 2].forEach((x) => {
-          const frame = new THREE.Mesh(new THREE.BoxGeometry(0.05, H - 0.4, 0.06), frameMat2);
-          frame.position.set(x, (H - 0.4) / 2, D / 2); g.add(frame);
-        });
-      } else {
-        const wm = new THREE.Mesh(new THREE.BoxGeometry(W, H, T), wallMat(wc));
-        wm.position.set(0, H / 2, D / 2); wm.castShadow = true; g.add(wm);
-      }
-      // back wall
-      const bwm = new THREE.Mesh(new THREE.BoxGeometry(W, H, T), wallMat(wc));
-      bwm.position.set(0, H / 2, -D / 2); bwm.castShadow = true; g.add(bwm);
-      // side walls with windows
-      const winCount = p.windowCount || 0;
-      const winSize = p.windowSize || 1.2;
-      [-W / 2, W / 2].forEach((xPos, si) => {
-        if (winCount > 0) {
-          const winH = winSize * 0.7;
-          const winY = H * 0.55;
-          const segH = (H - winH) / 2;
-          // bottom
-          const bot = new THREE.Mesh(new THREE.BoxGeometry(T, segH, D), wallMat(wc));
-          bot.position.set(xPos, segH / 2, 0); bot.castShadow = true; g.add(bot);
-          // top
-          const top = new THREE.Mesh(new THREE.BoxGeometry(T, segH, D), wallMat(wc));
-          top.position.set(xPos, H - segH / 2, 0); top.castShadow = true; g.add(top);
-          // windows spread across depth
-          const winSpacing = D / (winCount + 1);
-          for (let wi = 0; wi < winCount; wi++) {
-            const wz = -D / 2 + winSpacing * (wi + 1);
-            const win = new THREE.Mesh(new THREE.BoxGeometry(0.05, winH, winSize * 0.6), glassMat());
-            win.position.set(xPos, winY, wz); g.add(win);
+      // build 4 walls
+      const walls = [
+        { name: "front", isX: true, len: W, z: D / 2 },
+        { name: "back",  isX: true, len: W, z: -D / 2 },
+        { name: "left",  isX: false, len: D, x: -W / 2 },
+        { name: "right", isX: false, len: D, x: W / 2 },
+      ];
+      walls.forEach(({ name, isX, len, z, x }) => {
+        const hasDoorOnWall = p.hasDoor && doorWall === name;
+        const hasWinOnWall = windowWalls.includes(name);
+        const doorW = hasDoorOnWall ? dw : 0;
+        const winCountOnWall = hasWinOnWall ? (p.windowCount || 0) : 0;
+        if (hasDoorOnWall || winCountOnWall > 0) {
+          // wall with openings — build segments
+          const wallLen = len;
+          const openings = [];
+          if (hasDoorOnWall) openings.push({ type: "door", pos: 0, w: doorW, h: dh });
+          // distribute windows
+          if (winCountOnWall > 0) {
+            const avail = wallLen - (hasDoorOnWall ? doorW + 0.4 : 0);
+            const spacing = avail / (winCountOnWall + 1);
+            let offset = hasDoorOnWall ? doorW / 2 + 0.3 : 0;
+            for (let wi = 0; wi < winCountOnWall; wi++) {
+              const wPos = -wallLen / 2 + offset + spacing * (wi + 1);
+              openings.push({ type: "window", pos: wPos, w: winW, h: winH });
+            }
+          }
+          // sort openings by position
+          openings.sort((a, b) => (a.pos || 0) - (b.pos || 0));
+          // build wall segments between openings
+          let cursor = -wallLen / 2;
+          openings.forEach((op) => {
+            const gapStart = op.pos - op.w / 2;
+            const gapEnd = op.pos + op.w / 2;
+            if (gapStart - cursor > 0.05) {
+              const seg = new THREE.Mesh(
+                isX ? new THREE.BoxGeometry(gapStart - cursor, H, T) : new THREE.BoxGeometry(T, H, gapStart - cursor),
+                wallMat(wc)
+              );
+              if (isX) seg.position.set((cursor + gapStart) / 2, H / 2, z);
+              else seg.position.set(x, H / 2, (cursor + gapStart) / 2);
+              seg.castShadow = true; g.add(seg);
+            }
+            // header above opening
+            const headerH = H - op.h;
+            if (headerH > 0.05) {
+              const hdr = new THREE.Mesh(
+                isX ? new THREE.BoxGeometry(op.w, headerH, T) : new THREE.BoxGeometry(T, headerH, op.w),
+                wallMat(wc)
+              );
+              if (isX) hdr.position.set(op.pos, op.h + headerH / 2, z);
+              else hdr.position.set(x, op.h + headerH / 2, op.pos);
+              hdr.castShadow = true; g.add(hdr);
+            }
+            // the opening element
+            if (op.type === "door") {
+              const frameMat2 = metalMat(0x555555);
+              if (isX) {
+                [-op.w / 2, op.w / 2].forEach((off) => {
+                  const frame = new THREE.Mesh(new THREE.BoxGeometry(0.05, op.h, 0.06), frameMat2);
+                  frame.position.set(op.pos + off, op.h / 2, z); g.add(frame);
+                });
+                const topF = new THREE.Mesh(new THREE.BoxGeometry(op.w + 0.1, 0.05, 0.06), frameMat2);
+                topF.position.set(op.pos, op.h, z); g.add(topF);
+              } else {
+                [-op.w / 2, op.w / 2].forEach((off) => {
+                  const frame = new THREE.Mesh(new THREE.BoxGeometry(0.06, op.h, 0.05), frameMat2);
+                  frame.position.set(x, op.h / 2, op.pos + off); g.add(frame);
+                });
+                const topF = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.05, op.w + 0.1), frameMat2);
+                topF.position.set(x, op.h, op.pos); g.add(topF);
+              }
+            } else {
+              // window
+              const winGeo = isX
+                ? new THREE.BoxGeometry(op.w * 0.9, op.h * 0.9, 0.05)
+                : new THREE.BoxGeometry(0.05, op.h * 0.9, op.w * 0.9);
+              const win = new THREE.Mesh(winGeo, glassMat());
+              if (isX) win.position.set(op.pos, op.h * 0.55, z);
+              else win.position.set(x, op.h * 0.55, op.pos);
+              g.add(win);
+            }
+            cursor = gapEnd;
+          });
+          // remaining wall after last opening
+          if (wallLen / 2 - cursor > 0.05) {
+            const seg = new THREE.Mesh(
+              isX ? new THREE.BoxGeometry(wallLen / 2 - cursor, H, T) : new THREE.BoxGeometry(T, H, wallLen / 2 - cursor),
+              wallMat(wc)
+            );
+            if (isX) seg.position.set((cursor + wallLen / 2) / 2, H / 2, z);
+            else seg.position.set(x, H / 2, (cursor + wallLen / 2) / 2);
+            seg.castShadow = true; g.add(seg);
           }
         } else {
-          const wm = new THREE.Mesh(new THREE.BoxGeometry(T, H, D), wallMat(wc));
-          wm.position.set(xPos, H / 2, 0); wm.castShadow = true; g.add(wm);
+          // solid wall
+          const wm = new THREE.Mesh(
+            isX ? new THREE.BoxGeometry(len, H, T) : new THREE.BoxGeometry(T, H, len),
+            wallMat(wc)
+          );
+          if (isX) wm.position.set(0, H / 2, z);
+          else wm.position.set(x, H / 2, 0);
+          wm.castShadow = true; g.add(wm);
         }
       });
       break;
@@ -2817,6 +2890,59 @@ export default function PlanViewer3D() {
                       >
                         {val ? "ON" : "OFF"}
                       </button>
+                    </div>
+                  );
+                }
+                if (field.type === "select") {
+                  return (
+                    <div key={field.key} className="props-row">
+                      <label className="props-label">{field.label}</label>
+                      <div className="props-select-group">
+                        {field.options.map((opt) => (
+                          <button
+                            key={opt}
+                            className={`props-select-btn ${val === opt ? "active" : ""}`}
+                            onClick={() => {
+                              setEditingProps((prev) => ({ ...prev, [field.key]: opt }));
+                              updateComponentProps(comp.id, { [field.key]: opt });
+                            }}
+                          >
+                            {opt}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                }
+                if (field.type === "multi") {
+                  const currentVal = val || "";
+                  const selected = currentVal ? currentVal.split(",").filter(Boolean) : [];
+                  return (
+                    <div key={field.key} className="props-row">
+                      <label className="props-label">{field.label}</label>
+                      <div className="props-select-group">
+                        {field.options.map((opt) => {
+                          const isActive = selected.includes(opt);
+                          return (
+                            <button
+                              key={opt}
+                              className={`props-select-btn ${isActive ? "active" : ""}`}
+                              onClick={() => {
+                                let next;
+                                if (isActive) {
+                                  next = selected.filter((s) => s !== opt).join(",");
+                                } else {
+                                  next = [...selected, opt].join(",");
+                                }
+                                setEditingProps((prev) => ({ ...prev, [field.key]: next }));
+                                updateComponentProps(comp.id, { [field.key]: next });
+                              }}
+                            >
+                              {opt}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
                   );
                 }
