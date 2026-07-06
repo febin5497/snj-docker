@@ -1767,6 +1767,7 @@ export default function PlanViewer3D() {
     setPlaceRotation(0);
     setMeasurementMode(false);
     setAutoRotate(false);
+    setFlatGround(true);
   };
 
   const startSelectMode = () => {
@@ -1775,6 +1776,7 @@ export default function PlanViewer3D() {
     setSelectedComponentId(null);
     setMeasurementMode(false);
     setAutoRotate(false);
+    setFlatGround(true);
   };
 
   const startRemoveMode = () => {
@@ -1783,6 +1785,7 @@ export default function PlanViewer3D() {
     setSelectedComponentId(null);
     setMeasurementMode(false);
     setAutoRotate(false);
+    setFlatGround(true);
   };
 
   const cancelEditor = () => {
@@ -2244,7 +2247,7 @@ export default function PlanViewer3D() {
               <label className="tool-label">Floors: {visibleFloors ?? preset.floors}/{preset.floors}</label>
               <input
                 type="range"
-                min={1}
+                min={0}
                 max={preset.floors}
                 value={visibleFloors ?? preset.floors}
                 onChange={(e) => setVisibleFloors(Number(e.target.value))}

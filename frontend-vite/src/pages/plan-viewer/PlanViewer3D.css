@@ -486,8 +486,35 @@
   transform: translateY(-50%);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   z-index: 10;
+  max-height: 80vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 6px;
+  background: rgba(15, 20, 35, 0.7);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.advanced-toolbar::-webkit-scrollbar {
+  width: 3px;
+}
+
+.advanced-toolbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.advanced-toolbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+.advanced-toolbar .viewer-btn {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
 }
 
 /* Info Panel Sections */
@@ -1095,12 +1122,18 @@
   }
 
   .advanced-toolbar {
-    left: 12px;
+    left: 8px;
+    max-height: 70vh;
   }
 
   .advanced-toolbar .viewer-btn {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
+  }
+
+  .advanced-toolbar .viewer-btn svg {
+    width: 14px;
+    height: 14px;
   }
 
   .floor-vis-grid {
