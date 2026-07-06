@@ -57,26 +57,28 @@ const COMPONENT_CATALOG = [
 ];
 
 const DEFAULT_COMPONENT_PROPS = {
-  room:      { width: 3, depth: 3, height: 2.8, wallColor: "#bbbbbb", doorWidth: 1, hasWindow: true },
-  balcony:   { width: 2, depth: 1.5, railHeight: 1.1, deckColor: "#999999", glassOpacity: 0.4 },
-  staircase: { radius: 0.8, steps: 14, height: 3, poleColor: "#555555" },
+  room:      { width: 3, depth: 3, height: 2.8, wallColor: "#bbbbbb", doorWidth: 1, hasDoor: true, windowCount: 1, windowSize: 1.2 },
+  balcony:   { width: 2, depth: 1.5, railHeight: 1.1, deckColor: "#999999", glassOpacity: 0.4, hasGate: true },
+  staircase: { radius: 0.8, steps: 14, height: 3, poleColor: "#555555", hasDoor: true, wallColor: "#aaaaaa" },
   elevator:  { size: 2, height: 3.2, wallColor: "#777777", doorOpen: 0.5 },
-  canopy:    { width: 4, depth: 2, colHeight: 2.8, roofColor: "#bbbbbb" },
-  parking:   { width: 6, depth: 4, levels: 2, levelHeight: 3 },
-  pool:      { width: 5, depth: 3, poolDepth: 1.2, waterColor: "#2288dd" },
-  garden:    { size: 4, treeCount: 3, grassColor: "#3a7d44" },
-  tank:      { radius: 0.75, tankHeight: 2, legHeight: 1.5, tankColor: "#88aacc" },
-  generator: { width: 2, depth: 2, height: 2.5, wallColor: "#666666" },
+  canopy:    { width: 4, depth: 2, colHeight: 2.8, roofColor: "#bbbbbb", hasBackWall: false, windowCount: 0 },
+  parking:   { width: 6, depth: 4, levels: 2, levelHeight: 3, hasGate: true, windowCount: 2 },
+  pool:      { width: 5, depth: 3, poolDepth: 1.2, waterColor: "#2288dd", hasLadder: true, hasStep: true },
+  garden:    { size: 4, treeCount: 3, grassColor: "#3a7d44", hasGate: true, gateWidth: 1.2 },
+  tank:      { radius: 0.75, tankHeight: 2, legHeight: 1.5, tankColor: "#88aacc", hasValve: true },
+  generator: { width: 2, depth: 2, height: 2.5, wallColor: "#666666", doorWidth: 1, windowCount: 2, windowSize: 0.8 },
 };
 
 const COMPONENT_PROPS_SCHEMA = {
   room: [
-    { key: "width",     label: "Width",     type: "range", min: 1.5, max: 8, step: 0.5, unit: "m" },
-    { key: "depth",     label: "Depth",     type: "range", min: 1.5, max: 8, step: 0.5, unit: "m" },
-    { key: "height",    label: "Height",    type: "range", min: 2, max: 5, step: 0.1, unit: "m" },
-    { key: "wallColor", label: "Wall Color", type: "color" },
-    { key: "doorWidth", label: "Door Width", type: "range", min: 0.6, max: 2, step: 0.1, unit: "m" },
-    { key: "hasWindow", label: "Window",     type: "toggle" },
+    { key: "width",       label: "Width",       type: "range", min: 1.5, max: 8, step: 0.5, unit: "m" },
+    { key: "depth",       label: "Depth",       type: "range", min: 1.5, max: 8, step: 0.5, unit: "m" },
+    { key: "height",      label: "Height",      type: "range", min: 2, max: 5, step: 0.1, unit: "m" },
+    { key: "wallColor",   label: "Wall Color",  type: "color" },
+    { key: "hasDoor",     label: "Door",        type: "toggle" },
+    { key: "doorWidth",   label: "Door Width",  type: "range", min: 0.6, max: 2, step: 0.1, unit: "m" },
+    { key: "windowCount", label: "Windows",     type: "range", min: 0, max: 4, step: 1, unit: "" },
+    { key: "windowSize",  label: "Window Size",  type: "range", min: 0.6, max: 2, step: 0.1, unit: "m" },
   ],
   balcony: [
     { key: "width",        label: "Width",        type: "range", min: 1, max: 5, step: 0.5, unit: "m" },
@@ -84,12 +86,15 @@ const COMPONENT_PROPS_SCHEMA = {
     { key: "railHeight",   label: "Rail Height",  type: "range", min: 0.6, max: 1.5, step: 0.1, unit: "m" },
     { key: "deckColor",    label: "Deck Color",   type: "color" },
     { key: "glassOpacity", label: "Glass",        type: "range", min: 0, max: 1, step: 0.1, unit: "" },
+    { key: "hasGate",      label: "Gate",         type: "toggle" },
   ],
   staircase: [
-    { key: "radius",   label: "Radius",   type: "range", min: 0.4, max: 2, step: 0.1, unit: "m" },
-    { key: "steps",    label: "Steps",    type: "range", min: 6, max: 24, step: 1, unit: "" },
-    { key: "height",   label: "Height",   type: "range", min: 2, max: 6, step: 0.5, unit: "m" },
-    { key: "poleColor",label: "Pole Color", type: "color" },
+    { key: "radius",    label: "Radius",     type: "range", min: 0.4, max: 2, step: 0.1, unit: "m" },
+    { key: "steps",     label: "Steps",      type: "range", min: 6, max: 24, step: 1, unit: "" },
+    { key: "height",    label: "Height",     type: "range", min: 2, max: 6, step: 0.5, unit: "m" },
+    { key: "poleColor", label: "Pole Color", type: "color" },
+    { key: "wallColor", label: "Wall Color", type: "color" },
+    { key: "hasDoor",   label: "Door",       type: "toggle" },
   ],
   elevator: [
     { key: "size",      label: "Size",      type: "range", min: 1.2, max: 4, step: 0.2, unit: "m" },
@@ -98,39 +103,51 @@ const COMPONENT_PROPS_SCHEMA = {
     { key: "doorOpen",  label: "Door Open",  type: "range", min: 0, max: 1, step: 0.1, unit: "" },
   ],
   canopy: [
-    { key: "width",     label: "Width",     type: "range", min: 2, max: 8, step: 0.5, unit: "m" },
-    { key: "depth",     label: "Depth",     type: "range", min: 1, max: 5, step: 0.5, unit: "m" },
-    { key: "colHeight", label: "Col Height", type: "range", min: 2, max: 5, step: 0.2, unit: "m" },
-    { key: "roofColor", label: "Roof Color", type: "color" },
+    { key: "width",        label: "Width",        type: "range", min: 2, max: 8, step: 0.5, unit: "m" },
+    { key: "depth",        label: "Depth",        type: "range", min: 1, max: 5, step: 0.5, unit: "m" },
+    { key: "colHeight",    label: "Col Height",   type: "range", min: 2, max: 5, step: 0.2, unit: "m" },
+    { key: "roofColor",    label: "Roof Color",   type: "color" },
+    { key: "hasBackWall",  label: "Back Wall",    type: "toggle" },
+    { key: "windowCount",  label: "Windows",      type: "range", min: 0, max: 3, step: 1, unit: "" },
   ],
   parking: [
     { key: "width",       label: "Width",       type: "range", min: 4, max: 12, step: 1, unit: "m" },
     { key: "depth",       label: "Depth",       type: "range", min: 3, max: 8, step: 1, unit: "m" },
     { key: "levels",      label: "Levels",      type: "range", min: 1, max: 4, step: 1, unit: "" },
     { key: "levelHeight", label: "Level Height", type: "range", min: 2.5, max: 4, step: 0.5, unit: "m" },
+    { key: "hasGate",     label: "Gate",        type: "toggle" },
+    { key: "windowCount", label: "Windows",     type: "range", min: 0, max: 6, step: 1, unit: "" },
   ],
   pool: [
     { key: "width",      label: "Width",      type: "range", min: 3, max: 10, step: 0.5, unit: "m" },
     { key: "depth",      label: "Depth",      type: "range", min: 2, max: 6, step: 0.5, unit: "m" },
     { key: "poolDepth",  label: "Pool Depth",  type: "range", min: 0.5, max: 3, step: 0.1, unit: "m" },
     { key: "waterColor", label: "Water Color",  type: "color" },
+    { key: "hasLadder",  label: "Ladder",      type: "toggle" },
+    { key: "hasStep",    label: "Entry Steps", type: "toggle" },
   ],
   garden: [
     { key: "size",       label: "Size",       type: "range", min: 2, max: 10, step: 0.5, unit: "m" },
     { key: "treeCount",  label: "Trees",      type: "range", min: 0, max: 8, step: 1, unit: "" },
     { key: "grassColor", label: "Grass Color", type: "color" },
+    { key: "hasGate",    label: "Gate",       type: "toggle" },
+    { key: "gateWidth",  label: "Gate Width",  type: "range", min: 0.6, max: 3, step: 0.2, unit: "m" },
   ],
   tank: [
-    { key: "radius",    label: "Radius",    type: "range", min: 0.4, max: 2, step: 0.1, unit: "m" },
-    { key: "tankHeight",label: "Tank Height", type: "range", min: 1, max: 4, step: 0.2, unit: "m" },
-    { key: "legHeight", label: "Leg Height",  type: "range", min: 0.5, max: 3, step: 0.2, unit: "m" },
-    { key: "tankColor", label: "Tank Color",  type: "color" },
+    { key: "radius",     label: "Radius",     type: "range", min: 0.4, max: 2, step: 0.1, unit: "m" },
+    { key: "tankHeight", label: "Tank Height", type: "range", min: 1, max: 4, step: 0.2, unit: "m" },
+    { key: "legHeight",  label: "Leg Height",  type: "range", min: 0.5, max: 3, step: 0.2, unit: "m" },
+    { key: "tankColor",  label: "Tank Color",  type: "color" },
+    { key: "hasValve",   label: "Valve",       type: "toggle" },
   ],
   generator: [
-    { key: "width",     label: "Width",     type: "range", min: 1.5, max: 4, step: 0.2, unit: "m" },
-    { key: "depth",     label: "Depth",     type: "range", min: 1.5, max: 4, step: 0.2, unit: "m" },
-    { key: "height",    label: "Height",    type: "range", min: 2, max: 4, step: 0.2, unit: "m" },
-    { key: "wallColor", label: "Wall Color", type: "color" },
+    { key: "width",       label: "Width",       type: "range", min: 1.5, max: 4, step: 0.2, unit: "m" },
+    { key: "depth",       label: "Depth",       type: "range", min: 1.5, max: 4, step: 0.2, unit: "m" },
+    { key: "height",      label: "Height",      type: "range", min: 2, max: 4, step: 0.2, unit: "m" },
+    { key: "wallColor",   label: "Wall Color",  type: "color" },
+    { key: "doorWidth",   label: "Door Width",  type: "range", min: 0.6, max: 2, step: 0.1, unit: "m" },
+    { key: "windowCount", label: "Windows",     type: "range", min: 0, max: 4, step: 1, unit: "" },
+    { key: "windowSize",  label: "Window Size",  type: "range", min: 0.4, max: 1.5, step: 0.1, unit: "m" },
   ],
 };
 
@@ -157,33 +174,56 @@ function createComponentMesh(type, props = {}) {
       // ceiling
       const ceil = new THREE.Mesh(new THREE.BoxGeometry(W, 0.08, D), concreteMat(0xaaaaaa));
       ceil.position.y = H; ceil.castShadow = true; g.add(ceil);
-      // walls
-      const wallDefs = [
-        { w: W, h: H, d: T, x: 0, z: D / 2, name: "front" },
-        { w: W, h: H, d: T, x: 0, z: -D / 2, name: "back" },
-        { w: T, h: H, d: D, x: -W / 2, z: 0, name: "left" },
-        { w: T, h: H, d: D, x: W / 2, z: 0, name: "right" },
-      ];
-      wallDefs.forEach(({ w, h, d, x, z, name }) => {
-        if (name === "front") {
-          const dw = Math.min(p.doorWidth, W - 0.4);
-          const halfW = (W - dw) / 2;
-          [-1, 1].forEach((side) => {
-            const wm = new THREE.Mesh(new THREE.BoxGeometry(halfW, H, T), wallMat(wc));
-            wm.position.set(side * (halfW / 2 + dw / 2), H / 2, z);
-            wm.castShadow = true; g.add(wm);
-          });
-          const hdr = new THREE.Mesh(new THREE.BoxGeometry(dw, 0.4, T), wallMat(wc));
-          hdr.position.set(0, H - 0.2, z); hdr.castShadow = true; g.add(hdr);
+      // walls - front with door
+      const dw = p.hasDoor ? Math.min(p.doorWidth, W - 0.4) : 0;
+      const halfW = (W - dw) / 2;
+      if (p.hasDoor && dw > 0) {
+        [-1, 1].forEach((side) => {
+          const wm = new THREE.Mesh(new THREE.BoxGeometry(halfW, H, T), wallMat(wc));
+          wm.position.set(side * (halfW / 2 + dw / 2), H / 2, D / 2);
+          wm.castShadow = true; g.add(wm);
+        });
+        const hdr = new THREE.Mesh(new THREE.BoxGeometry(dw, 0.4, T), wallMat(wc));
+        hdr.position.set(0, H - 0.2, D / 2); hdr.castShadow = true; g.add(hdr);
+        // door frame
+        const frameMat2 = metalMat(0x555555);
+        [-dw / 2, dw / 2].forEach((x) => {
+          const frame = new THREE.Mesh(new THREE.BoxGeometry(0.05, H - 0.4, 0.06), frameMat2);
+          frame.position.set(x, (H - 0.4) / 2, D / 2); g.add(frame);
+        });
+      } else {
+        const wm = new THREE.Mesh(new THREE.BoxGeometry(W, H, T), wallMat(wc));
+        wm.position.set(0, H / 2, D / 2); wm.castShadow = true; g.add(wm);
+      }
+      // back wall
+      const bwm = new THREE.Mesh(new THREE.BoxGeometry(W, H, T), wallMat(wc));
+      bwm.position.set(0, H / 2, -D / 2); bwm.castShadow = true; g.add(bwm);
+      // side walls with windows
+      const winCount = p.windowCount || 0;
+      const winSize = p.windowSize || 1.2;
+      [-W / 2, W / 2].forEach((xPos, si) => {
+        if (winCount > 0) {
+          const winH = winSize * 0.7;
+          const winY = H * 0.55;
+          const segH = (H - winH) / 2;
+          // bottom
+          const bot = new THREE.Mesh(new THREE.BoxGeometry(T, segH, D), wallMat(wc));
+          bot.position.set(xPos, segH / 2, 0); bot.castShadow = true; g.add(bot);
+          // top
+          const top = new THREE.Mesh(new THREE.BoxGeometry(T, segH, D), wallMat(wc));
+          top.position.set(xPos, H - segH / 2, 0); top.castShadow = true; g.add(top);
+          // windows spread across depth
+          const winSpacing = D / (winCount + 1);
+          for (let wi = 0; wi < winCount; wi++) {
+            const wz = -D / 2 + winSpacing * (wi + 1);
+            const win = new THREE.Mesh(new THREE.BoxGeometry(0.05, winH, winSize * 0.6), glassMat());
+            win.position.set(xPos, winY, wz); g.add(win);
+          }
         } else {
-          const wm = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), wallMat(wc));
-          wm.position.set(x, h / 2, z); wm.castShadow = true; g.add(wm);
+          const wm = new THREE.Mesh(new THREE.BoxGeometry(T, H, D), wallMat(wc));
+          wm.position.set(xPos, H / 2, 0); wm.castShadow = true; g.add(wm);
         }
       });
-      if (p.hasWindow) {
-        const win = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1, 0.05), glassMat());
-        win.position.set(0, H / 2 + 0.3, -D / 2); g.add(win);
-      }
       break;
     }
     case "balcony": {
@@ -192,22 +232,44 @@ function createComponentMesh(type, props = {}) {
       const deck = new THREE.Mesh(new THREE.BoxGeometry(W, 0.12, D), concreteMat(dc));
       deck.position.y = 0.06; deck.castShadow = true; deck.receiveShadow = true; g.add(deck);
       const railMat = metalMat(0x888888);
+      // railing posts
       [[-W/2, D/2], [W/2, D/2], [-W/2, -D/2], [W/2, -D/2]].forEach(([x, z]) => {
         const post = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, H), railMat);
         post.position.set(x, H / 2 + 0.12, z); g.add(post);
       });
+      // top rails
       [{ s: [W, 0.04, 0.04], p: [0, H + 0.12, D/2] },
        { s: [0.04, 0.04, D], p: [-W/2, H + 0.12, 0] },
        { s: [0.04, 0.04, D], p: [W/2, H + 0.12, 0] }].forEach(({ s, p: pp }) => {
         const bar = new THREE.Mesh(new THREE.BoxGeometry(...s), railMat);
         bar.position.set(...pp); g.add(bar);
       });
+      // glass panel
       const panel = new THREE.Mesh(new THREE.BoxGeometry(W - 0.1, H - 0.1, 0.02), glassMat(p.glassOpacity));
       panel.position.set(0, H / 2 + 0.12, D / 2); g.add(panel);
+      // gate on front side
+      if (p.hasGate) {
+        const gateW = Math.min(0.8, W * 0.4);
+        const gateH = H - 0.2;
+        [-gateW / 2, gateW / 2].forEach((x) => {
+          const gp = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, gateH), railMat);
+          gp.position.set(x, gateH / 2 + 0.12, -D / 2); g.add(gp);
+        });
+        const gateBar = new THREE.Mesh(new THREE.BoxGeometry(gateW, 0.04, 0.04), railMat);
+        gateBar.position.set(0, gateH + 0.12, -D / 2); g.add(gateBar);
+      }
       break;
     }
     case "staircase": {
       const R = p.radius, steps = p.steps, H = p.height;
+      const wc = parseInt(p.wallColor.replace("#", ""), 16);
+      // semi-circular wall behind stairs
+      const wallArc = new THREE.Mesh(
+        new THREE.CylinderGeometry(R + 0.4, R + 0.4, H, 16, 1, true, 0, Math.PI),
+        wallMat(wc)
+      );
+      wallArc.position.y = H / 2; wallArc.castShadow = true; g.add(wallArc);
+      // steps
       for (let i = 0; i < steps; i++) {
         const angle = (i / steps) * Math.PI * 2;
         const step = new THREE.Mesh(new THREE.BoxGeometry(R * 2, 0.12, 0.35), concreteMat(0xaaaaaa));
@@ -224,31 +286,53 @@ function createComponentMesh(type, props = {}) {
         bead.position.set(Math.cos(a) * R, (i / (steps * 2)) * H + 1.1, Math.sin(a) * R);
         g.add(bead);
       }
+      // door at base
+      if (p.hasDoor) {
+        const dW = 0.9, dH = 2.2;
+        const doorMat = metalMat(0x8B7355);
+        const door = new THREE.Mesh(new THREE.BoxGeometry(dW, dH, 0.06), doorMat);
+        door.position.set(0, dH / 2, R + 0.42); g.add(door);
+        // frame
+        const fm = metalMat(0x555555);
+        [-dW / 2 - 0.03, dW / 2 + 0.03].forEach((x) => {
+          const f = new THREE.Mesh(new THREE.BoxGeometry(0.06, dH + 0.06, 0.08), fm);
+          f.position.set(x, dH / 2, R + 0.42); g.add(f);
+        });
+        const topF = new THREE.Mesh(new THREE.BoxGeometry(dW + 0.12, 0.06, 0.08), fm);
+        topF.position.set(0, dH + 0.03, R + 0.42); g.add(topF);
+      }
       break;
     }
     case "elevator": {
       const S = p.size, H = p.height;
       const wc = parseInt(p.wallColor.replace("#", ""), 16);
-      const sides = [
+      // 3 walls
+      [
         { w: S, d: 0.1, x: 0, z: -S/2 },
         { w: 0.1, d: S, x: -S/2, z: 0 },
         { w: 0.1, d: S, x: S/2, z: 0 },
-      ];
-      sides.forEach(({ w, d, x, z }) => {
+      ].forEach(({ w, d, x, z }) => {
         const wall = new THREE.Mesh(new THREE.BoxGeometry(w, H, d), wallMat(wc));
         wall.position.set(x, H / 2, z); wall.castShadow = true; g.add(wall);
       });
+      // corner posts
       [[-S/2, -S/2], [S/2, -S/2], [-S/2, S/2], [S/2, S/2]].forEach(([x, z]) => {
         const post = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, H + 0.2), metalMat(0x444444));
         post.position.set(x, H / 2, z); g.add(post);
       });
+      // sliding doors
       const doorGap = S * 0.5 * (1 - p.doorOpen);
       [-doorGap / 2 - 0.25, doorGap / 2 + 0.25].forEach((x) => {
         const door = new THREE.Mesh(new THREE.BoxGeometry(0.5, H - 0.3, 0.06), metalMat(0x888888));
         door.position.set(x, H / 2, S / 2); g.add(door);
       });
+      // car
       const car = new THREE.Mesh(new THREE.BoxGeometry(S - 0.4, H - 0.6, S - 0.4), wallMat(0xdddddd));
       car.position.y = H / 2; car.material.transparent = true; car.material.opacity = 0.3; g.add(car);
+      // indicator light
+      const indicator = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8),
+        new THREE.MeshPhysicalMaterial({ color: 0x00ff00, emissive: 0x00ff00, emissiveIntensity: 0.5 }));
+      indicator.position.set(0, H + 0.3, S / 2); g.add(indicator);
       break;
     }
     case "canopy": {
@@ -256,10 +340,26 @@ function createComponentMesh(type, props = {}) {
       const rc = parseInt(p.roofColor.replace("#", ""), 16);
       const roof = new THREE.Mesh(new THREE.BoxGeometry(W, T, D), concreteMat(rc));
       roof.position.y = colH + T / 2; roof.castShadow = true; g.add(roof);
+      // columns
       [-W/2 + 0.3, W/2 - 0.3].forEach((x) => {
         const col = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, colH), metalMat(0x666666));
         col.position.set(x, colH / 2, D / 2 - 0.3); col.castShadow = true; g.add(col);
       });
+      // optional back wall
+      if (p.hasBackWall) {
+        const bw = new THREE.Mesh(new THREE.BoxGeometry(W, colH, 0.12), wallMat(0x999999));
+        bw.position.set(0, colH / 2, -D / 2); bw.castShadow = true; g.add(bw);
+        // windows on back wall
+        const winCount = p.windowCount || 0;
+        if (winCount > 0) {
+          const winSpacing = W / (winCount + 1);
+          for (let i = 0; i < winCount; i++) {
+            const wx = -W / 2 + winSpacing * (i + 1);
+            const win = new THREE.Mesh(new THREE.BoxGeometry(1, 0.8, 0.05), glassMat());
+            win.position.set(wx, colH * 0.6, -D / 2); g.add(win);
+          }
+        }
+      }
       break;
     }
     case "parking": {
@@ -268,19 +368,53 @@ function createComponentMesh(type, props = {}) {
         const baseY = lv * LvH;
         const slab = new THREE.Mesh(new THREE.BoxGeometry(W, 0.2, D), concreteMat(0x888888));
         slab.position.y = baseY; slab.castShadow = true; slab.receiveShadow = true; g.add(slab);
+        // columns
         [[-W/2, -D/2], [W/2, -D/2], [-W/2, D/2], [W/2, D/2], [0, -D/2], [0, D/2]].forEach(([x, z]) => {
           const col = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, LvH - 0.2), concreteMat(0x999999));
           col.position.set(x, baseY + LvH / 2, z); col.castShadow = true; g.add(col);
         });
+        // ramp between levels
         if (lv < Lv - 1) {
           const ramp = new THREE.Mesh(new THREE.BoxGeometry(2, 0.1, D * 0.7), concreteMat(0x777777));
           ramp.position.set(W / 2 - 1.5, baseY + LvH / 2, 0);
           ramp.rotation.z = Math.atan2(LvH, D * 0.7) * 0.5;
           g.add(ramp);
         }
+        // side walls with windows (only ground level)
+        if (lv === 0) {
+          const winCount = p.windowCount || 0;
+          [-W / 2, W / 2].forEach((xPos) => {
+            if (winCount > 0) {
+              const segH = (LvH - 1.2) / 2;
+              const bot = new THREE.Mesh(new THREE.BoxGeometry(0.1, segH, D), wallMat(0x888888));
+              bot.position.set(xPos, segH / 2, 0); bot.castShadow = true; g.add(bot);
+              const top = new THREE.Mesh(new THREE.BoxGeometry(0.1, segH, D), wallMat(0x888888));
+              top.position.set(xPos, LvH - segH / 2, 0); top.castShadow = true; g.add(top);
+              const winSpacing = D / (winCount + 1);
+              for (let wi = 0; wi < winCount; wi++) {
+                const wz = -D / 2 + winSpacing * (wi + 1);
+                const win = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1.2, 1.5), glassMat());
+                win.position.set(xPos, LvH * 0.55, wz); g.add(win);
+              }
+            }
+          });
+        }
       }
       const topSlab = new THREE.Mesh(new THREE.BoxGeometry(W, 0.15, D), concreteMat(0xaaaaaa));
       topSlab.position.y = Lv * LvH; topSlab.castShadow = true; g.add(topSlab);
+      // entrance gate
+      if (p.hasGate) {
+        const gateW = Math.min(3, W * 0.4);
+        const gateH = LvH - 0.5;
+        const gateMat = metalMat(0x555555);
+        [-gateW / 2, gateW / 2].forEach((x) => {
+          const post = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, gateH), gateMat);
+          post.position.set(x, gateH / 2, D / 2 + 0.1); g.add(post);
+        });
+        // horizontal bar
+        const bar = new THREE.Mesh(new THREE.BoxGeometry(gateW, 0.08, 0.08), gateMat);
+        bar.position.set(0, gateH * 0.8, D / 2 + 0.1); g.add(bar);
+      }
       break;
     }
     case "pool": {
@@ -292,15 +426,26 @@ function createComponentMesh(type, props = {}) {
       water.position.y = 0; g.add(water);
       const border = new THREE.Mesh(new THREE.BoxGeometry(W + wall * 4, 0.08, D + wall * 4), concreteMat(0xeeeebb));
       border.position.y = 0.04; border.receiveShadow = true; g.add(border);
-      const lm = metalMat(0xcccccc);
-      [-0.3, 0.3].forEach((x) => {
-        const rail = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 1.5), lm);
-        rail.position.set(x, 0.75, D / 2 + 0.15); g.add(rail);
-      });
-      [0.3, 0.8].forEach((y) => {
-        const rung = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.6), lm);
-        rung.rotation.z = Math.PI / 2; rung.position.set(0, y, D / 2 + 0.15); g.add(rung);
-      });
+      // ladder
+      if (p.hasLadder) {
+        const lm = metalMat(0xcccccc);
+        [-0.3, 0.3].forEach((x) => {
+          const rail = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 1.5), lm);
+          rail.position.set(x, 0.75, D / 2 + 0.15); g.add(rail);
+        });
+        [0.3, 0.8].forEach((y) => {
+          const rung = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.6), lm);
+          rung.rotation.z = Math.PI / 2; rung.position.set(0, y, D / 2 + 0.15); g.add(rung);
+        });
+      }
+      // entry steps
+      if (p.hasStep) {
+        const stepMat = concreteMat(0xccccbb);
+        [0.2, 0.4, 0.6].forEach((h, i) => {
+          const step = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.15, 0.4), stepMat);
+          step.position.set(-W / 2 + 0.8, -h, D / 2 - 0.3); g.add(step);
+        });
+      }
       break;
     }
     case "garden": {
@@ -308,6 +453,32 @@ function createComponentMesh(type, props = {}) {
       const gc = parseInt(p.grassColor.replace("#", ""), 16);
       const ground = new THREE.Mesh(new THREE.BoxGeometry(S, 0.15, S), grassMat(gc));
       ground.position.y = 0.075; ground.receiveShadow = true; g.add(ground);
+      // fence around garden
+      const fenceMat = metalMat(0x8B7355);
+      const fenceH = 0.8;
+      [
+        { w: S, x: 0, z: S / 2 },
+        { w: S, x: 0, z: -S / 2 },
+        { w: S, x: S / 2, z: 0, rot: Math.PI / 2 },
+        { w: S, x: -S / 2, z: 0, rot: Math.PI / 2 },
+      ].forEach(({ w, x, z, rot }) => {
+        const fence = new THREE.Mesh(new THREE.BoxGeometry(w, fenceH, 0.04), fenceMat);
+        fence.position.set(x, fenceH / 2 + 0.15, z);
+        if (rot) fence.rotation.y = rot;
+        fence.castShadow = true; g.add(fence);
+      });
+      // gate
+      if (p.hasGate) {
+        const gw = p.gateWidth;
+        const gateMat2 = metalMat(0x6B5B35);
+        [-gw / 2, gw / 2].forEach((x) => {
+          const gp = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, fenceH + 0.3), gateMat2);
+          gp.position.set(x, (fenceH + 0.3) / 2 + 0.15, S / 2); g.add(gp);
+        });
+        const gateTop = new THREE.Mesh(new THREE.BoxGeometry(gw, 0.04, 0.04), gateMat2);
+        gateTop.position.set(0, fenceH + 0.3 + 0.15, S / 2); g.add(gateTop);
+      }
+      // trees
       const treePositions = [];
       for (let i = 0; i < p.treeCount; i++) {
         const angle = (i / p.treeCount) * Math.PI * 2;
@@ -343,33 +514,69 @@ function createComponentMesh(type, props = {}) {
       tank.position.y = lh + h / 2; tank.castShadow = true; g.add(tank);
       const lid = new THREE.Mesh(new THREE.CylinderGeometry(r + 0.05, r + 0.05, 0.08, 16), metalMat(0x777777));
       lid.position.y = lh + h + 0.04; g.add(lid);
+      // valve/pipe
+      if (p.hasValve) {
+        const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.5), metalMat(0x448844));
+        pipe.rotation.z = Math.PI / 2;
+        pipe.position.set(r + 0.25, lh + h * 0.3, 0); g.add(pipe);
+        const valve = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), metalMat(0xcc4444));
+        valve.position.set(r + 0.5, lh + h * 0.3, 0); g.add(valve);
+      }
       break;
     }
     case "generator": {
       const W = p.width, D = p.depth, H = p.height;
       const wc = parseInt(p.wallColor.replace("#", ""), 16);
-      const sides2 = [
-        { w: W, d: 0.1, x: 0, z: -D/2 },
-        { w: W, d: 0.1, x: 0, z: D/2 },
-        { w: 0.1, d: D, x: -W/2, z: 0 },
-        { w: 0.1, d: D, x: W/2, z: 0 },
-      ];
-      sides2.forEach(({ w, d, x, z }, idx) => {
-        const wm = new THREE.Mesh(new THREE.BoxGeometry(w, H, d), wallMat(wc));
-        wm.position.set(x, H / 2, z); wm.castShadow = true; g.add(wm);
-        if (idx < 2) {
-          for (let i = 0; i < 5; i++) {
-            const slat = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.04, 0.02), metalMat(0x444444));
-            slat.position.set(0, H * 0.4 + i * 0.12, z > 0 ? z + 0.06 : z - 0.06);
-            slat.rotation.x = 0.3;
-            g.add(slat);
-          }
+      const dw = Math.min(p.doorWidth, W - 0.3);
+      // walls with door opening on front
+      const halfWW = (W - dw) / 2;
+      [-1, 1].forEach((side) => {
+        const wm = new THREE.Mesh(new THREE.BoxGeometry(halfWW, H, 0.1), wallMat(wc));
+        wm.position.set(side * (halfWW / 2 + dw / 2), H / 2, D / 2);
+        wm.castShadow = true; g.add(wm);
+      });
+      const hdr = new THREE.Mesh(new THREE.BoxGeometry(dw, 0.3, 0.1), wallMat(wc));
+      hdr.position.set(0, H - 0.15, D / 2); hdr.castShadow = true; g.add(hdr);
+      // door frame
+      const frameM = metalMat(0x444444);
+      [-dw / 2 - 0.03, dw / 2 + 0.03].forEach((x) => {
+        const f = new THREE.Mesh(new THREE.BoxGeometry(0.06, H - 0.3, 0.08), frameM);
+        f.position.set(x, (H - 0.3) / 2, D / 2); g.add(f);
+      });
+      // back wall with windows
+      const winCount = p.windowCount || 0;
+      const winSize = p.windowSize || 0.8;
+      if (winCount > 0) {
+        const segH = (H - winSize * 0.6) / 2;
+        const bot = new THREE.Mesh(new THREE.BoxGeometry(W, segH, 0.1), wallMat(wc));
+        bot.position.set(0, segH / 2, -D / 2); bot.castShadow = true; g.add(bot);
+        const top = new THREE.Mesh(new THREE.BoxGeometry(W, segH, 0.1), wallMat(wc));
+        top.position.set(0, H - segH / 2, -D / 2); top.castShadow = true; g.add(top);
+        const winSpacing = W / (winCount + 1);
+        for (let i = 0; i < winCount; i++) {
+          const wx = -W / 2 + winSpacing * (i + 1);
+          const win = new THREE.Mesh(new THREE.BoxGeometry(winSize * 0.7, winSize * 0.6, 0.05), glassMat());
+          win.position.set(wx, H * 0.55, -D / 2); g.add(win);
+        }
+      } else {
+        const bwm = new THREE.Mesh(new THREE.BoxGeometry(W, H, 0.1), wallMat(wc));
+        bwm.position.set(0, H / 2, -D / 2); bwm.castShadow = true; g.add(bwm);
+      }
+      // side walls with ventilation
+      [-W / 2, W / 2].forEach((xPos) => {
+        const wm = new THREE.Mesh(new THREE.BoxGeometry(0.1, H, D), wallMat(wc));
+        wm.position.set(xPos, H / 2, 0); wm.castShadow = true; g.add(wm);
+        for (let i = 0; i < 5; i++) {
+          const slat = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.04, D * 0.6), metalMat(0x444444));
+          slat.position.set(xPos > 0 ? xPos + 0.04 : xPos - 0.04, H * 0.4 + i * 0.12, 0);
+          slat.rotation.x = 0.3; g.add(slat);
         }
       });
+      // generator unit
       const gen = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1, 1.5), metalMat(0x448844));
       gen.position.set(0, 0.6, 0); g.add(gen);
       const exhaust = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 1.5), metalMat(0x333333));
-      exhaust.position.set(0.6, H + 0.5, -D/2 + 0.3); g.add(exhaust);
+      exhaust.position.set(0.6, H + 0.5, -D / 2 + 0.3); g.add(exhaust);
       break;
     }
   }
