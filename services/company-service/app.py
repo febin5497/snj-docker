@@ -10,6 +10,7 @@ company_bp = Blueprint("companies", __name__)
 
 class Company(db.Model, TimestampMixin):
     __tablename__ = "companies"
+    __table_args__ = {"extend_existing": True}
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), nullable=False)
     address = db.Column(db.Text)

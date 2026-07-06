@@ -3,8 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import "../../styles/vibrant-theme.css";
 import "../../styles/vibrant-sidebar.css";
 import "../../styles/vibrant-layout.css";
-
-const getBaseURL = () => "";
+import logoSvg from "../../logo.svg";
 
 const menuItems = [
   { section: "MAIN" },
@@ -59,10 +58,12 @@ const VibrantSidebar = () => {
         {/* Logo */}
         <div className="v-sidebar-logo-wrap">
           <img
-            src={`${getBaseURL()}/static/logo.jpg`}
+            src={logoSvg}
             alt="Logo"
             className="v-sidebar-logo"
+            onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
           />
+          <div className="v-sidebar-logo-fallback" style={{ display: 'none' }}>S</div>
           {isExpanded && <span className="v-sidebar-logo-text">SNJ ERP</span>}
         </div>
 
