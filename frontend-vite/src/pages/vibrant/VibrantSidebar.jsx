@@ -12,6 +12,7 @@ const menuItems = [
   { path: "/projects", icon: "🏗️", label: "Projects" },
   { path: "/staff", icon: "👥", label: "Staff" },
   { path: "/attendance/unified", icon: "📋", label: "Attendance" },
+  { path: "/attendance/approvals", icon: "✅", label: "Approvals" },
   { section: "FINANCE" },
   { path: "/finance", icon: "💰", label: "Finance" },
   { path: "/budgets", icon: "📈", label: "Budgets" },
