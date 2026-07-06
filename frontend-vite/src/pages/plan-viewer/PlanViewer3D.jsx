@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
@@ -30,6 +30,14 @@ const BUILDING_PRESETS = [
     color: "#b87333", roofType: "sawtooth", windowsPerFloor: 4,
   },
 ];
+
+function terrainNoise(x, z) {
+  return (
+    Math.sin(x * 0.1) * Math.cos(z * 0.1) * 0.5 +
+    Math.sin(x * 0.05 + 1.3) * Math.cos(z * 0.07 + 2.1) * 0.3 +
+    Math.sin(x * 0.02 + 0.7) * Math.cos(z * 0.03 + 1.5) * 0.2
+  );
+}
 
 function createBuildingTexture() {
   const canvas = document.createElement("canvas");
@@ -252,7 +260,73 @@ export default function PlanViewer3D() {
   const [dayNightMode, setDayNightMode] = useState(false);
   const dayNightAngleRef = useRef(0);
 
+  // Construction Timeline
+  const [constructionPlaying, setConstructionPlaying] = useState(false);
+  const [constructionProgress, setConstructionProgress] = useState(0);
+  const [constructionSpeed, setConstructionSpeed] = useState(1);
+  const constructionTimerRef = useRef(null);
+
+  // Material Quantity Takeoff
+  const [showTakeoff, setShowTakeoff] = useState(false);
+  const [concreteRate, setConcreteRate] = useState(150);
+  const [steelRate, setSteelRate] = useState(120);
+  const [glassRate, setGlassRate] = useState(80);
+  const [brickRate, setBrickRate] = useState(2);
+  const [paintRate, setPaintRate] = useState(15);
+
+  // Camera Fly-through
+  const [flythroughMode, setFlythroughMode] = useState(null);
+  const [flythroughPlaying, setFlythroughPlaying] = useState(false);
+  const [flythroughSpeed, setFlythroughSpeed] = useState(1);
+  const flythroughTimerRef = useRef(null);
+
+  // Sun Study
+  const [sunStudyMode, setSunStudyMode] = useState(false);
+  const [sunTime, setSunTime] = useState(0.5);
+  const [sunStudyPlaying, setSunStudyPlaying] = useState(false);
+  const sunStudyTimerRef = useRef(null);
+
+  // Measurement History
+  const [showMeasurementHistory, setShowMeasurementHistory] = useState(false);
+
+  // Terrain
+  const [showTerrain, setShowTerrain] = useState(false);
+  const [terrainSize, setTerrainSize] = useState(80);
+  const [terrainHeight, setTerrainHeight] = useState(5);
+  const terrainRef = useRef(null);
+
   const preset = BUILDING_PRESETS[currentPreset];
+
+  const takeoff = useMemo(() => {
+    const { floors, width, depth, floorHeight, windowsPerFloor } = preset;
+    const wallHeight = floorHeight - 0.3;
+    const perimeter = 2 * (width + depth);
+    const totalHeight = floors * floorHeight;
+    const slabThickness = 0.15;
+    const slabVolume = width * depth * slabThickness * (floors + 1);
+    const foundationVolume = (width + 1) * (depth + 1) * 0.5;
+    const concreteVolume = slabVolume + foundationVolume;
+    const steelWeight = concreteVolume * 120;
+    const windowArea = windowsPerFloor * 0.8 * 1.2 * floors * 2;
+    const wallArea = perimeter * wallHeight * floors;
+    const brickCount = Math.round(wallArea / 0.02);
+    const paintArea = perimeter * totalHeight;
+    return { concreteVolume, steelWeight, windowArea, brickCount, paintArea };
+  }, [preset]);
+
+  const takeoffCost = useMemo(() => ({
+    concrete: takeoff.concreteVolume * concreteRate,
+    steel: takeoff.steelWeight * steelRate,
+    glass: takeoff.windowArea * glassRate,
+    brick: takeoff.brickCount * brickRate,
+    paint: takeoff.paintArea * paintRate,
+    total:
+      takeoff.concreteVolume * concreteRate +
+      takeoff.steelWeight * steelRate +
+      takeoff.windowArea * glassRate +
+      takeoff.brickCount * brickRate +
+      takeoff.paintArea * paintRate,
+  }), [takeoff, concreteRate, steelRate, glassRate, brickRate, paintRate]);
 
   // Preserve default camera position
   const defaultCamPos = new THREE.Vector3(35, 25, 35);
@@ -777,6 +851,189 @@ export default function PlanViewer3D() {
     });
   }, [measurements]);
 
+  // Construction Timeline effect
+  useEffect(() => {
+    if (!constructionPlaying) {
+      if (constructionTimerRef.current) cancelAnimationFrame(constructionTimerRef.current);
+      return;
+    }
+    let lastTime = performance.now();
+    function tick(now) {
+      const dt = (now - lastTime) / 1000;
+      lastTime = now;
+      setConstructionProgress((prev) => {
+        const next = prev + dt * constructionSpeed * 0.05;
+        return next >= 1 ? 1 : next;
+      });
+      constructionTimerRef.current = requestAnimationFrame(tick);
+    }
+    constructionTimerRef.current = requestAnimationFrame(tick);
+    return () => { if (constructionTimerRef.current) cancelAnimationFrame(constructionTimerRef.current); };
+  }, [constructionPlaying, constructionSpeed]);
+
+  // Apply construction timeline to floor visibility/opacity
+  useEffect(() => {
+    const building = buildingRef.current;
+    if (!building) return;
+    const floorGroups = building.userData.floorGroups;
+    if (!floorGroups) return;
+    const totalFloors = floorGroups.length;
+    const activeFloors = constructionProgress * totalFloors;
+    floorGroups.forEach((fg, i) => {
+      if (activeFloors >= i + 1) {
+        fg.visible = true;
+        fg.traverse((child) => {
+          if (child.isMesh && child.material) {
+            child.material.transparent = true;
+            child.material.opacity = 1;
+            child.material.needsUpdate = true;
+          }
+        });
+      } else if (activeFloors > i) {
+        fg.visible = true;
+        const floorProgress = activeFloors - i;
+        fg.traverse((child) => {
+          if (child.isMesh && child.material) {
+            child.material.transparent = true;
+            child.material.opacity = floorProgress;
+            child.material.needsUpdate = true;
+          }
+        });
+      } else {
+        fg.visible = false;
+      }
+    });
+  }, [constructionProgress]);
+
+  // Sun Study effect
+  useEffect(() => {
+    if (!sunStudyMode) return;
+    let frame;
+    function animateSun() {
+      setSunTime((prev) => {
+        const next = prev + 0.002;
+        return next > 1 ? 0 : next;
+      });
+      frame = requestAnimationFrame(animateSun);
+    }
+    if (sunStudyPlaying) {
+      frame = requestAnimationFrame(animateSun);
+    }
+    return () => { if (frame) cancelAnimationFrame(frame); };
+  }, [sunStudyMode, sunStudyPlaying]);
+
+  // Apply sun position
+  useEffect(() => {
+    if (!sunStudyMode || !dirLightRef.current) return;
+    const angle = sunTime * Math.PI;
+    const radius = 40;
+    const height = Math.sin(angle) * 35;
+    dirLightRef.current.position.set(
+      Math.cos(angle) * radius,
+      Math.max(2, height),
+      Math.sin(angle * 0.3) * 20
+    );
+    dirLightRef.current.castShadow = true;
+  }, [sunStudyMode, sunTime]);
+
+  // Fly-through effect
+  useEffect(() => {
+    if (!flythroughMode || !flythroughPlaying) {
+      if (flythroughTimerRef.current) cancelAnimationFrame(flythroughTimerRef.current);
+      return;
+    }
+    let progress = 0;
+    let lastTime = performance.now();
+    const camera = cameraRef.current;
+    const controls = controlsRef.current;
+    if (!camera || !controls) return;
+
+    function tick(now) {
+      const dt = (now - lastTime) / 1000;
+      lastTime = now;
+      progress += dt * flythroughSpeed * 0.15;
+      if (progress > 1) progress = 0;
+
+      const t = progress;
+      let pos, target;
+
+      if (flythroughMode === "orbit") {
+        const a = t * Math.PI * 2;
+        pos = new THREE.Vector3(Math.cos(a) * 35, 20, Math.sin(a) * 35);
+        target = new THREE.Vector3(0, 5, 0);
+      } else if (flythroughMode === "walkin") {
+        const e = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+        pos = new THREE.Vector3(60 - e * 55, 25 - e * 20, 60 - e * 55);
+        target = new THREE.Vector3(0, 3, 0);
+      } else if (flythroughMode === "flyover") {
+        pos = new THREE.Vector3(
+          -40 + t * 80,
+          30 + Math.sin(t * Math.PI) * 15,
+          -20 + Math.sin(t * Math.PI * 2) * 10
+        );
+        target = new THREE.Vector3(0, 5, 0);
+      } else if (flythroughMode === "interior") {
+        const fh = preset.floorHeight;
+        const fi = Math.floor(t * (visibleFloors ?? preset.floors));
+        const lt = (t * (visibleFloors ?? preset.floors)) - fi;
+        pos = new THREE.Vector3(-preset.width / 2 + lt * preset.width, fi * fh + fh / 2, 0);
+        target = new THREE.Vector3(-preset.width / 2 + (lt + 0.3) * preset.width, fi * fh + fh / 2, 0);
+      }
+
+      camera.position.copy(pos);
+      controls.target.copy(target);
+      controls.update();
+      flythroughTimerRef.current = requestAnimationFrame(tick);
+    }
+    flythroughTimerRef.current = requestAnimationFrame(tick);
+    return () => { if (flythroughTimerRef.current) cancelAnimationFrame(flythroughTimerRef.current); };
+  }, [flythroughMode, flythroughPlaying, flythroughSpeed, preset, visibleFloors]);
+
+  // Terrain effect
+  useEffect(() => {
+    const scene = sceneRef.current;
+    if (!scene) return;
+
+    if (terrainRef.current) {
+      scene.remove(terrainRef.current);
+      disposeMesh(terrainRef.current);
+      terrainRef.current = null;
+    }
+
+    if (!showTerrain) return;
+
+    const segments = 64;
+    const geo = new THREE.PlaneGeometry(terrainSize, terrainSize, segments, segments);
+    geo.rotateX(-Math.PI / 2);
+    const posAttr = geo.attributes.position;
+    for (let i = 0; i < posAttr.count; i++) {
+      const x = posAttr.getX(i);
+      const z = posAttr.getZ(i);
+      const h = terrainNoise(x, z) * terrainHeight;
+      const dist = Math.sqrt(x * x + z * z);
+      const buildingRadius = Math.max(preset.width, preset.depth) * 0.7;
+      const fade = Math.min(1, Math.max(0, (dist - buildingRadius) / 10));
+      posAttr.setY(i, h * fade - 0.4);
+    }
+    geo.computeVertexNormals();
+
+    const mat = new THREE.MeshPhysicalMaterial({
+      color: 0x4a7c3f, roughness: 0.95, metalness: 0, flatShading: true,
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.receiveShadow = true;
+    scene.add(mesh);
+    terrainRef.current = mesh;
+
+    return () => {
+      if (terrainRef.current) {
+        scene.remove(terrainRef.current);
+        disposeMesh(terrainRef.current);
+        terrainRef.current = null;
+      }
+    };
+  }, [showTerrain, terrainSize, terrainHeight, preset]);
+
   const toggleFullscreen = () => {
     const el = containerRef.current;
     if (!document.fullscreenElement) {
@@ -815,6 +1072,32 @@ export default function PlanViewer3D() {
   const clearMeasurements = () => {
     setMeasurements([]);
   };
+
+  const deleteMeasurement = (index) => {
+    setMeasurements((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const getMeasurementDistance = (pts) => {
+    if (pts.length < 2) return 0;
+    const dx = pts[1].x - pts[0].x;
+    const dy = pts[1].y - pts[0].y;
+    const dz = pts[1].z - pts[0].z;
+    return Math.sqrt(dx * dx + dy * dy + dz * dz);
+  };
+
+  const formatTime = (t) => {
+    const totalMinutes = Math.round(t * 720);
+    const hours = 6 + Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+  };
+
+  const constructionDate = useMemo(() => {
+    const days = Math.floor(constructionProgress * 365);
+    const d = new Date(2025, 0, 6);
+    d.setDate(d.getDate() + days);
+    return d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+  }, [constructionProgress]);
 
   const exportGLB = async () => {
     const target = buildingRef.current;
@@ -982,6 +1265,36 @@ export default function PlanViewer3D() {
         <button className="viewer-btn" onClick={exportGLB} title="Export GLB">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+        </button>
+        <button className={`viewer-btn ${showMeasurementHistory ? "active" : ""}`} onClick={() => setShowMeasurementHistory(!showMeasurementHistory)} title="Measurement History">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+        </button>
+        <button className={`viewer-btn ${showTakeoff ? "active" : ""}`} onClick={() => setShowTakeoff(!showTakeoff)} title="Material Takeoff">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+        </button>
+        <button className={`viewer-btn ${sunStudyMode ? "active" : ""}`} onClick={() => { setSunStudyMode(!sunStudyMode); if (!sunStudyMode) setSunStudyPlaying(true); else setSunStudyPlaying(false); }} title="Sun Study">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><path d="M4.22 4.22l1.42 1.42"/><path d="M18.36 18.36l1.42 1.42"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><path d="M4.22 19.78l1.42-1.42"/><path d="M18.36 5.64l1.42-1.42"/>
+          </svg>
+        </button>
+        <button className={`viewer-btn ${flythroughMode ? "active" : ""}`} onClick={() => { if (flythroughMode) { setFlythroughMode(null); setFlythroughPlaying(false); } else { setFlythroughMode("orbit"); setFlythroughPlaying(true); } }} title="Camera Fly-through">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+        </button>
+        <button className={`viewer-btn ${constructionPlaying ? "active" : ""}`} onClick={() => { if (!constructionPlaying && constructionProgress >= 1) setConstructionProgress(0); setConstructionPlaying(!constructionPlaying); }} title="Construction Timeline">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </button>
+        <button className={`viewer-btn ${showTerrain ? "active" : ""}`} onClick={() => setShowTerrain(!showTerrain)} title="Toggle Terrain">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M2 20L8 10l4 4 4-6 6 10H2z"/>
           </svg>
         </button>
       </div>
@@ -1226,6 +1539,243 @@ export default function PlanViewer3D() {
             );
           })()}
           <p className="info-hint">Drag to orbit · Scroll to zoom</p>
+        </div>
+      )}
+
+      {/* Construction Timeline Panel */}
+      {(constructionPlaying || constructionProgress > 0) && (
+        <div className="construction-panel">
+          <h3 className="panel-title">Construction Timeline</h3>
+          <div className="construction-date">{constructionDate}</div>
+          <div className="construction-progress-bar">
+            <div className="construction-progress-fill" style={{ width: `${constructionProgress * 100}%` }} />
+          </div>
+          <div className="construction-controls">
+            <button className="construction-btn" onClick={() => { setConstructionProgress(0); setConstructionPlaying(false); }} title="Reset">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="6" y="6" width="12" height="12"/>
+              </svg>
+            </button>
+            <button className="construction-btn play-btn" onClick={() => { if (!constructionPlaying && constructionProgress >= 1) setConstructionProgress(0); setConstructionPlaying(!constructionPlaying); }}>
+              {constructionPlaying ? (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
+                </svg>
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+              )}
+            </button>
+          </div>
+          <div className="construction-speed">
+            <span className="tool-label">Speed:</span>
+            {[1, 2, 4].map((s) => (
+              <button key={s} className={`speed-btn ${constructionSpeed === s ? "active" : ""}`} onClick={() => setConstructionSpeed(s)}>
+                {s}x
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Sun Study Panel */}
+      {sunStudyMode && (
+        <div className="sun-study-panel">
+          <h3 className="panel-title">Sun Study</h3>
+          <div className="sun-time-display">{formatTime(sunTime)}</div>
+          <div className="sun-controls">
+            <button className="construction-btn play-btn" onClick={() => setSunStudyPlaying(!sunStudyPlaying)}>
+              {sunStudyPlaying ? (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
+                </svg>
+              ) : (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+              )}
+            </button>
+          </div>
+          <div className="tool-group">
+            <label className="tool-label">Time:</label>
+            <input
+              type="range" min={0} max={1} step={0.005}
+              value={sunTime}
+              onChange={(e) => setSunTime(Number(e.target.value))}
+              className="floor-slider"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Fly-through Panel */}
+      {flythroughMode && (
+        <div className="flythrough-panel">
+          <h3 className="panel-title">Camera Fly-through</h3>
+          <div className="flythrough-modes">
+            {[
+              { id: "orbit", label: "Orbit" },
+              { id: "walkin", label: "Walk-in" },
+              { id: "flyover", label: "Flyover" },
+              { id: "interior", label: "Interior" },
+            ].map((m) => (
+              <button key={m.id} className={`flythrough-mode-btn ${flythroughMode === m.id ? "active" : ""}`} onClick={() => { setFlythroughMode(m.id); setFlythroughPlaying(true); }}>
+                {m.label}
+              </button>
+            ))}
+          </div>
+          <div className="flythrough-controls">
+            <button className="construction-btn play-btn" onClick={() => setFlythroughPlaying(!flythroughPlaying)}>
+              {flythroughPlaying ? (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>
+                </svg>
+              ) : (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+              )}
+            </button>
+            <button className="construction-btn" onClick={() => { setFlythroughMode(null); setFlythroughPlaying(false); }} title="Stop">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="6" y="6" width="12" height="12"/>
+              </svg>
+            </button>
+          </div>
+          <div className="tool-group">
+            <label className="tool-label">Speed:</label>
+            <input
+              type="range" min={0.2} max={3} step={0.1}
+              value={flythroughSpeed}
+              onChange={(e) => setFlythroughSpeed(Number(e.target.value))}
+              className="floor-slider"
+            />
+            <span className="tool-label">{flythroughSpeed.toFixed(1)}x</span>
+          </div>
+        </div>
+      )}
+
+      {/* Material Takeoff Panel */}
+      {showTakeoff && mode === "preset" && (
+        <div className="takeoff-panel">
+          <h3 className="panel-title">Material Quantity Takeoff</h3>
+          <div className="takeoff-grid">
+            <div className="takeoff-row">
+              <span className="takeoff-label">Concrete</span>
+              <span className="takeoff-value">{takeoff.concreteVolume.toFixed(1)} m³</span>
+              <span className="takeoff-cost">${takeoffCost.concrete.toLocaleString()}</span>
+            </div>
+            <div className="takeoff-row">
+              <span className="takeoff-label">Steel</span>
+              <span className="takeoff-value">{takeoff.steelWeight.toFixed(0)} kg</span>
+              <span className="takeoff-cost">${takeoffCost.steel.toLocaleString()}</span>
+            </div>
+            <div className="takeoff-row">
+              <span className="takeoff-label">Glass</span>
+              <span className="takeoff-value">{takeoff.windowArea.toFixed(1)} m²</span>
+              <span className="takeoff-cost">${takeoffCost.glass.toLocaleString()}</span>
+            </div>
+            <div className="takeoff-row">
+              <span className="takeoff-label">Bricks</span>
+              <span className="takeoff-value">{takeoff.brickCount.toLocaleString()}</span>
+              <span className="takeoff-cost">${takeoffCost.brick.toLocaleString()}</span>
+            </div>
+            <div className="takeoff-row">
+              <span className="takeoff-label">Paint</span>
+              <span className="takeoff-value">{takeoff.paintArea.toFixed(1)} m²</span>
+              <span className="takeoff-cost">${takeoffCost.paint.toLocaleString()}</span>
+            </div>
+            <div className="takeoff-total">
+              <span>Total Estimate</span>
+              <span className="takeoff-cost">${takeoffCost.total.toLocaleString()}</span>
+            </div>
+          </div>
+          <div className="takeoff-rates">
+            <h4 className="info-section-title">Unit Rates</h4>
+            <div className="rate-row">
+              <label className="rate-label">Concrete ($/m³)</label>
+              <input type="number" value={concreteRate} onChange={(e) => setConcreteRate(Number(e.target.value))} className="rate-input" />
+            </div>
+            <div className="rate-row">
+              <label className="rate-label">Steel ($/kg)</label>
+              <input type="number" value={steelRate} onChange={(e) => setSteelRate(Number(e.target.value))} className="rate-input" />
+            </div>
+            <div className="rate-row">
+              <label className="rate-label">Glass ($/m²)</label>
+              <input type="number" value={glassRate} onChange={(e) => setGlassRate(Number(e.target.value))} className="rate-input" />
+            </div>
+            <div className="rate-row">
+              <label className="rate-label">Brick ($/ea)</label>
+              <input type="number" value={brickRate} onChange={(e) => setBrickRate(Number(e.target.value))} className="rate-input" />
+            </div>
+            <div className="rate-row">
+              <label className="rate-label">Paint ($/m²)</label>
+              <input type="number" value={paintRate} onChange={(e) => setPaintRate(Number(e.target.value))} className="rate-input" />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Measurement History Panel */}
+      {showMeasurementHistory && (
+        <div className="measurement-history-panel">
+          <div className="measurement-history-header">
+            <h3 className="panel-title" style={{ margin: 0 }}>Measurements ({measurements.filter((m) => m.length === 2).length})</h3>
+            {measurements.length > 0 && (
+              <button className="tool-reset-btn" onClick={clearMeasurements}>Clear All</button>
+            )}
+          </div>
+          <div className="measurement-history-list">
+            {measurements.filter((m) => m.length === 2).length === 0 ? (
+              <div className="measurement-history-empty">No measurements yet. Use the measurement tool and double-click two points.</div>
+            ) : (
+              measurements.map((pts, idx) => {
+                if (pts.length < 2) return null;
+                const dist = getMeasurementDistance(pts);
+                return (
+                  <div key={idx} className="measurement-history-item">
+                    <div className="measurement-item-info">
+                      <span className="measurement-item-idx">#{idx + 1}</span>
+                      <span className="measurement-item-dist">{dist.toFixed(2)}m</span>
+                    </div>
+                    <div className="measurement-item-coords">
+                      A: ({pts[0].x.toFixed(1)}, {pts[0].y.toFixed(1)}, {pts[0].z.toFixed(1)})
+                    </div>
+                    <div className="measurement-item-coords">
+                      B: ({pts[1].x.toFixed(1)}, {pts[1].y.toFixed(1)}, {pts[1].z.toFixed(1)})
+                    </div>
+                    <button className="measurement-delete-btn" onClick={() => deleteMeasurement(idx)} title="Delete">&#10005;</button>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Terrain Controls */}
+      {showTerrain && (
+        <div className="terrain-panel">
+          <h3 className="panel-title">Terrain</h3>
+          <div className="tool-group">
+            <label className="tool-label">Size: {terrainSize}m</label>
+            <input
+              type="range" min={40} max={200} step={10}
+              value={terrainSize}
+              onChange={(e) => setTerrainSize(Number(e.target.value))}
+              className="floor-slider"
+            />
+          </div>
+          <div className="tool-group">
+            <label className="tool-label">Height: {terrainHeight.toFixed(1)}m</label>
+            <input
+              type="range" min={0} max={15} step={0.5}
+              value={terrainHeight}
+              onChange={(e) => setTerrainHeight(Number(e.target.value))}
+              className="floor-slider"
+            />
+          </div>
         </div>
       )}
     </div>
