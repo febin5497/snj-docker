@@ -1,3 +1,4 @@
+/* ==================== SIDEBAR ==================== */
 .v-sidebar {
   position: fixed;
   left: 0;
@@ -16,21 +17,67 @@
   overflow: hidden;
 }
 
-.v-sidebar:hover { width: 240px; }
+.v-sidebar-expanded {
+  width: 240px;
+}
+
+/* ==================== LOGO ==================== */
+.v-sidebar-logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 14px;
+  width: 100%;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
 
 .v-sidebar-logo {
   width: 44px;
   height: 44px;
+  min-width: 44px;
   border-radius: 14px;
   object-fit: cover;
   border: 2px solid var(--v-border);
-  margin-bottom: 20px;
-  flex-shrink: 0;
   transition: all 0.3s;
 }
 
-.v-sidebar:hover .v-sidebar-logo { width: 44px; }
+.v-sidebar-logo-text {
+  font-size: 16px;
+  font-weight: 800;
+  background: var(--v-gradient-1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  white-space: nowrap;
+  opacity: 1;
+}
 
+/* ==================== TOGGLE BUTTON ==================== */
+.v-sidebar-toggle {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--v-bg-card);
+  border: 1px solid var(--v-border);
+  color: var(--v-text-muted);
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.v-sidebar-toggle:hover {
+  background: var(--v-bg-card-hover);
+  color: var(--v-text);
+  border-color: var(--v-primary-light);
+}
+
+/* ==================== NAV ==================== */
 .v-sidebar-nav {
   flex: 1;
   width: 100%;
@@ -42,6 +89,31 @@
 
 .v-sidebar-nav::-webkit-scrollbar { display: none; }
 
+/* ==================== SECTION HEADERS ==================== */
+.v-sidebar-section {
+  padding: 12px 12px 4px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--v-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.3s, opacity 0.3s, padding 0.3s;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.v-section-visible {
+  max-height: 40px;
+  opacity: 1;
+  padding-top: 12px;
+  padding-bottom: 4px;
+}
+
+/* ==================== MENU ITEMS ==================== */
 .v-sidebar-item {
   display: flex;
   align-items: center;
@@ -60,6 +132,7 @@
   background: none;
   width: 100%;
   text-align: left;
+  position: relative;
 }
 
 .v-sidebar-item:hover {
@@ -72,37 +145,36 @@
   color: var(--v-primary-light);
 }
 
-.v-sidebar-item .icon {
-  width: 20px;
+.v-sidebar-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
   height: 20px;
-  flex-shrink: 0;
+  background: var(--v-primary-light);
+  border-radius: 0 3px 3px 0;
+}
+
+.v-sidebar-icon {
+  width: 20px;
+  min-width: 20px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
 }
 
-.v-sidebar-divider {
-  width: calc(100% - 16px);
-  height: 1px;
-  background: var(--v-border);
-  margin: 8px auto;
+.v-sidebar-label {
+  opacity: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.v-sidebar-section {
-  padding: 0 12px;
-  margin-bottom: 4px;
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--v-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  white-space: nowrap;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.v-sidebar:hover .v-sidebar-section { opacity: 1; }
-
+/* ==================== USER SECTION ==================== */
 .v-sidebar-user {
   padding: 12px;
   width: 100%;
@@ -116,6 +188,7 @@
 .v-sidebar-avatar {
   width: 36px;
   height: 36px;
+  min-width: 36px;
   border-radius: 10px;
   background: var(--v-gradient-2);
   display: flex;
@@ -130,12 +203,16 @@
 .v-sidebar-user-info {
   overflow: hidden;
   white-space: nowrap;
+  flex: 1;
+  min-width: 0;
 }
 
 .v-sidebar-user-name {
   font-size: 13px;
   font-weight: 600;
   color: var(--v-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .v-sidebar-user-role {
@@ -146,6 +223,7 @@
 .v-sidebar-logout {
   width: 32px;
   height: 32px;
+  min-width: 32px;
   border-radius: 8px;
   background: rgba(255,107,107,0.12);
   border: none;
@@ -163,4 +241,52 @@
 .v-sidebar-logout:hover {
   background: rgba(255,107,107,0.25);
   transform: scale(1.1);
+}
+
+/* ==================== BACKDROP (mobile) ==================== */
+.v-sidebar-backdrop {
+  display: none;
+}
+
+/* ==================== MAIN CONTENT ADJUSTMENT ==================== */
+.v-main {
+  margin-left: 72px;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.v-sidebar-expanded ~ .v-main,
+.v-sidebar.v-sidebar-expanded ~ .v-main {
+  margin-left: 240px;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .v-sidebar {
+    width: 0;
+    padding: 0;
+    border: none;
+  }
+
+  .v-sidebar-expanded {
+    width: 260px;
+    padding: 12px 0;
+    border-right: 1px solid var(--v-border);
+  }
+
+  .v-sidebar-toggle {
+    display: flex;
+  }
+
+  .v-main {
+    margin-left: 0 !important;
+    padding: 16px;
+  }
+
+  .v-sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 99;
+  }
 }
