@@ -76,14 +76,14 @@ export default function Materials() {
         }
     }
     return (
-        <div className="p-6 md:p-6 sm:p-4 theme-blue-white min-h-screen">
+        <div className="p-6 md:p-6 sm:p-4 page-bg min-h-screen">
             {/* Header with Action Button */}
             <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
                     <h1 className="text-4xl font-bold flex items-center gap-3 text-primary">
                         <FaBox className="text-primary" /> Materials Inventory
                     </h1>
-                    <p className="text-gray-600 mt-2">Manage your construction materials and stock levels</p>
+                    <p className="text-secondary mt-2">Manage your construction materials and stock levels</p>
                 </div>
                 <button
                     onClick={handleOpenAddForm}
@@ -94,7 +94,7 @@ export default function Materials() {
             </div>
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="status-card-blue-white bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform border-primary">
+                <div className="card-bg rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform border-primary">
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-semibold uppercase text-primary">Total Materials</p>
@@ -105,7 +105,7 @@ export default function Materials() {
                         </div>
                     </div>
                 </div>
-                <div className="status-card-blue-white bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform border-primary">
+                <div className="card-bg rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform border-primary">
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-semibold uppercase text-primary">Total Quantity</p>
@@ -116,7 +116,7 @@ export default function Materials() {
                         </div>
                     </div>
                 </div>
-                <div className="status-card-blue-white bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform border-primary">
+                <div className="card-bg rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform border-primary">
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-semibold uppercase text-primary">Low Stock Items</p>
@@ -129,13 +129,13 @@ export default function Materials() {
                 </div>
             </div>
             {/* Filter and Search Section */}
-            <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <div className="card-bg rounded-lg shadow-lg p-6 mb-8">
                 <div className="flex flex-col md:flex-row gap-4 items-end">
                     {/* Search Bar */}
                     <div className="flex-1">
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Search Materials</label>
+                        <label className="block text-sm font-semibold text-secondary mb-2">Search Materials</label>
                         <div className="relative">
-                            <FaSearch className="absolute left-3 top-3 text-gray-400" />
+                            <FaSearch className="absolute left-3 top-3 text-muted" />
                             <input
                                 type="text"
                                 placeholder="Search by material name or unit..."
@@ -147,23 +147,23 @@ export default function Materials() {
                     </div>
                     {/* Sort By */}
                     <div className="w-full md:w-48">
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        <label className="block text-sm font-semibold text-secondary mb-2">
                             <FaFilter className="inline mr-2" /> Sort By
                         </label>
                         <select
                             value={sortBy}
                             onChange={(e) => setSortBy(e.target.value)}
-                            className="input-blue-white w-full px-4 py-2 bg-white"
+                            className="w-full px-4 py-2 border-default rounded-lg"
                         >
                             <option value="name">Name (A-Z)</option>
                             <option value="quantity">Quantity (High to Low)</option>
                         </select>
                     </div>
                 </div>
-                <p className="text-sm text-gray-600 mt-3">Showing {filteredMaterials.length} of {materials.length} materials</p>
+                <p className="text-sm text-muted mt-3">Showing {filteredMaterials.length} of {materials.length} materials</p>
             </div>
             {/* Materials Table */}
-            <div className="bg-white rounded-lg shadow-lg p-6">
+            <div className="card-bg rounded-lg shadow-lg p-6">
                 <h2 className="text-xl font-bold mb-4 header-blue-white">
                     Material Inventory ({filteredMaterials.length})
                 </h2>
@@ -181,17 +181,17 @@ export default function Materials() {
                         <tbody>
                             {filteredMaterials.length === 0 ? (
                                 <tr>
-                                    <td colSpan="5" className="text-center py-8 text-gray-500">
+                                    <td colSpan="5" className="text-center py-8 text-muted">
                                         No materials found
                                     </td>
                                 </tr>
                             ) : (
                                 filteredMaterials.map((material) => (
-                                    <tr key={material.id} className="border-b table-row-blue-white transition-colors">
+                                    <tr key={material.id} className="border-b border-default transition-colors hover:bg-white/5">
                                         <td className="py-3 px-4">
                                             <div className="flex items-center gap-2">
                                                 <FaBox className="text-amber-500" />
-                                                <span className="font-medium text-gray-800">{material.name}</span>
+                                                <span className="font-medium text-primary">{material.name}</span>
                                             </div>
                                         </td>
                                         <td className="py-3 px-4 text-right">
@@ -200,19 +200,19 @@ export default function Materials() {
                                             </span>
                                         </td>
                                         <td className="py-3 px-4">
-                                            <span className="text-gray-600">{material.unit || 'N/A'}</span>
+                                            <span className="text-secondary">{material.unit || 'N/A'}</span>
                                         </td>
                                         <td className="py-3 px-4 text-center">
                                             {material.quantity && material.quantity < 10 ? (
-                                                <span className="inline-block px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-semibold">
+                                                <span className="inline-block px-3 py-1 bg-danger/15 text-danger rounded-full text-sm font-semibold">
                                                     ⚠️ Low Stock
                                                 </span>
                                             ) : material.quantity && material.quantity < 50 ? (
-                                                <span className="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold">
+                                                <span className="inline-block px-3 py-1 bg-yellow-500/15 text-yellow-400 rounded-full text-sm font-semibold">
                                                     ⚡ Medium
                                                 </span>
                                             ) : (
-                                                <span className="inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
+                                                <span className="inline-block px-3 py-1 bg-success/15 text-success rounded-full text-sm font-semibold">
                                                     ✓ Good Stock
                                                 </span>
                                             )}
@@ -221,13 +221,13 @@ export default function Materials() {
                                             <div className="flex gap-2 justify-center">
                                                 <button
                                                     onClick={() => handleOpenEditForm(material)}
-                                                    className="inline-flex items-center gap-1 px-3 py-1 rounded-lg font-semibold text-sm btn-secondary"
+                                                    className="inline-flex items-center gap-1 px-3 py-1 rounded-lg font-semibold text-sm text-secondary hover:bg-white/10"
                                                 >
                                                     <FaEdit /> Edit
                                                 </button>
                                                 <button
                                                     onClick={() => setDeleteConfirm(material.id)}
-                                                    className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-800 rounded-lg hover:bg-red-200 transition-colors font-semibold text-sm"
+                                                    className="inline-flex items-center gap-1 px-3 py-1 rounded-lg font-semibold text-sm text-danger hover:bg-danger/10"
                                                 >
                                                     <FaTrash /> Delete
                                                 </button>
@@ -258,16 +258,16 @@ export default function Materials() {
             {/* Delete Confirmation Modal */}
             {deleteConfirm && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg shadow-2xl p-6 max-w-md w-full mx-4">
-                        <h3 className="text-lg font-bold text-gray-900 mb-4">Confirm Delete</h3>
-                        <p className="text-gray-700 mb-6">
+                    <div className="card-solid rounded-lg shadow-2xl p-6 max-w-md w-full mx-4">
+                        <h3 className="text-lg font-bold text-primary mb-4">Confirm Delete</h3>
+                        <p className="text-secondary mb-6">
                             Are you sure you want to delete this material? This action cannot be undone.
                         </p>
                         <div className="flex justify-end gap-3">
                             <button
                                 onClick={() => setDeleteConfirm(null)}
                                 disabled={isLoading}
-                                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-100 transition-colors disabled:opacity-50"
+                                className="px-6 py-2 border border-default text-secondary rounded-lg font-semibold hover:bg-white/5 transition-colors disabled:opacity-50"
                             >
                                 Cancel
                             </button>

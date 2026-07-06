@@ -48,15 +48,15 @@ export default function Vehicles() {
         return matchesSearch && matchesStatus
     })
     const getStatusColor = (status) => {
-        if (!status) return 'bg-gray-100 text-gray-800'
+        if (!status) return 'bg-white/10 text-secondary'
         const colors = {
-            'active': 'bg-green-100 text-green-800',
-            'inactive': 'bg-red-100 text-red-800',
-            'maintenance': 'bg-yellow-100 text-yellow-800',
-            'in-use': 'bg-blue-100 text-blue-800',
-            'available': 'bg-green-100 text-green-800'
+            'active': 'bg-success/15 text-success',
+            'inactive': 'bg-danger/15 text-danger',
+            'maintenance': 'bg-yellow-500/15 text-yellow-400',
+            'in-use': 'bg-primary/15 text-accent',
+            'available': 'bg-success/15 text-success'
         }
-        return colors[status.toLowerCase()] || 'bg-gray-100 text-gray-800'
+        return colors[status.toLowerCase()] || 'bg-white/10 text-secondary'
     }
     const activeCount = vehicles.filter(v => v.status && (v.status.toLowerCase() === 'active' || v.status.toLowerCase() === 'in-use' || v.status.toLowerCase() === 'available')).length
     const maintenanceCount = vehicles.filter(v => v.status && v.status.toLowerCase() === 'maintenance').length
@@ -103,14 +103,14 @@ export default function Vehicles() {
         setDetailViewVehicle(null)
     }
     return (
-        <div className="p-6 md:p-6 sm:p-4 theme-blue-white min-h-screen">
+        <div className="p-6 md:p-6 sm:p-4 page-bg min-h-screen">
             {/* Header with Action Button */}
             <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
                     <h1 className="text-4xl font-bold flex items-center gap-3 text-primary">
                         <FaTruck className="text-primary" /> Fleet Management
                     </h1>
-                    <p className="text-gray-600 mt-2">Track and manage your vehicle fleet</p>
+                    <p className="text-secondary mt-2">Track and manage your vehicle fleet</p>
                 </div>
                 <button
                     onClick={handleOpenAddForm}
@@ -121,7 +121,7 @@ export default function Vehicles() {
             </div>
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="status-card-blue-white bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform border-primary">
+                <div className="card-bg rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform border-primary">
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-semibold uppercase text-primary">Total Vehicles</p>
@@ -132,7 +132,7 @@ export default function Vehicles() {
                         </div>
                     </div>
                 </div>
-                <div className="status-card-blue-white bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform border-primary">
+                <div className="card-bg rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform border-primary">
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-semibold uppercase text-primary">Active Vehicles</p>
@@ -143,7 +143,7 @@ export default function Vehicles() {
                         </div>
                     </div>
                 </div>
-                <div className="status-card-blue-white bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform border-primary">
+                <div className="card-bg rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform border-primary">
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-semibold uppercase text-primary">In Maintenance</p>
@@ -156,13 +156,13 @@ export default function Vehicles() {
                 </div>
             </div>
             {/* Filter and Search Section */}
-            <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <div className="card-bg rounded-lg shadow-lg p-6 mb-8">
                 <div className="flex flex-col md:flex-row gap-4 items-end">
                     {/* Search Bar */}
                     <div className="flex-1">
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Search Vehicles</label>
+                        <label className="block text-sm font-semibold text-secondary mb-2">Search Vehicles</label>
                         <div className="relative">
-                            <FaSearch className="absolute left-3 top-3 text-gray-400" />
+                            <FaSearch className="absolute left-3 top-3 text-muted" />
                             <input
                                 type="text"
                                 placeholder="Search by vehicle name or number..."
@@ -174,13 +174,13 @@ export default function Vehicles() {
                     </div>
                     {/* Status Filter */}
                     <div className="w-full md:w-48">
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        <label className="block text-sm font-semibold text-secondary mb-2">
                             <FaFilter className="inline mr-2" /> Status
                         </label>
                         <select
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
-                            className="input-blue-white w-full px-4 py-2 bg-white"
+                            className="w-full px-4 py-2 border-default rounded-lg"
                         >
                             <option value="all">All Status</option>
                             <option value="active">Active</option>
@@ -191,10 +191,10 @@ export default function Vehicles() {
                         </select>
                     </div>
                 </div>
-                <p className="text-sm text-gray-600 mt-3">Showing {filteredVehicles.length} of {vehicles.length} vehicles</p>
+                <p className="text-sm text-muted mt-3">Showing {filteredVehicles.length} of {vehicles.length} vehicles</p>
             </div>
             {/* Vehicles Table */}
-            <div className="bg-white rounded-lg shadow-lg p-6">
+            <div className="card-bg rounded-lg shadow-lg p-6">
                 <h2 className="text-xl font-bold mb-4 header-blue-white">
                     Vehicle Fleet ({filteredVehicles.length})
                 </h2>
@@ -211,21 +211,21 @@ export default function Vehicles() {
                         <tbody>
                             {filteredVehicles.length === 0 ? (
                                 <tr>
-                                    <td colSpan="4" className="text-center py-8 text-gray-500">
+                                    <td colSpan="4" className="text-center py-8 text-muted">
                                         No vehicles found
                                     </td>
                                 </tr>
                             ) : (
                                 filteredVehicles.map((vehicle) => (
-                                    <tr key={vehicle.id} className="border-b table-row-blue-white transition-colors">
+                                    <tr key={vehicle.id} className="border-b border-default transition-colors hover:bg-white/5">
                                         <td className="py-3 px-4">
                                             <div className="flex items-center gap-2">
                                                 <FaTruck className="text-green-500" />
-                                                <span className="font-medium text-gray-800">{vehicle.make} {vehicle.model}</span>
+                                                <span className="font-medium text-primary">{vehicle.make} {vehicle.model}</span>
                                             </div>
                                         </td>
                                         <td className="py-3 px-4">
-                                            <span className="font-mono font-bold text-gray-700">{vehicle.registration_number}</span>
+                                            <span className="font-mono font-bold text-secondary">{vehicle.registration_number}</span>
                                         </td>
                                         <td className="py-3 px-4 text-center">
                                             <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(vehicle.status)}`}>
@@ -236,20 +236,20 @@ export default function Vehicles() {
                                             <div className="flex gap-2 justify-center">
                                                 <button
                                                     onClick={() => handleOpenDetailView(vehicle)}
-                                                    className="inline-flex items-center gap-1 px-3 py-1 rounded-lg font-semibold text-sm btn-secondary"
+                                                    className="inline-flex items-center gap-1 px-3 py-1 rounded-lg font-semibold text-sm text-secondary hover:bg-white/10"
                                                     title="View operations and details"
                                                 >
                                                     <FaChevronRight /> Details
                                                 </button>
                                                 <button
                                                     onClick={() => handleOpenEditForm(vehicle)}
-                                                    className="inline-flex items-center gap-1 px-3 py-1 rounded-lg font-semibold text-sm btn-secondary"
+                                                    className="inline-flex items-center gap-1 px-3 py-1 rounded-lg font-semibold text-sm text-secondary hover:bg-white/10"
                                                 >
                                                     <FaEdit /> Edit
                                                 </button>
                                                 <button
                                                     onClick={() => setDeleteConfirm(vehicle.id)}
-                                                    className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-800 rounded-lg hover:bg-red-200 transition-colors font-semibold text-sm"
+                                                    className="inline-flex items-center gap-1 px-3 py-1 rounded-lg font-semibold text-sm text-danger hover:bg-danger/10"
                                                 >
                                                     <FaTrash /> Delete
                                                 </button>
@@ -281,43 +281,43 @@ export default function Vehicles() {
             {/* Vehicle Detail View Modal */}
             {detailViewVehicle && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 overflow-y-auto p-4">
-                    <div className="bg-white rounded-lg shadow-2xl w-full max-w-3xl my-8">
+                    <div className="card-solid rounded-lg shadow-2xl w-full max-w-3xl my-8">
                         {/* Header */}
-                        <div className="sticky top-0 bg-gradient-to-r from-green-600 to-emerald-600 text-white p-6 flex justify-between items-center rounded-t-lg">
+                        <div className="sticky top-0 bg-primary-gradient text-white p-6 flex justify-between items-center rounded-t-lg">
                             <div>
                                 <h2 className="text-2xl font-bold">{detailViewVehicle.make} {detailViewVehicle.model}</h2>
-                                <p className="text-green-100">{detailViewVehicle.registration_number}</p>
+                                <p className="text-green-200">{detailViewVehicle.registration_number}</p>
                             </div>
                             <button
                                 onClick={handleCloseDetailView}
-                                className="text-white hover:bg-green-700 p-2 rounded-lg transition-colors"
+                                className="text-white hover:bg-primary/80 p-2 rounded-lg transition-colors"
                             >
                                 <FaTimes size={24} />
                             </button>
                         </div>
                         {/* Content */}
-                        <div className="p-6 bg-gradient-to-br from-gray-50 to-green-50 space-y-6">
+                        <div className="p-6 space-y-6" style={{backgroundColor: 'rgba(255,255,255,0.03)'}}>
                             {/* Vehicle Summary */}
-                            <div className="bg-white rounded-lg p-6 shadow-sm">
-                                <h3 className="text-lg font-bold text-gray-800 mb-4">Vehicle Information</h3>
+                            <div className="card-bg rounded-lg p-6 shadow-sm">
+                                <h3 className="text-lg font-bold text-primary mb-4">Vehicle Information</h3>
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                     <div>
-                                        <p className="text-sm text-gray-600">Year</p>
-                                        <p className="font-semibold text-gray-900">{detailViewVehicle.year || 'N/A'}</p>
+                                        <p className="text-sm text-secondary">Year</p>
+                                        <p className="font-semibold text-primary">{detailViewVehicle.year || 'N/A'}</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-600">Type</p>
-                                        <p className="font-semibold text-gray-900">{detailViewVehicle.type || 'N/A'}</p>
+                                        <p className="text-sm text-secondary">Type</p>
+                                        <p className="font-semibold text-primary">{detailViewVehicle.type || 'N/A'}</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-600">Status</p>
+                                        <p className="text-sm text-secondary">Status</p>
                                         <p className={`font-semibold inline-block px-2 py-1 rounded text-sm ${getStatusColor(detailViewVehicle.status)}`}>
                                             {detailViewVehicle.status || 'N/A'}
                                         </p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-600">Company</p>
-                                        <p className="font-semibold text-gray-900">{detailViewVehicle.company_id || 'N/A'}</p>
+                                        <p className="text-sm text-secondary">Company</p>
+                                        <p className="font-semibold text-primary">{detailViewVehicle.company_id || 'N/A'}</p>
                                     </div>
                                 </div>
                             </div>
@@ -329,10 +329,10 @@ export default function Vehicles() {
                             <DriverAssignment vehicleId={detailViewVehicle.id} vehicleName={`${detailViewVehicle.make} ${detailViewVehicle.model}`} />
                         </div>
                         {/* Footer */}
-                        <div className="bg-gray-100 px-6 py-4 rounded-b-lg flex justify-end">
+                        <div className="px-6 py-4 rounded-b-lg flex justify-end border-t border-default">
                             <button
                                 onClick={handleCloseDetailView}
-                                className="px-6 py-2 bg-gray-500 text-white rounded-lg font-semibold hover:bg-gray-600 transition-colors"
+                                className="px-6 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary/80 transition-colors"
                             >
                                 Close
                             </button>
@@ -343,16 +343,16 @@ export default function Vehicles() {
             {/* Delete Confirmation Modal */}
             {deleteConfirm && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg shadow-2xl p-6 max-w-md w-full mx-4">
-                        <h3 className="text-lg font-bold text-gray-900 mb-4">Confirm Delete</h3>
-                        <p className="text-gray-700 mb-6">
+                    <div className="card-solid rounded-lg shadow-2xl p-6 max-w-md w-full mx-4">
+                        <h3 className="text-lg font-bold text-primary mb-4">Confirm Delete</h3>
+                        <p className="text-secondary mb-6">
                             Are you sure you want to delete this vehicle? This action cannot be undone.
                         </p>
                         <div className="flex justify-end gap-3">
                             <button
                                 onClick={() => setDeleteConfirm(null)}
                                 disabled={isLoading}
-                                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-100 transition-colors disabled:opacity-50"
+                                className="px-6 py-2 border border-default text-secondary rounded-lg font-semibold hover:bg-white/5 transition-colors disabled:opacity-50"
                             >
                                 Cancel
                             </button>

@@ -51,7 +51,7 @@ const ReportsPage = () => {
           return (
             <div
               key={report.id}
-              className="bg-white rounded-lg border p-6 transition-shadow cursor-pointer border-default"
+              className="card-bg rounded-lg border p-6 transition-shadow cursor-pointer border-default"
               onClick={() => handleViewReport(report.route)}
             >
               <div className="flex items-start justify-between mb-4">
@@ -77,19 +77,19 @@ const ReportsPage = () => {
       <div className="mt-12">
         <h2 className="text-2xl font-bold mb-6 text-primary">Report Summary</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-white rounded-lg border p-6 border-default">
+          <div className="card-bg rounded-lg border p-6 border-default">
             <p className="text-sm mb-1 text-muted">Total Reports</p>
             <p className="text-3xl font-bold text-primary">4</p>
           </div>
-          <div className="bg-white rounded-lg border p-6 border-default">
+          <div className="card-bg rounded-lg border p-6 border-default">
             <p className="text-sm mb-1 text-muted">Generated Today</p>
             <p className="text-3xl font-bold text-primary">0</p>
           </div>
-          <div className="bg-white rounded-lg border p-6 border-default">
+          <div className="card-bg rounded-lg border p-6 border-default">
             <p className="text-sm mb-1 text-muted">This Month</p>
             <p className="text-3xl font-bold text-primary">0</p>
           </div>
-          <div className="bg-white rounded-lg border p-6 border-default">
+          <div className="card-bg rounded-lg border p-6 border-default">
             <p className="text-sm mb-1 text-muted">Last Updated</p>
             <p className="text-lg font-semibold text-primary">-</p>
           </div>

@@ -157,28 +157,28 @@ const BudgetPage = () => {
           </div>
           <button
             onClick={() => setIsFormOpen(true)}
-            className="flex items-center gap-2 px-6 py-3 text-white rounded-lg transition font-medium bg-primary"
+            className="flex items-center gap-2 px-6 py-3 text-white rounded-lg transition font-medium bg-primary-gradient"
           >
             <FaPlus /> New Budget
           </button>
         </div>
         {/* Budgets Table */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="card-bg rounded-lg shadow overflow-hidden">
           {loading ? (
             <div className="flex justify-center items-center h-64">
-              <div className="text-gray-500">Loading budgets...</div>
+              <div className="text-muted">Loading budgets...</div>
             </div>
           ) : budgets.length === 0 ? (
             <div className="flex justify-center items-center h-64">
               <div className="text-center">
-                <p className="text-gray-500 text-lg">No budgets created yet</p>
+                <p className="text-muted text-lg">No budgets created yet</p>
               </div>
             </div>
           ) : (
             <>
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b text-left">
+                  <tr className="border-b border-default text-left">
                     <th className="px-6 py-4 font-semibold text-primary">Project</th>
                     <th className="px-6 py-4 font-semibold text-primary">Total Budget</th>
                     <th className="px-6 py-4 font-semibold text-primary">Allocated</th>
@@ -190,7 +190,7 @@ const BudgetPage = () => {
                 </thead>
                 <tbody>
                   {budgets.map((budget) => (
-                    <tr key={budget.id} className="border-b">
+                    <tr key={budget.id} className="border-b border-default">
                       <td className="px-6 py-4 font-medium text-primary">
                         Project #{budget.project_id}
                       </td>
@@ -222,8 +222,8 @@ const BudgetPage = () => {
                       <td className="px-6 py-4">
                         <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                           budget.status === 'active'
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-800'
+                            ? 'bg-success/15 text-success'
+                            : 'bg-white/10 text-secondary'
                         }`}>
                           {budget.status.charAt(0).toUpperCase() + budget.status.slice(1)}
                         </span>
@@ -256,7 +256,7 @@ const BudgetPage = () => {
                 </tbody>
               </table>
               {/* Pagination */}
-              <div className="border-t px-6 py-4 flex justify-between">
+              <div className="border-t border-default px-6 py-4 flex justify-between">
                 <div className="text-sm text-secondary">Page {currentPage} of {totalPages}</div>
                 <div className="flex gap-2">
                   <button
@@ -289,9 +289,9 @@ const BudgetPage = () => {
       >
         <div className="space-y-6">
           {formErrors.length > 0 && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="border border-danger/30 rounded-lg p-4" style={{backgroundColor: 'rgba(255,107,107,0.1)'}}>
               {formErrors.map((error, idx) => (
-                <div key={idx} className="text-red-700 text-sm">{error}</div>
+                <div key={idx} className="text-danger text-sm">{error}</div>
               ))}
             </div>
           )}
