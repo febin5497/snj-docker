@@ -70,6 +70,7 @@ function createBuilding(preset, maxFloorsOverride) {
   });
   const foundation = new THREE.Mesh(foundationGeo, foundationMat);
   foundation.position.y = -0.25;
+  foundation.userData.isFoundation = true;
   group.add(foundation);
 
   const floorGroups = [];
@@ -85,6 +86,7 @@ function createBuilding(preset, maxFloorsOverride) {
     });
     const slab = new THREE.Mesh(slabGeo, slabMat);
     slab.position.y = floorY - floorHeight / 2;
+    slab.userData.isSlab = true;
     floorGroup.add(slab);
 
     const wallMat = new THREE.MeshPhysicalMaterial({
@@ -125,6 +127,7 @@ function createBuilding(preset, maxFloorsOverride) {
       const winGeo = new THREE.BoxGeometry(0.8, 1.2, 0.05);
       const win = new THREE.Mesh(winGeo, windowMat);
       win.position.set(wx, wy, depth / 2 + 0.11);
+      win.userData.isWindow = true;
       floorGroup.add(win);
       const frameMat = windowFrameMat;
       const frameHGeo = new THREE.BoxGeometry(0.9, 0.08, 0.08);
@@ -132,15 +135,19 @@ function createBuilding(preset, maxFloorsOverride) {
       [-depth / 2 - 0.11, depth / 2 + 0.11].forEach((z) => {
         const frameTop = new THREE.Mesh(frameHGeo, frameMat);
         frameTop.position.set(wx, wy + 0.65, z);
+        frameTop.userData.isFrame = true;
         floorGroup.add(frameTop);
         const frameBot = new THREE.Mesh(frameHGeo, frameMat);
         frameBot.position.set(wx, wy - 0.65, z);
+        frameBot.userData.isFrame = true;
         floorGroup.add(frameBot);
         const frameL = new THREE.Mesh(frameVGeo, frameMat);
         frameL.position.set(wx - 0.45, wy, z);
+        frameL.userData.isFrame = true;
         floorGroup.add(frameL);
         const frameR = new THREE.Mesh(frameVGeo, frameMat);
         frameR.position.set(wx + 0.45, wy, z);
+        frameR.userData.isFrame = true;
         floorGroup.add(frameR);
       });
     }
@@ -705,10 +712,10 @@ export default function PlanViewer3D() {
     if (!building) return;
     const col = new THREE.Color(buildingColor);
     building.traverse((child) => {
-      if (child.isMesh && child.material && !child.material.clippingPlanes?.length) {
+      if (child.isMesh && child.material) {
         const mats = Array.isArray(child.material) ? child.material : [child.material];
         mats.forEach((m) => {
-          if (m.color && m.map === undefined && m.roughness > 0.5) {
+          if (m.color && !child.userData?.isWindow && !child.userData?.isFrame && !child.userData?.isSlab && !child.userData?.isFoundation) {
             m.color.copy(col);
             m.needsUpdate = true;
           }
