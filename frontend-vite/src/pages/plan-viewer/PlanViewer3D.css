@@ -1136,6 +1136,12 @@
     right: 12px;
     width: 200px;
   }
+
+  .props-panel {
+    right: 12px;
+    width: calc(100% - 24px);
+    max-width: 280px;
+  }
 }
 
 /* ── Component Editor ─────────────────────────────────────────────────── */
@@ -1363,4 +1369,159 @@
 @keyframes fadeInDown {
   from { opacity: 0; transform: translate(-50%, -10px); }
   to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* ── Properties Panel ─────────────────────────────────────────────────── */
+.props-panel {
+  position: absolute;
+  top: 80px;
+  right: 16px;
+  background: rgba(15, 20, 35, 0.97);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 200, 100, 0.3);
+  border-radius: 14px;
+  padding: 14px;
+  z-index: 45;
+  min-width: 240px;
+  max-width: 300px;
+  max-height: 500px;
+  display: flex;
+  flex-direction: column;
+  animation: slideInRight 0.2s ease-out;
+}
+
+.props-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.props-scroll {
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 420px;
+}
+
+.props-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.props-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.props-slider-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.props-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 2px;
+  outline: none;
+}
+
+.props-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #00c864;
+  cursor: pointer;
+  border: 2px solid rgba(0, 0, 0, 0.3);
+}
+
+.props-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #00c864;
+  cursor: pointer;
+  border: 2px solid rgba(0, 0, 0, 0.3);
+}
+
+.props-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: #00c864;
+  min-width: 45px;
+  text-align: right;
+}
+
+.props-info {
+  color: #888;
+  font-weight: 400;
+}
+
+.props-color-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.props-color-input {
+  width: 32px;
+  height: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  cursor: pointer;
+  background: none;
+  padding: 1px;
+}
+
+.props-color-input::-webkit-color-swatch-wrapper { padding: 0; }
+.props-color-input::-webkit-color-swatch { border: none; border-radius: 4px; }
+
+.props-hex {
+  font-size: 11px;
+  color: #888;
+  font-family: monospace;
+}
+
+.props-toggle {
+  padding: 4px 16px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: #888;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  align-self: flex-start;
+}
+
+.props-toggle.on {
+  background: rgba(0, 200, 100, 0.2);
+  border-color: #00c864;
+  color: #00c864;
+}
+
+.props-toggle.off {
+  background: rgba(255, 60, 60, 0.1);
+  border-color: rgba(255, 60, 60, 0.3);
+  color: #ff4444;
+}
+
+.props-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 4px 0;
 }

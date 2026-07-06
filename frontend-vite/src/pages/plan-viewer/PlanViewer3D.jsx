@@ -56,28 +56,108 @@ const COMPONENT_CATALOG = [
   { type: "generator",   label: "Generator",     icon: "⚡", desc: "Generator room" },
 ];
 
-function createComponentMesh(type) {
+const DEFAULT_COMPONENT_PROPS = {
+  room:      { width: 3, depth: 3, height: 2.8, wallColor: "#bbbbbb", doorWidth: 1, hasWindow: true },
+  balcony:   { width: 2, depth: 1.5, railHeight: 1.1, deckColor: "#999999", glassOpacity: 0.4 },
+  staircase: { radius: 0.8, steps: 14, height: 3, poleColor: "#555555" },
+  elevator:  { size: 2, height: 3.2, wallColor: "#777777", doorOpen: 0.5 },
+  canopy:    { width: 4, depth: 2, colHeight: 2.8, roofColor: "#bbbbbb" },
+  parking:   { width: 6, depth: 4, levels: 2, levelHeight: 3 },
+  pool:      { width: 5, depth: 3, poolDepth: 1.2, waterColor: "#2288dd" },
+  garden:    { size: 4, treeCount: 3, grassColor: "#3a7d44" },
+  tank:      { radius: 0.75, tankHeight: 2, legHeight: 1.5, tankColor: "#88aacc" },
+  generator: { width: 2, depth: 2, height: 2.5, wallColor: "#666666" },
+};
+
+const COMPONENT_PROPS_SCHEMA = {
+  room: [
+    { key: "width",     label: "Width",     type: "range", min: 1.5, max: 8, step: 0.5, unit: "m" },
+    { key: "depth",     label: "Depth",     type: "range", min: 1.5, max: 8, step: 0.5, unit: "m" },
+    { key: "height",    label: "Height",    type: "range", min: 2, max: 5, step: 0.1, unit: "m" },
+    { key: "wallColor", label: "Wall Color", type: "color" },
+    { key: "doorWidth", label: "Door Width", type: "range", min: 0.6, max: 2, step: 0.1, unit: "m" },
+    { key: "hasWindow", label: "Window",     type: "toggle" },
+  ],
+  balcony: [
+    { key: "width",        label: "Width",        type: "range", min: 1, max: 5, step: 0.5, unit: "m" },
+    { key: "depth",        label: "Depth",        type: "range", min: 0.8, max: 3, step: 0.5, unit: "m" },
+    { key: "railHeight",   label: "Rail Height",  type: "range", min: 0.6, max: 1.5, step: 0.1, unit: "m" },
+    { key: "deckColor",    label: "Deck Color",   type: "color" },
+    { key: "glassOpacity", label: "Glass",        type: "range", min: 0, max: 1, step: 0.1, unit: "" },
+  ],
+  staircase: [
+    { key: "radius",   label: "Radius",   type: "range", min: 0.4, max: 2, step: 0.1, unit: "m" },
+    { key: "steps",    label: "Steps",    type: "range", min: 6, max: 24, step: 1, unit: "" },
+    { key: "height",   label: "Height",   type: "range", min: 2, max: 6, step: 0.5, unit: "m" },
+    { key: "poleColor",label: "Pole Color", type: "color" },
+  ],
+  elevator: [
+    { key: "size",      label: "Size",      type: "range", min: 1.2, max: 4, step: 0.2, unit: "m" },
+    { key: "height",    label: "Height",    type: "range", min: 2, max: 6, step: 0.2, unit: "m" },
+    { key: "wallColor", label: "Wall Color", type: "color" },
+    { key: "doorOpen",  label: "Door Open",  type: "range", min: 0, max: 1, step: 0.1, unit: "" },
+  ],
+  canopy: [
+    { key: "width",     label: "Width",     type: "range", min: 2, max: 8, step: 0.5, unit: "m" },
+    { key: "depth",     label: "Depth",     type: "range", min: 1, max: 5, step: 0.5, unit: "m" },
+    { key: "colHeight", label: "Col Height", type: "range", min: 2, max: 5, step: 0.2, unit: "m" },
+    { key: "roofColor", label: "Roof Color", type: "color" },
+  ],
+  parking: [
+    { key: "width",       label: "Width",       type: "range", min: 4, max: 12, step: 1, unit: "m" },
+    { key: "depth",       label: "Depth",       type: "range", min: 3, max: 8, step: 1, unit: "m" },
+    { key: "levels",      label: "Levels",      type: "range", min: 1, max: 4, step: 1, unit: "" },
+    { key: "levelHeight", label: "Level Height", type: "range", min: 2.5, max: 4, step: 0.5, unit: "m" },
+  ],
+  pool: [
+    { key: "width",      label: "Width",      type: "range", min: 3, max: 10, step: 0.5, unit: "m" },
+    { key: "depth",      label: "Depth",      type: "range", min: 2, max: 6, step: 0.5, unit: "m" },
+    { key: "poolDepth",  label: "Pool Depth",  type: "range", min: 0.5, max: 3, step: 0.1, unit: "m" },
+    { key: "waterColor", label: "Water Color",  type: "color" },
+  ],
+  garden: [
+    { key: "size",       label: "Size",       type: "range", min: 2, max: 10, step: 0.5, unit: "m" },
+    { key: "treeCount",  label: "Trees",      type: "range", min: 0, max: 8, step: 1, unit: "" },
+    { key: "grassColor", label: "Grass Color", type: "color" },
+  ],
+  tank: [
+    { key: "radius",    label: "Radius",    type: "range", min: 0.4, max: 2, step: 0.1, unit: "m" },
+    { key: "tankHeight",label: "Tank Height", type: "range", min: 1, max: 4, step: 0.2, unit: "m" },
+    { key: "legHeight", label: "Leg Height",  type: "range", min: 0.5, max: 3, step: 0.2, unit: "m" },
+    { key: "tankColor", label: "Tank Color",  type: "color" },
+  ],
+  generator: [
+    { key: "width",     label: "Width",     type: "range", min: 1.5, max: 4, step: 0.2, unit: "m" },
+    { key: "depth",     label: "Depth",     type: "range", min: 1.5, max: 4, step: 0.2, unit: "m" },
+    { key: "height",    label: "Height",    type: "range", min: 2, max: 4, step: 0.2, unit: "m" },
+    { key: "wallColor", label: "Wall Color", type: "color" },
+  ],
+};
+
+function createComponentMesh(type, props = {}) {
+  const p = { ...DEFAULT_COMPONENT_PROPS[type], ...props };
   const g = new THREE.Group();
   g.userData.isPlacedComponent = true;
   g.userData.componentType = type;
 
   const wallMat = (c = 0xbbbbbb) => new THREE.MeshPhysicalMaterial({ color: c, roughness: 0.7, metalness: 0.1 });
-  const glassMat = () => new THREE.MeshPhysicalMaterial({ color: 0x88ccff, transparent: true, opacity: 0.4, roughness: 0.1, metalness: 0.3 });
+  const glassMat = (op = 0.4) => new THREE.MeshPhysicalMaterial({ color: 0x88ccff, transparent: true, opacity: op, roughness: 0.1, metalness: 0.3 });
   const metalMat = (c = 0x666666) => new THREE.MeshPhysicalMaterial({ color: c, roughness: 0.4, metalness: 0.6 });
-  const waterMat = () => new THREE.MeshPhysicalMaterial({ color: 0x2288dd, transparent: true, opacity: 0.7, roughness: 0.05, metalness: 0.1 });
-  const grassMat = () => new THREE.MeshPhysicalMaterial({ color: 0x3a7d44, roughness: 0.95, metalness: 0 });
+  const waterMat = (c = 0x2288dd) => new THREE.MeshPhysicalMaterial({ color: c, transparent: true, opacity: 0.7, roughness: 0.05, metalness: 0.1 });
+  const grassMat = (c = 0x3a7d44) => new THREE.MeshPhysicalMaterial({ color: c, roughness: 0.95, metalness: 0 });
   const concreteMat = (c = 0x999999) => new THREE.MeshPhysicalMaterial({ color: c, roughness: 0.85, metalness: 0.05 });
 
   switch (type) {
     case "room": {
-      const W = 3, D = 3, H = 2.8, T = 0.12;
+      const W = p.width, D = p.depth, H = p.height, T = 0.12;
+      const wc = parseInt(p.wallColor.replace("#", ""), 16);
       // floor
       const fl = new THREE.Mesh(new THREE.BoxGeometry(W, 0.1, D), concreteMat(0x888888));
       fl.position.y = 0.05; fl.castShadow = true; fl.receiveShadow = true; g.add(fl);
       // ceiling
       const ceil = new THREE.Mesh(new THREE.BoxGeometry(W, 0.08, D), concreteMat(0xaaaaaa));
       ceil.position.y = H; ceil.castShadow = true; g.add(ceil);
-      // walls (4 sides, front has opening gap)
+      // walls
       const wallDefs = [
         { w: W, h: H, d: T, x: 0, z: D / 2, name: "front" },
         { w: W, h: H, d: T, x: 0, z: -D / 2, name: "back" },
@@ -86,50 +166,48 @@ function createComponentMesh(type) {
       ];
       wallDefs.forEach(({ w, h, d, x, z, name }) => {
         if (name === "front") {
-          // split into two halves with doorway gap
-          const halfW = (W - 1) / 2;
+          const dw = Math.min(p.doorWidth, W - 0.4);
+          const halfW = (W - dw) / 2;
           [-1, 1].forEach((side) => {
-            const wm = new THREE.Mesh(new THREE.BoxGeometry(halfW, H, T), wallMat());
-            wm.position.set(side * (halfW / 2 + 0.5), H / 2, z);
+            const wm = new THREE.Mesh(new THREE.BoxGeometry(halfW, H, T), wallMat(wc));
+            wm.position.set(side * (halfW / 2 + dw / 2), H / 2, z);
             wm.castShadow = true; g.add(wm);
           });
-          // door header
-          const hdr = new THREE.Mesh(new THREE.BoxGeometry(1, 0.4, T), wallMat());
+          const hdr = new THREE.Mesh(new THREE.BoxGeometry(dw, 0.4, T), wallMat(wc));
           hdr.position.set(0, H - 0.2, z); hdr.castShadow = true; g.add(hdr);
         } else {
-          const wm = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), wallMat());
+          const wm = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), wallMat(wc));
           wm.position.set(x, h / 2, z); wm.castShadow = true; g.add(wm);
         }
       });
-      // window on back wall
-      const win = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1, 0.05), glassMat());
-      win.position.set(0, H / 2 + 0.3, -D / 2); g.add(win);
+      if (p.hasWindow) {
+        const win = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1, 0.05), glassMat());
+        win.position.set(0, H / 2 + 0.3, -D / 2); g.add(win);
+      }
       break;
     }
     case "balcony": {
-      const W = 2, D = 1.5, H = 1.1;
-      const deck = new THREE.Mesh(new THREE.BoxGeometry(W, 0.12, D), concreteMat(0x999999));
+      const W = p.width, D = p.depth, H = p.railHeight;
+      const dc = parseInt(p.deckColor.replace("#", ""), 16);
+      const deck = new THREE.Mesh(new THREE.BoxGeometry(W, 0.12, D), concreteMat(dc));
       deck.position.y = 0.06; deck.castShadow = true; deck.receiveShadow = true; g.add(deck);
       const railMat = metalMat(0x888888);
-      // 4 corner posts
       [[-W/2, D/2], [W/2, D/2], [-W/2, -D/2], [W/2, -D/2]].forEach(([x, z]) => {
         const post = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, H), railMat);
         post.position.set(x, H / 2 + 0.12, z); g.add(post);
       });
-      // top rails (3 sides, open back)
       [{ s: [W, 0.04, 0.04], p: [0, H + 0.12, D/2] },
        { s: [0.04, 0.04, D], p: [-W/2, H + 0.12, 0] },
-       { s: [0.04, 0.04, D], p: [W/2, H + 0.12, 0] }].forEach(({ s, p }) => {
+       { s: [0.04, 0.04, D], p: [W/2, H + 0.12, 0] }].forEach(({ s, p: pp }) => {
         const bar = new THREE.Mesh(new THREE.BoxGeometry(...s), railMat);
-        bar.position.set(...p); g.add(bar);
+        bar.position.set(...pp); g.add(bar);
       });
-      // glass panel
-      const panel = new THREE.Mesh(new THREE.BoxGeometry(W - 0.1, H - 0.1, 0.02), glassMat());
+      const panel = new THREE.Mesh(new THREE.BoxGeometry(W - 0.1, H - 0.1, 0.02), glassMat(p.glassOpacity));
       panel.position.set(0, H / 2 + 0.12, D / 2); g.add(panel);
       break;
     }
     case "staircase": {
-      const R = 0.8, steps = 14, H = 3;
+      const R = p.radius, steps = p.steps, H = p.height;
       for (let i = 0; i < steps; i++) {
         const angle = (i / steps) * Math.PI * 2;
         const step = new THREE.Mesh(new THREE.BoxGeometry(R * 2, 0.12, 0.35), concreteMat(0xaaaaaa));
@@ -137,10 +215,9 @@ function createComponentMesh(type) {
         step.rotation.y = -angle;
         step.castShadow = true; g.add(step);
       }
-      // central pole
-      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, H + 0.5), metalMat(0x555555));
+      const pc = parseInt(p.poleColor.replace("#", ""), 16);
+      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, H + 0.5), metalMat(pc));
       pole.position.y = H / 2; g.add(pole);
-      // handrail (spiral of small spheres)
       for (let i = 0; i <= steps * 2; i++) {
         const a = (i / (steps * 2)) * Math.PI * 2;
         const bead = new THREE.Mesh(new THREE.SphereGeometry(0.04, 6, 6), metalMat());
@@ -150,37 +227,35 @@ function createComponentMesh(type) {
       break;
     }
     case "elevator": {
-      const S = 2, H = 3.2;
-      // shaft walls (4 sides, open front)
+      const S = p.size, H = p.height;
+      const wc = parseInt(p.wallColor.replace("#", ""), 16);
       const sides = [
         { w: S, d: 0.1, x: 0, z: -S/2 },
         { w: 0.1, d: S, x: -S/2, z: 0 },
         { w: 0.1, d: S, x: S/2, z: 0 },
       ];
       sides.forEach(({ w, d, x, z }) => {
-        const wall = new THREE.Mesh(new THREE.BoxGeometry(w, H, d), wallMat(0x777777));
+        const wall = new THREE.Mesh(new THREE.BoxGeometry(w, H, d), wallMat(wc));
         wall.position.set(x, H / 2, z); wall.castShadow = true; g.add(wall);
       });
-      // corner posts
       [[-S/2, -S/2], [S/2, -S/2], [-S/2, S/2], [S/2, S/2]].forEach(([x, z]) => {
         const post = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, H + 0.2), metalMat(0x444444));
         post.position.set(x, H / 2, z); g.add(post);
       });
-      // doors (front, sliding)
-      [-0.55, 0.55].forEach((x) => {
+      const doorGap = S * 0.5 * (1 - p.doorOpen);
+      [-doorGap / 2 - 0.25, doorGap / 2 + 0.25].forEach((x) => {
         const door = new THREE.Mesh(new THREE.BoxGeometry(0.5, H - 0.3, 0.06), metalMat(0x888888));
         door.position.set(x, H / 2, S / 2); g.add(door);
       });
-      // car inside
       const car = new THREE.Mesh(new THREE.BoxGeometry(S - 0.4, H - 0.6, S - 0.4), wallMat(0xdddddd));
       car.position.y = H / 2; car.material.transparent = true; car.material.opacity = 0.3; g.add(car);
       break;
     }
     case "canopy": {
-      const W = 4, D = 2, T = 0.1, colH = 2.8;
-      const roof = new THREE.Mesh(new THREE.BoxGeometry(W, T, D), concreteMat(0xbbbbbb));
+      const W = p.width, D = p.depth, T = 0.1, colH = p.colHeight;
+      const rc = parseInt(p.roofColor.replace("#", ""), 16);
+      const roof = new THREE.Mesh(new THREE.BoxGeometry(W, T, D), concreteMat(rc));
       roof.position.y = colH + T / 2; roof.castShadow = true; g.add(roof);
-      // 2 columns
       [-W/2 + 0.3, W/2 - 0.3].forEach((x) => {
         const col = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, colH), metalMat(0x666666));
         col.position.set(x, colH / 2, D / 2 - 0.3); col.castShadow = true; g.add(col);
@@ -188,18 +263,15 @@ function createComponentMesh(type) {
       break;
     }
     case "parking": {
-      const W = 6, D = 4, LvH = 3, Lv = 2;
+      const W = p.width, D = p.depth, LvH = p.levelHeight, Lv = p.levels;
       for (let lv = 0; lv < Lv; lv++) {
         const baseY = lv * LvH;
-        // slab
         const slab = new THREE.Mesh(new THREE.BoxGeometry(W, 0.2, D), concreteMat(0x888888));
         slab.position.y = baseY; slab.castShadow = true; slab.receiveShadow = true; g.add(slab);
-        // columns at corners + mid
         [[-W/2, -D/2], [W/2, -D/2], [-W/2, D/2], [W/2, D/2], [0, -D/2], [0, D/2]].forEach(([x, z]) => {
           const col = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, LvH - 0.2), concreteMat(0x999999));
           col.position.set(x, baseY + LvH / 2, z); col.castShadow = true; g.add(col);
         });
-        // ramp between levels
         if (lv < Lv - 1) {
           const ramp = new THREE.Mesh(new THREE.BoxGeometry(2, 0.1, D * 0.7), concreteMat(0x777777));
           ramp.position.set(W / 2 - 1.5, baseY + LvH / 2, 0);
@@ -207,23 +279,19 @@ function createComponentMesh(type) {
           g.add(ramp);
         }
       }
-      // top slab
       const topSlab = new THREE.Mesh(new THREE.BoxGeometry(W, 0.15, D), concreteMat(0xaaaaaa));
       topSlab.position.y = Lv * LvH; topSlab.castShadow = true; g.add(topSlab);
       break;
     }
     case "pool": {
-      const W = 5, D = 3, depth = 1.2, wall = 0.2;
-      // outer shell
-      const outer = new THREE.Mesh(new THREE.BoxGeometry(W + wall*2, depth + wall, D + wall*2), concreteMat(0xddddcc));
-      outer.position.y = (depth + wall) / 2 - wall; outer.castShadow = true; g.add(outer);
-      // water surface
-      const water = new THREE.Mesh(new THREE.BoxGeometry(W, 0.1, D), waterMat());
+      const W = p.width, D = p.depth, dp = p.poolDepth, wall = 0.2;
+      const wc = parseInt(p.waterColor.replace("#", ""), 16);
+      const outer = new THREE.Mesh(new THREE.BoxGeometry(W + wall*2, dp + wall, D + wall*2), concreteMat(0xddddcc));
+      outer.position.y = (dp + wall) / 2 - wall; outer.castShadow = true; g.add(outer);
+      const water = new THREE.Mesh(new THREE.BoxGeometry(W, 0.1, D), waterMat(wc));
       water.position.y = 0; g.add(water);
-      // tile border
       const border = new THREE.Mesh(new THREE.BoxGeometry(W + wall * 4, 0.08, D + wall * 4), concreteMat(0xeeeebb));
       border.position.y = 0.04; border.receiveShadow = true; g.add(border);
-      // ladder
       const lm = metalMat(0xcccccc);
       [-0.3, 0.3].forEach((x) => {
         const rail = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 1.5), lm);
@@ -236,21 +304,26 @@ function createComponentMesh(type) {
       break;
     }
     case "garden": {
-      const S = 4;
-      const ground = new THREE.Mesh(new THREE.BoxGeometry(S, 0.15, S), grassMat());
+      const S = p.size;
+      const gc = parseInt(p.grassColor.replace("#", ""), 16);
+      const ground = new THREE.Mesh(new THREE.BoxGeometry(S, 0.15, S), grassMat(gc));
       ground.position.y = 0.075; ground.receiveShadow = true; g.add(ground);
-      // simple trees
-      [[-1, -0.5], [1.2, 0.8], [-0.3, 1.3]].forEach(([x, z]) => {
+      const treePositions = [];
+      for (let i = 0; i < p.treeCount; i++) {
+        const angle = (i / p.treeCount) * Math.PI * 2;
+        const r = S * 0.3;
+        treePositions.push([Math.cos(angle) * r, Math.sin(angle) * r]);
+      }
+      treePositions.forEach(([x, z]) => {
         const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 1.2), wallMat(0x8B4513));
         trunk.position.set(x, 0.75, z); trunk.castShadow = true; g.add(trunk);
-        const crown = new THREE.Mesh(new THREE.SphereGeometry(0.6, 8, 8), grassMat());
-        crown.material = new THREE.MeshPhysicalMaterial({ color: 0x228B22, roughness: 0.9 });
+        const crown = new THREE.Mesh(new THREE.SphereGeometry(0.6, 8, 8),
+          new THREE.MeshPhysicalMaterial({ color: 0x228B22, roughness: 0.9 }));
         crown.position.set(x, 1.7, z); crown.castShadow = true; g.add(crown);
       });
-      // flowers
       for (let i = 0; i < 8; i++) {
-        const fx = (Math.random() - 0.5) * 3;
-        const fz = (Math.random() - 0.5) * 3;
+        const fx = (Math.random() - 0.5) * S * 0.7;
+        const fz = (Math.random() - 0.5) * S * 0.7;
         const flower = new THREE.Mesh(new THREE.SphereGeometry(0.08, 6, 6),
           new THREE.MeshPhysicalMaterial({ color: [0xff6b6b, 0xffd93d, 0xff8fab, 0xc084fc][i % 4], roughness: 0.6 }));
         flower.position.set(fx, 0.25, fz); g.add(flower);
@@ -258,26 +331,23 @@ function createComponentMesh(type) {
       break;
     }
     case "tank": {
-      const r = 0.75, h = 2;
-      // legs
+      const r = p.radius, h = p.tankHeight, lh = p.legHeight;
+      const tc = parseInt(p.tankColor.replace("#", ""), 16);
       [[-0.5, -0.5], [0.5, -0.5], [-0.5, 0.5], [0.5, 0.5]].forEach(([x, z]) => {
-        const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.5), metalMat(0x555555));
-        leg.position.set(x, 0.75, z); g.add(leg);
+        const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, lh), metalMat(0x555555));
+        leg.position.set(x, lh / 2, z); g.add(leg);
       });
-      // cross braces
       const brace = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 1.5), metalMat());
-      brace.rotation.z = Math.PI / 2; brace.position.y = 0.5; g.add(brace);
-      // tank body
-      const tank = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 16), metalMat(0x88aacc));
-      tank.position.y = 1.5 + h / 2; tank.castShadow = true; g.add(tank);
-      // lid
+      brace.rotation.z = Math.PI / 2; brace.position.y = lh * 0.4; g.add(brace);
+      const tank = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 16), metalMat(tc));
+      tank.position.y = lh + h / 2; tank.castShadow = true; g.add(tank);
       const lid = new THREE.Mesh(new THREE.CylinderGeometry(r + 0.05, r + 0.05, 0.08, 16), metalMat(0x777777));
-      lid.position.y = 1.5 + h + 0.04; g.add(lid);
+      lid.position.y = lh + h + 0.04; g.add(lid);
       break;
     }
     case "generator": {
-      const W = 2, D = 2, H = 2.5;
-      // walls
+      const W = p.width, D = p.depth, H = p.height;
+      const wc = parseInt(p.wallColor.replace("#", ""), 16);
       const sides2 = [
         { w: W, d: 0.1, x: 0, z: -D/2 },
         { w: W, d: 0.1, x: 0, z: D/2 },
@@ -285,9 +355,8 @@ function createComponentMesh(type) {
         { w: 0.1, d: D, x: W/2, z: 0 },
       ];
       sides2.forEach(({ w, d, x, z }, idx) => {
-        const wm = new THREE.Mesh(new THREE.BoxGeometry(w, H, d), wallMat(0x666666));
+        const wm = new THREE.Mesh(new THREE.BoxGeometry(w, H, d), wallMat(wc));
         wm.position.set(x, H / 2, z); wm.castShadow = true; g.add(wm);
-        // ventilation grilles on front and back
         if (idx < 2) {
           for (let i = 0; i < 5; i++) {
             const slat = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.04, 0.02), metalMat(0x444444));
@@ -297,10 +366,8 @@ function createComponentMesh(type) {
           }
         }
       });
-      // generator unit inside
       const gen = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1, 1.5), metalMat(0x448844));
       gen.position.set(0, 0.6, 0); g.add(gen);
-      // exhaust pipe
       const exhaust = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 1.5), metalMat(0x333333));
       exhaust.position.set(0.6, H + 0.5, -D/2 + 0.3); g.add(exhaust);
       break;
@@ -578,6 +645,7 @@ export default function PlanViewer3D() {
   const [placedComponents, setPlacedComponents] = useState([]);
   const [selectedComponentId, setSelectedComponentId] = useState(null);
   const [placeRotation, setPlaceRotation] = useState(0);
+  const [editingProps, setEditingProps] = useState({});
   const previewRef = useRef(null);
   const ghostRef = useRef(null);
   const selectionBoxRef = useRef(null);
@@ -1479,7 +1547,8 @@ export default function PlanViewer3D() {
 
   const placeComponent = useCallback((position) => {
     if (!placingType) return;
-    const mesh = createComponentMesh(placingType);
+    const props = { ...DEFAULT_COMPONENT_PROPS[placingType] };
+    const mesh = createComponentMesh(placingType, props);
     mesh.position.set(
       Math.round(position.x / 0.5) * 0.5,
       0,
@@ -1489,8 +1558,26 @@ export default function PlanViewer3D() {
     sceneRef.current?.add(mesh);
     const id = nextCompId();
     const label = COMPONENT_CATALOG.find((c) => c.type === placingType)?.label || placingType;
-    setPlacedComponents((prev) => [...prev, { id, type: placingType, label, mesh, position: mesh.position.clone(), rotation: placeRotation }]);
+    setPlacedComponents((prev) => [...prev, { id, type: placingType, label, mesh, props, position: mesh.position.clone(), rotation: placeRotation }]);
   }, [placingType, placeRotation]);
+
+  const updateComponentProps = useCallback((compId, newProps) => {
+    setPlacedComponents((prev) => prev.map((c) => {
+      if (c.id !== compId) return c;
+      const mergedProps = { ...c.props, ...newProps };
+      const pos = c.mesh.position.clone();
+      const rot = c.mesh.rotation.y;
+      // remove old mesh
+      sceneRef.current?.remove(c.mesh);
+      disposeMesh(c.mesh);
+      // create new mesh with updated props
+      const mesh = createComponentMesh(c.type, mergedProps);
+      mesh.position.copy(pos);
+      mesh.rotation.y = rot;
+      sceneRef.current?.add(mesh);
+      return { ...c, mesh, props: mergedProps, position: pos, rotation: rot };
+    }));
+  }, []);
 
   const removeComponent = useCallback((id) => {
     setPlacedComponents((prev) => {
@@ -1553,12 +1640,13 @@ export default function PlanViewer3D() {
         while (obj && !obj.userData?.isPlacedComponent) obj = obj.parent;
         if (obj?.userData?.isPlacedComponent) {
           const comp = placedComponents.find((c) => c.mesh === obj);
-          if (comp) {
-            if (editorMode === "remove") {
-              if (window.confirm(`Remove ${comp.label}?`)) removeComponent(comp.id);
-            } else {
-              setSelectedComponentId(comp.id);
-            }
+            if (comp) {
+              if (editorMode === "remove") {
+                if (window.confirm(`Remove ${comp.label}?`)) removeComponent(comp.id);
+              } else {
+                setSelectedComponentId(comp.id);
+                setEditingProps({ ...comp.props });
+              }
           }
         }
       }
@@ -2398,6 +2486,101 @@ export default function PlanViewer3D() {
           </div>
         </div>
       )}
+
+      {/* Properties Panel (when component selected in select mode) */}
+      {editorMode === "select" && selectedComponentId && (() => {
+        const comp = placedComponents.find((c) => c.id === selectedComponentId);
+        if (!comp) return null;
+        const schema = COMPONENT_PROPS_SCHEMA[comp.type] || [];
+        return (
+          <div className="props-panel">
+            <div className="props-header">
+              <h3 className="panel-title">
+                {COMPONENT_CATALOG.find((c) => c.type === comp.type)?.icon} {comp.label} Properties
+              </h3>
+              <button className="tool-reset-btn" onClick={() => { setSelectedComponentId(null); setEditingProps({}); }}>✕</button>
+            </div>
+            <div className="props-scroll">
+              {schema.map((field) => {
+                const val = editingProps[field.key] ?? comp.props[field.key];
+                if (field.type === "range") {
+                  return (
+                    <div key={field.key} className="props-row">
+                      <label className="props-label">{field.label}</label>
+                      <div className="props-slider-group">
+                        <input
+                          type="range"
+                          min={field.min} max={field.max} step={field.step}
+                          value={val}
+                          onChange={(e) => {
+                            const v = Number(e.target.value);
+                            setEditingProps((prev) => ({ ...prev, [field.key]: v }));
+                            updateComponentProps(comp.id, { [field.key]: v });
+                          }}
+                          className="props-slider"
+                        />
+                        <span className="props-value">{typeof val === "number" ? val.toFixed(1) : val}{field.unit}</span>
+                      </div>
+                    </div>
+                  );
+                }
+                if (field.type === "color") {
+                  return (
+                    <div key={field.key} className="props-row">
+                      <label className="props-label">{field.label}</label>
+                      <div className="props-color-group">
+                        <input
+                          type="color"
+                          value={val}
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            setEditingProps((prev) => ({ ...prev, [field.key]: v }));
+                            updateComponentProps(comp.id, { [field.key]: v });
+                          }}
+                          className="props-color-input"
+                        />
+                        <span className="props-hex">{val}</span>
+                      </div>
+                    </div>
+                  );
+                }
+                if (field.type === "toggle") {
+                  return (
+                    <div key={field.key} className="props-row">
+                      <label className="props-label">{field.label}</label>
+                      <button
+                        className={`props-toggle ${val ? "on" : "off"}`}
+                        onClick={() => {
+                          const v = !val;
+                          setEditingProps((prev) => ({ ...prev, [field.key]: v }));
+                          updateComponentProps(comp.id, { [field.key]: v });
+                        }}
+                      >
+                        {val ? "ON" : "OFF"}
+                      </button>
+                    </div>
+                  );
+                }
+                return null;
+              })}
+              {/* Position info */}
+              <div className="props-divider" />
+              <div className="props-row">
+                <label className="props-label">Position</label>
+                <span className="props-value props-info">
+                  ({comp.position.x.toFixed(1)}, {comp.position.z.toFixed(1)})
+                </span>
+              </div>
+              <div className="props-row">
+                <label className="props-label">Rotation</label>
+                <span className="props-value props-info">
+                  {((comp.rotation * 180 / Math.PI) % 360).toFixed(0)}°
+                </span>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Editor Mode Indicator */}
       {editorMode && (
