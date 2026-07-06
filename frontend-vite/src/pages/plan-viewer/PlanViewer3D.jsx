@@ -217,6 +217,11 @@ export default function PlanViewer3D() {
   const buildingRef = useRef(null);
   const importedModelRef = useRef(null);
   const animFrameRef = useRef(null);
+  const measurementCanvasRef = useRef(null);
+  const raycasterRef = useRef(new THREE.Raycaster());
+  const dirLightRef = useRef(null);
+  const hemiLightRef = useRef(null);
+  const ambientLightRef = useRef(null);
 
   const [currentPreset, setCurrentPreset] = useState(0);
   const [autoRotate, setAutoRotate] = useState(true);
@@ -234,6 +239,18 @@ export default function PlanViewer3D() {
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [projectSearch, setProjectSearch] = useState("");
   const [projectDropdownOpen, setProjectDropdownOpen] = useState(false);
+
+  const [measurementMode, setMeasurementMode] = useState(false);
+  const [measurements, setMeasurements] = useState([]);
+  const [explodedView, setExplodedView] = useState(false);
+  const [explosionDistance, setExplosionDistance] = useState(3);
+  const [sectionCut, setSectionCut] = useState(false);
+  const [sectionPosition, setSectionPosition] = useState(0.5);
+  const [floorVisibility, setFloorVisibility] = useState([]);
+  const [showDimensions, setShowDimensions] = useState(false);
+  const [buildingColor, setBuildingColor] = useState("#4a90d9");
+  const [dayNightMode, setDayNightMode] = useState(false);
+  const dayNightAngleRef = useRef(0);
 
   const preset = BUILDING_PRESETS[currentPreset];
 
@@ -282,6 +299,7 @@ export default function PlanViewer3D() {
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.2;
+    renderer.localClippingEnabled = true;
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
@@ -298,12 +316,15 @@ export default function PlanViewer3D() {
 
     const ambientLight = new THREE.AmbientLight(0x404060, 0.6);
     scene.add(ambientLight);
+    ambientLightRef.current = ambientLight;
 
     const hemiLight = new THREE.HemisphereLight(0x87ceeb, 0x362d25, 0.8);
     scene.add(hemiLight);
+    hemiLightRef.current = hemiLight;
 
     const dirLight = new THREE.DirectionalLight(0xffffff, 2);
     dirLight.position.set(20, 30, 20);
+    dirLightRef.current = dirLight;
     dirLight.castShadow = true;
     dirLight.shadow.mapSize.width = 2048;
     dirLight.shadow.mapSize.height = 2048;
@@ -537,6 +558,225 @@ export default function PlanViewer3D() {
     return () => document.removeEventListener("fullscreenchange", handler);
   }, []);
 
+  // Initialize floor visibility when preset changes
+  useEffect(() => {
+    if (mode === "preset") {
+      const total = preset.floors;
+      setFloorVisibility((prev) => {
+        if (prev.length === total) return prev;
+        return Array(total).fill(true);
+      });
+    }
+  }, [mode, preset.floors]);
+
+  // Exploded View effect
+  useEffect(() => {
+    const building = buildingRef.current;
+    if (!building) return;
+    const floorGroups = building.userData.floorGroups;
+    if (!floorGroups) return;
+    floorGroups.forEach((fg, i) => {
+      const targetY = explodedView ? i * explosionDistance : 0;
+      fg.position.y = targetY;
+    });
+  }, [explodedView, explosionDistance]);
+
+  // Re-apply exploded view when building changes
+  useEffect(() => {
+    if (!explodedView) return;
+    const timer = setTimeout(() => {
+      const building = buildingRef.current;
+      if (!building) return;
+      const floorGroups = building.userData.floorGroups;
+      if (!floorGroups) return;
+      floorGroups.forEach((fg, i) => { fg.position.y = i * explosionDistance; });
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [currentPreset, visibleFloors, mode, selectedProjectId]);
+
+  // Section Cut effect
+  useEffect(() => {
+    const building = buildingRef.current || importedModelRef.current;
+    if (!building) return;
+    const clipY = sectionPosition * ((visibleFloors ?? preset.floors) * preset.floorHeight);
+    const plane = new THREE.Plane(new THREE.Vector3(0, -1, 0), clipY);
+    building.traverse((child) => {
+      if (child.isMesh && child.material) {
+        const mats = Array.isArray(child.material) ? child.material : [child.material];
+        mats.forEach((m) => {
+          m.clippingPlanes = sectionCut ? [plane] : [];
+          m.clipShadows = true;
+          m.needsUpdate = true;
+        });
+      }
+    });
+  }, [sectionCut, sectionPosition, visibleFloors, preset]);
+
+  // Floor Visibility effect
+  useEffect(() => {
+    const building = buildingRef.current;
+    if (!building) return;
+    const floorGroups = building.userData.floorGroups;
+    if (!floorGroups) return;
+    floorGroups.forEach((fg, i) => {
+      if (floorVisibility[i] !== undefined) {
+        fg.visible = floorVisibility[i];
+      }
+    });
+  }, [floorVisibility]);
+
+  // Building Color effect
+  useEffect(() => {
+    const building = buildingRef.current;
+    if (!building) return;
+    const col = new THREE.Color(buildingColor);
+    building.traverse((child) => {
+      if (child.isMesh && child.material && !child.material.clippingPlanes?.length) {
+        const mats = Array.isArray(child.material) ? child.material : [child.material];
+        mats.forEach((m) => {
+          if (m.color && m.map === undefined && m.roughness > 0.5) {
+            m.color.copy(col);
+            m.needsUpdate = true;
+          }
+        });
+      }
+    });
+  }, [buildingColor]);
+
+  // Day/Night Cycle effect
+  useEffect(() => {
+    if (!dirLightRef.current || !hemiLightRef.current || !ambientLightRef.current) return;
+    let frame;
+    function animateDayNight() {
+      dayNightAngleRef.current += 0.005;
+      const angle = dayNightAngleRef.current;
+      const radius = 30;
+      const height = 30;
+      dirLightRef.current.position.set(
+        Math.cos(angle) * radius,
+        height * Math.abs(Math.sin(angle)),
+        Math.sin(angle) * radius
+      );
+      const warmth = Math.max(0, Math.sin(angle));
+      dirLightRef.current.color.setHSL(0.08, warmth * 0.3, 0.8 + warmth * 0.2);
+      dirLightRef.current.intensity = 1 + warmth * 2;
+      hemiLightRef.current.intensity = 0.3 + warmth * 0.7;
+      ambientLightRef.current.intensity = 0.3 + warmth * 0.4;
+      if (sceneRef.current) {
+        const skyHue = 0.58 + warmth * 0.05;
+        const skyLight = 0.15 + warmth * 0.6;
+        sceneRef.current.background = new THREE.Color().setHSL(skyHue, 0.4, skyLight);
+      }
+      frame = requestAnimationFrame(animateDayNight);
+    }
+    if (dayNightMode) {
+      animateDayNight();
+    } else {
+      if (dirLightRef.current) {
+        dirLightRef.current.position.set(20, 30, 20);
+        dirLightRef.current.color.set(0xffffff);
+        dirLightRef.current.intensity = 2;
+      }
+      if (hemiLightRef.current) hemiLightRef.current.intensity = 0.8;
+      if (ambientLightRef.current) ambientLightRef.current.intensity = 0.6;
+      if (sceneRef.current) {
+        sceneRef.current.background = new THREE.Color(darkBg ? 0x1a2332 : 0xe8eef5);
+      }
+    }
+    return () => { if (frame) cancelAnimationFrame(frame); };
+  }, [dayNightMode, darkBg]);
+
+  // Measurement click handler
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || !measurementMode) return;
+
+    function handleClick(e) {
+      const rect = container.getBoundingClientRect();
+      const mouse = new THREE.Vector2(
+        ((e.clientX - rect.left) / rect.width) * 2 - 1,
+        -((e.clientY - rect.top) / rect.height) * 2 + 1
+      );
+      raycasterRef.current.setFromCamera(mouse, cameraRef.current);
+      const target = buildingRef.current || importedModelRef.current;
+      if (!target) return;
+      const intersects = raycasterRef.current.intersectObject(target, true);
+      if (intersects.length > 0) {
+        const point = intersects[0].point.clone();
+        setMeasurements((prev) => {
+          const last = prev[prev.length - 1];
+          if (!last || last.length === 2) {
+            return [...prev, [point]];
+          } else {
+            return [...prev.slice(0, -1), [...last, point]];
+          }
+        });
+      }
+    }
+    container.addEventListener("dblclick", handleClick);
+    return () => container.removeEventListener("dblclick", handleClick);
+  }, [measurementMode]);
+
+  // Draw measurements on canvas overlay
+  useEffect(() => {
+    const canvas = measurementCanvasRef.current;
+    const container = containerRef.current;
+    if (!canvas || !container) return;
+    const ctx = canvas.getContext("2d");
+    canvas.width = container.clientWidth;
+    canvas.height = container.clientHeight;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    measurements.forEach((pts) => {
+      if (pts.length < 1) return;
+      const screenPts = pts.map((p) => {
+        const v = p.clone().project(cameraRef.current);
+        return {
+          x: (v.x * 0.5 + 0.5) * canvas.width,
+          y: (-v.y * 0.5 + 0.5) * canvas.height,
+        };
+      });
+      ctx.strokeStyle = "#ff6b35";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 4]);
+      if (screenPts.length === 2) {
+        ctx.beginPath();
+        ctx.moveTo(screenPts[0].x, screenPts[0].y);
+        ctx.lineTo(screenPts[1].x, screenPts[1].y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        const dx = pts[1].x - pts[0].x;
+        const dy = pts[1].y - pts[0].y;
+        const dz = pts[1].z - pts[0].z;
+        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz).toFixed(2);
+        const mx = (screenPts[0].x + screenPts[1].x) / 2;
+        const my = (screenPts[0].y + screenPts[1].y) / 2;
+        ctx.fillStyle = "rgba(26, 35, 50, 0.85)";
+        const text = `${dist}m`;
+        const tw = ctx.measureText(text).width;
+        ctx.fillRect(mx - tw / 2 - 6, my - 12, tw + 12, 22);
+        ctx.strokeStyle = "rgba(255, 107, 53, 0.5)";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(mx - tw / 2 - 6, my - 12, tw + 12, 22);
+        ctx.fillStyle = "#ff6b35";
+        ctx.font = "bold 13px monospace";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(text, mx, my);
+      }
+      screenPts.forEach((sp) => {
+        ctx.setLineDash([]);
+        ctx.fillStyle = "#ff6b35";
+        ctx.beginPath();
+        ctx.arc(sp.x, sp.y, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      });
+    });
+  }, [measurements]);
+
   const toggleFullscreen = () => {
     const el = containerRef.current;
     if (!document.fullscreenElement) {
@@ -572,6 +812,33 @@ export default function PlanViewer3D() {
     setViewMode("perspective");
   };
 
+  const clearMeasurements = () => {
+    setMeasurements([]);
+  };
+
+  const exportGLB = async () => {
+    const target = buildingRef.current;
+    if (!target) return;
+    const { GLTFExporter } = await import("three/addons/exporters/GLTFExporter.js");
+    const exporter = new GLTFExporter();
+    exporter.parse(
+      target,
+      (result) => {
+        const blob = new Blob([result], { type: "application/octet-stream" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "building.glb";
+        link.click();
+        URL.revokeObjectURL(url);
+      },
+      (error) => {
+        console.error("GLB export error:", error);
+      },
+      { binary: true }
+    );
+  };
+
   const handleProjectSelect = (projectId) => {
     setSelectedProjectId(projectId);
     setMode("project");
@@ -588,7 +855,12 @@ export default function PlanViewer3D() {
 
   return (
     <div className="plan-viewer-page">
-      <div className="viewer-container" ref={containerRef} />
+      <div className="viewer-container" ref={containerRef}>
+        <canvas
+          ref={measurementCanvasRef}
+          style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 5 }}
+        />
+      </div>
 
       {/* Top Toolbar */}
       <div className="viewer-toolbar">
@@ -676,6 +948,44 @@ export default function PlanViewer3D() {
         </button>
       </div>
 
+      {/* Advanced Tools Toolbar */}
+      <div className="advanced-toolbar">
+        <button className={`viewer-btn ${measurementMode ? "active" : ""}`} onClick={() => { setMeasurementMode(!measurementMode); if (measurementMode) clearMeasurements(); }} title="Measurement Tool (double-click two points)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M2 22L22 2M15 2h7v7M9 22H2v-7"/>
+          </svg>
+        </button>
+        <button className={`viewer-btn ${explodedView ? "active" : ""}`} onClick={() => setExplodedView(!explodedView)} title="Exploded View">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+          </svg>
+        </button>
+        <button className={`viewer-btn ${sectionCut ? "active" : ""}`} onClick={() => setSectionCut(!sectionCut)} title="Section Cut">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.59" y2="13.51"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.59" y1="10.49" x2="14.47" y2="14.48"/>
+          </svg>
+        </button>
+        <button className={`viewer-btn ${showDimensions ? "active" : ""}`} onClick={() => setShowDimensions(!showDimensions)} title="Show Dimensions">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21 3H3v18h18V3zM9 3v18M15 3v18M3 9h18M3 15h18"/>
+          </svg>
+        </button>
+        <button className={`viewer-btn ${dayNightMode ? "active" : ""}`} onClick={() => setDayNightMode(!dayNightMode)} title="Day/Night Cycle">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            {dayNightMode ? (
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            ) : (
+              <><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></>
+            )}
+          </svg>
+        </button>
+        <button className="viewer-btn" onClick={exportGLB} title="Export GLB">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+        </button>
+      </div>
+
       {/* Bottom Tools Bar */}
       <div className="bottom-tools">
         {/* Mode Toggle + Presets */}
@@ -728,6 +1038,28 @@ export default function PlanViewer3D() {
                 <button className="tool-reset-btn" onClick={() => setVisibleFloors(null)} title="Show all floors">Reset</button>
               )}
             </div>
+            {explodedView && (
+              <div className="tool-group">
+                <label className="tool-label">Explosion: {explosionDistance.toFixed(1)}m</label>
+                <input
+                  type="range" min={0} max={10} step={0.1}
+                  value={explosionDistance}
+                  onChange={(e) => setExplosionDistance(Number(e.target.value))}
+                  className="floor-slider"
+                />
+              </div>
+            )}
+            {sectionCut && (
+              <div className="tool-group">
+                <label className="tool-label">Cut: {(sectionPosition * 100).toFixed(0)}%</label>
+                <input
+                  type="range" min={0} max={1} step={0.01}
+                  value={sectionPosition}
+                  onChange={(e) => setSectionPosition(Number(e.target.value))}
+                  className="floor-slider"
+                />
+              </div>
+            )}
           </>
         ) : (
           /* Project Selector */
@@ -814,6 +1146,57 @@ export default function PlanViewer3D() {
               <span className="info-value">{preset.roofType}</span>
             </div>
           </div>
+          <div className="info-section">
+            <h4 className="info-section-title">Floor Visibility</h4>
+            <div className="floor-vis-grid">
+              {Array.from({ length: preset.floors }, (_, i) => (
+                <label key={i} className="floor-vis-item">
+                  <input
+                    type="checkbox"
+                    checked={floorVisibility[i] ?? true}
+                    onChange={(e) => {
+                      const next = [...floorVisibility];
+                      while (next.length <= i) next.push(true);
+                      next[i] = e.target.checked;
+                      setFloorVisibility(next);
+                    }}
+                  />
+                  <span>F{i + 1}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+          <div className="info-section">
+            <h4 className="info-section-title">Building Color</h4>
+            <div className="color-picker-row">
+              <input
+                type="color"
+                value={buildingColor}
+                onChange={(e) => setBuildingColor(e.target.value)}
+                className="building-color-input"
+              />
+              <span className="color-hex">{buildingColor}</span>
+            </div>
+          </div>
+          {showDimensions && (
+            <div className="info-section">
+              <h4 className="info-section-title">Dimensions</h4>
+              <div className="info-grid">
+                <div className="info-item">
+                  <span className="info-label">Width</span>
+                  <span className="info-value">{preset.width}m</span>
+                </div>
+                <div className="info-item">
+                  <span className="info-label">Depth</span>
+                  <span className="info-value">{preset.depth}m</span>
+                </div>
+                <div className="info-item">
+                  <span className="info-label">Height</span>
+                  <span className="info-value">{(visibleFloors ?? preset.floors) * preset.floorHeight}m</span>
+                </div>
+              </div>
+            </div>
+          )}
           <p className="info-hint">Drag to orbit · Scroll to zoom</p>
         </div>
       )}
