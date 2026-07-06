@@ -39,6 +39,276 @@ function terrainNoise(x, z) {
   );
 }
 
+// ── Component Library ──────────────────────────────────────────────────────
+let _compIdCounter = 0;
+function nextCompId() { return `comp-${Date.now()}-${++_compIdCounter}`; }
+
+const COMPONENT_CATALOG = [
+  { type: "room",        label: "Room",          icon: "🏠", desc: "3×3m enclosed room" },
+  { type: "balcony",     label: "Balcony",       icon: "🌤", desc: "2×1.5m platform w/ railing" },
+  { type: "staircase",   label: "Staircase",     icon: "🔄", desc: "Spiral staircase" },
+  { type: "elevator",    label: "Elevator",      icon: "⬆", desc: "Elevator shaft" },
+  { type: "canopy",      label: "Canopy",        icon: "☂", desc: "Overhang with columns" },
+  { type: "parking",     label: "Parking",       icon: "🅿", desc: "2-level parking garage" },
+  { type: "pool",        label: "Pool",          icon: "🏊", desc: "Swimming pool" },
+  { type: "garden",      label: "Garden",        icon: "🌳", desc: "Garden patch w/ trees" },
+  { type: "tank",        label: "Water Tank",    icon: "🛢", desc: "Water tank on stand" },
+  { type: "generator",   label: "Generator",     icon: "⚡", desc: "Generator room" },
+];
+
+function createComponentMesh(type) {
+  const g = new THREE.Group();
+  g.userData.isPlacedComponent = true;
+  g.userData.componentType = type;
+
+  const wallMat = (c = 0xbbbbbb) => new THREE.MeshPhysicalMaterial({ color: c, roughness: 0.7, metalness: 0.1 });
+  const glassMat = () => new THREE.MeshPhysicalMaterial({ color: 0x88ccff, transparent: true, opacity: 0.4, roughness: 0.1, metalness: 0.3 });
+  const metalMat = (c = 0x666666) => new THREE.MeshPhysicalMaterial({ color: c, roughness: 0.4, metalness: 0.6 });
+  const waterMat = () => new THREE.MeshPhysicalMaterial({ color: 0x2288dd, transparent: true, opacity: 0.7, roughness: 0.05, metalness: 0.1 });
+  const grassMat = () => new THREE.MeshPhysicalMaterial({ color: 0x3a7d44, roughness: 0.95, metalness: 0 });
+  const concreteMat = (c = 0x999999) => new THREE.MeshPhysicalMaterial({ color: c, roughness: 0.85, metalness: 0.05 });
+
+  switch (type) {
+    case "room": {
+      const W = 3, D = 3, H = 2.8, T = 0.12;
+      // floor
+      const fl = new THREE.Mesh(new THREE.BoxGeometry(W, 0.1, D), concreteMat(0x888888));
+      fl.position.y = 0.05; fl.castShadow = true; fl.receiveShadow = true; g.add(fl);
+      // ceiling
+      const ceil = new THREE.Mesh(new THREE.BoxGeometry(W, 0.08, D), concreteMat(0xaaaaaa));
+      ceil.position.y = H; ceil.castShadow = true; g.add(ceil);
+      // walls (4 sides, front has opening gap)
+      const wallDefs = [
+        { w: W, h: H, d: T, x: 0, z: D / 2, name: "front" },
+        { w: W, h: H, d: T, x: 0, z: -D / 2, name: "back" },
+        { w: T, h: H, d: D, x: -W / 2, z: 0, name: "left" },
+        { w: T, h: H, d: D, x: W / 2, z: 0, name: "right" },
+      ];
+      wallDefs.forEach(({ w, h, d, x, z, name }) => {
+        if (name === "front") {
+          // split into two halves with doorway gap
+          const halfW = (W - 1) / 2;
+          [-1, 1].forEach((side) => {
+            const wm = new THREE.Mesh(new THREE.BoxGeometry(halfW, H, T), wallMat());
+            wm.position.set(side * (halfW / 2 + 0.5), H / 2, z);
+            wm.castShadow = true; g.add(wm);
+          });
+          // door header
+          const hdr = new THREE.Mesh(new THREE.BoxGeometry(1, 0.4, T), wallMat());
+          hdr.position.set(0, H - 0.2, z); hdr.castShadow = true; g.add(hdr);
+        } else {
+          const wm = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), wallMat());
+          wm.position.set(x, h / 2, z); wm.castShadow = true; g.add(wm);
+        }
+      });
+      // window on back wall
+      const win = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1, 0.05), glassMat());
+      win.position.set(0, H / 2 + 0.3, -D / 2); g.add(win);
+      break;
+    }
+    case "balcony": {
+      const W = 2, D = 1.5, H = 1.1;
+      const deck = new THREE.Mesh(new THREE.BoxGeometry(W, 0.12, D), concreteMat(0x999999));
+      deck.position.y = 0.06; deck.castShadow = true; deck.receiveShadow = true; g.add(deck);
+      const railMat = metalMat(0x888888);
+      // 4 corner posts
+      [[-W/2, D/2], [W/2, D/2], [-W/2, -D/2], [W/2, -D/2]].forEach(([x, z]) => {
+        const post = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, H), railMat);
+        post.position.set(x, H / 2 + 0.12, z); g.add(post);
+      });
+      // top rails (3 sides, open back)
+      [{ s: [W, 0.04, 0.04], p: [0, H + 0.12, D/2] },
+       { s: [0.04, 0.04, D], p: [-W/2, H + 0.12, 0] },
+       { s: [0.04, 0.04, D], p: [W/2, H + 0.12, 0] }].forEach(({ s, p }) => {
+        const bar = new THREE.Mesh(new THREE.BoxGeometry(...s), railMat);
+        bar.position.set(...p); g.add(bar);
+      });
+      // glass panel
+      const panel = new THREE.Mesh(new THREE.BoxGeometry(W - 0.1, H - 0.1, 0.02), glassMat());
+      panel.position.set(0, H / 2 + 0.12, D / 2); g.add(panel);
+      break;
+    }
+    case "staircase": {
+      const R = 0.8, steps = 14, H = 3;
+      for (let i = 0; i < steps; i++) {
+        const angle = (i / steps) * Math.PI * 2;
+        const step = new THREE.Mesh(new THREE.BoxGeometry(R * 2, 0.12, 0.35), concreteMat(0xaaaaaa));
+        step.position.set(Math.cos(angle) * R * 0.6, (i / steps) * H, Math.sin(angle) * R * 0.6);
+        step.rotation.y = -angle;
+        step.castShadow = true; g.add(step);
+      }
+      // central pole
+      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, H + 0.5), metalMat(0x555555));
+      pole.position.y = H / 2; g.add(pole);
+      // handrail (spiral of small spheres)
+      for (let i = 0; i <= steps * 2; i++) {
+        const a = (i / (steps * 2)) * Math.PI * 2;
+        const bead = new THREE.Mesh(new THREE.SphereGeometry(0.04, 6, 6), metalMat());
+        bead.position.set(Math.cos(a) * R, (i / (steps * 2)) * H + 1.1, Math.sin(a) * R);
+        g.add(bead);
+      }
+      break;
+    }
+    case "elevator": {
+      const S = 2, H = 3.2;
+      // shaft walls (4 sides, open front)
+      const sides = [
+        { w: S, d: 0.1, x: 0, z: -S/2 },
+        { w: 0.1, d: S, x: -S/2, z: 0 },
+        { w: 0.1, d: S, x: S/2, z: 0 },
+      ];
+      sides.forEach(({ w, d, x, z }) => {
+        const wall = new THREE.Mesh(new THREE.BoxGeometry(w, H, d), wallMat(0x777777));
+        wall.position.set(x, H / 2, z); wall.castShadow = true; g.add(wall);
+      });
+      // corner posts
+      [[-S/2, -S/2], [S/2, -S/2], [-S/2, S/2], [S/2, S/2]].forEach(([x, z]) => {
+        const post = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, H + 0.2), metalMat(0x444444));
+        post.position.set(x, H / 2, z); g.add(post);
+      });
+      // doors (front, sliding)
+      [-0.55, 0.55].forEach((x) => {
+        const door = new THREE.Mesh(new THREE.BoxGeometry(0.5, H - 0.3, 0.06), metalMat(0x888888));
+        door.position.set(x, H / 2, S / 2); g.add(door);
+      });
+      // car inside
+      const car = new THREE.Mesh(new THREE.BoxGeometry(S - 0.4, H - 0.6, S - 0.4), wallMat(0xdddddd));
+      car.position.y = H / 2; car.material.transparent = true; car.material.opacity = 0.3; g.add(car);
+      break;
+    }
+    case "canopy": {
+      const W = 4, D = 2, T = 0.1, colH = 2.8;
+      const roof = new THREE.Mesh(new THREE.BoxGeometry(W, T, D), concreteMat(0xbbbbbb));
+      roof.position.y = colH + T / 2; roof.castShadow = true; g.add(roof);
+      // 2 columns
+      [-W/2 + 0.3, W/2 - 0.3].forEach((x) => {
+        const col = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, colH), metalMat(0x666666));
+        col.position.set(x, colH / 2, D / 2 - 0.3); col.castShadow = true; g.add(col);
+      });
+      break;
+    }
+    case "parking": {
+      const W = 6, D = 4, LvH = 3, Lv = 2;
+      for (let lv = 0; lv < Lv; lv++) {
+        const baseY = lv * LvH;
+        // slab
+        const slab = new THREE.Mesh(new THREE.BoxGeometry(W, 0.2, D), concreteMat(0x888888));
+        slab.position.y = baseY; slab.castShadow = true; slab.receiveShadow = true; g.add(slab);
+        // columns at corners + mid
+        [[-W/2, -D/2], [W/2, -D/2], [-W/2, D/2], [W/2, D/2], [0, -D/2], [0, D/2]].forEach(([x, z]) => {
+          const col = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, LvH - 0.2), concreteMat(0x999999));
+          col.position.set(x, baseY + LvH / 2, z); col.castShadow = true; g.add(col);
+        });
+        // ramp between levels
+        if (lv < Lv - 1) {
+          const ramp = new THREE.Mesh(new THREE.BoxGeometry(2, 0.1, D * 0.7), concreteMat(0x777777));
+          ramp.position.set(W / 2 - 1.5, baseY + LvH / 2, 0);
+          ramp.rotation.z = Math.atan2(LvH, D * 0.7) * 0.5;
+          g.add(ramp);
+        }
+      }
+      // top slab
+      const topSlab = new THREE.Mesh(new THREE.BoxGeometry(W, 0.15, D), concreteMat(0xaaaaaa));
+      topSlab.position.y = Lv * LvH; topSlab.castShadow = true; g.add(topSlab);
+      break;
+    }
+    case "pool": {
+      const W = 5, D = 3, depth = 1.2, wall = 0.2;
+      // outer shell
+      const outer = new THREE.Mesh(new THREE.BoxGeometry(W + wall*2, depth + wall, D + wall*2), concreteMat(0xddddcc));
+      outer.position.y = (depth + wall) / 2 - wall; outer.castShadow = true; g.add(outer);
+      // water surface
+      const water = new THREE.Mesh(new THREE.BoxGeometry(W, 0.1, D), waterMat());
+      water.position.y = 0; g.add(water);
+      // tile border
+      const border = new THREE.Mesh(new THREE.BoxGeometry(W + wall * 4, 0.08, D + wall * 4), concreteMat(0xeeeebb));
+      border.position.y = 0.04; border.receiveShadow = true; g.add(border);
+      // ladder
+      const lm = metalMat(0xcccccc);
+      [-0.3, 0.3].forEach((x) => {
+        const rail = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 1.5), lm);
+        rail.position.set(x, 0.75, D / 2 + 0.15); g.add(rail);
+      });
+      [0.3, 0.8].forEach((y) => {
+        const rung = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.6), lm);
+        rung.rotation.z = Math.PI / 2; rung.position.set(0, y, D / 2 + 0.15); g.add(rung);
+      });
+      break;
+    }
+    case "garden": {
+      const S = 4;
+      const ground = new THREE.Mesh(new THREE.BoxGeometry(S, 0.15, S), grassMat());
+      ground.position.y = 0.075; ground.receiveShadow = true; g.add(ground);
+      // simple trees
+      [[-1, -0.5], [1.2, 0.8], [-0.3, 1.3]].forEach(([x, z]) => {
+        const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 1.2), wallMat(0x8B4513));
+        trunk.position.set(x, 0.75, z); trunk.castShadow = true; g.add(trunk);
+        const crown = new THREE.Mesh(new THREE.SphereGeometry(0.6, 8, 8), grassMat());
+        crown.material = new THREE.MeshPhysicalMaterial({ color: 0x228B22, roughness: 0.9 });
+        crown.position.set(x, 1.7, z); crown.castShadow = true; g.add(crown);
+      });
+      // flowers
+      for (let i = 0; i < 8; i++) {
+        const fx = (Math.random() - 0.5) * 3;
+        const fz = (Math.random() - 0.5) * 3;
+        const flower = new THREE.Mesh(new THREE.SphereGeometry(0.08, 6, 6),
+          new THREE.MeshPhysicalMaterial({ color: [0xff6b6b, 0xffd93d, 0xff8fab, 0xc084fc][i % 4], roughness: 0.6 }));
+        flower.position.set(fx, 0.25, fz); g.add(flower);
+      }
+      break;
+    }
+    case "tank": {
+      const r = 0.75, h = 2;
+      // legs
+      [[-0.5, -0.5], [0.5, -0.5], [-0.5, 0.5], [0.5, 0.5]].forEach(([x, z]) => {
+        const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.5), metalMat(0x555555));
+        leg.position.set(x, 0.75, z); g.add(leg);
+      });
+      // cross braces
+      const brace = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 1.5), metalMat());
+      brace.rotation.z = Math.PI / 2; brace.position.y = 0.5; g.add(brace);
+      // tank body
+      const tank = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 16), metalMat(0x88aacc));
+      tank.position.y = 1.5 + h / 2; tank.castShadow = true; g.add(tank);
+      // lid
+      const lid = new THREE.Mesh(new THREE.CylinderGeometry(r + 0.05, r + 0.05, 0.08, 16), metalMat(0x777777));
+      lid.position.y = 1.5 + h + 0.04; g.add(lid);
+      break;
+    }
+    case "generator": {
+      const W = 2, D = 2, H = 2.5;
+      // walls
+      const sides2 = [
+        { w: W, d: 0.1, x: 0, z: -D/2 },
+        { w: W, d: 0.1, x: 0, z: D/2 },
+        { w: 0.1, d: D, x: -W/2, z: 0 },
+        { w: 0.1, d: D, x: W/2, z: 0 },
+      ];
+      sides2.forEach(({ w, d, x, z }, idx) => {
+        const wm = new THREE.Mesh(new THREE.BoxGeometry(w, H, d), wallMat(0x666666));
+        wm.position.set(x, H / 2, z); wm.castShadow = true; g.add(wm);
+        // ventilation grilles on front and back
+        if (idx < 2) {
+          for (let i = 0; i < 5; i++) {
+            const slat = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.04, 0.02), metalMat(0x444444));
+            slat.position.set(0, H * 0.4 + i * 0.12, z > 0 ? z + 0.06 : z - 0.06);
+            slat.rotation.x = 0.3;
+            g.add(slat);
+          }
+        }
+      });
+      // generator unit inside
+      const gen = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1, 1.5), metalMat(0x448844));
+      gen.position.set(0, 0.6, 0); g.add(gen);
+      // exhaust pipe
+      const exhaust = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 1.5), metalMat(0x333333));
+      exhaust.position.set(0.6, H + 0.5, -D/2 + 0.3); g.add(exhaust);
+      break;
+    }
+  }
+  return g;
+}
+
 function createBuildingTexture() {
   const canvas = document.createElement("canvas");
   canvas.width = 128; canvas.height = 128;
@@ -301,6 +571,16 @@ export default function PlanViewer3D() {
   const [terrainSize, setTerrainSize] = useState(80);
   const [terrainHeight, setTerrainHeight] = useState(5);
   const terrainRef = useRef(null);
+
+  // Component Editor
+  const [editorMode, setEditorMode] = useState(null); // null | "place" | "select" | "remove"
+  const [placingType, setPlacingType] = useState(null);
+  const [placedComponents, setPlacedComponents] = useState([]);
+  const [selectedComponentId, setSelectedComponentId] = useState(null);
+  const [placeRotation, setPlaceRotation] = useState(0);
+  const previewRef = useRef(null);
+  const ghostRef = useRef(null);
+  const selectionBoxRef = useRef(null);
 
   const preset = BUILDING_PRESETS[currentPreset];
 
@@ -1041,6 +1321,81 @@ export default function PlanViewer3D() {
     };
   }, [showTerrain, terrainSize, terrainHeight, preset]);
 
+  // ── Component Editor: ghost preview for placement ────────────────────────
+  useEffect(() => {
+    const scene = sceneRef.current;
+    if (!scene) return;
+    // cleanup old ghost
+    if (ghostRef.current) {
+      scene.remove(ghostRef.current);
+      disposeMesh(ghostRef.current);
+      ghostRef.current = null;
+    }
+    if (editorMode !== "place" || !placingType) return;
+
+    const ghost = createComponentMesh(placingType);
+    ghost.traverse((c) => {
+      if (c.isMesh) {
+        c.material = c.material.clone();
+        c.material.transparent = true;
+        c.material.opacity = 0.45;
+        c.material.depthWrite = false;
+      }
+    });
+    ghost.position.set(0, 0, 0);
+    ghost.visible = false;
+    scene.add(ghost);
+    ghostRef.current = ghost;
+
+    return () => {
+      if (ghostRef.current) {
+        scene.remove(ghostRef.current);
+        disposeMesh(ghostRef.current);
+        ghostRef.current = null;
+      }
+    };
+  }, [editorMode, placingType]);
+
+  // ── Component Editor: placement rotation ─────────────────────────────────
+  useEffect(() => {
+    if (ghostRef.current) ghostRef.current.rotation.y = placeRotation;
+  }, [placeRotation]);
+
+  // ── Component Editor: selection highlight ────────────────────────────────
+  useEffect(() => {
+    const scene = sceneRef.current;
+    if (!scene) return;
+    if (selectionBoxRef.current) {
+      scene.remove(selectionBoxRef.current);
+      selectionBoxRef.current = null;
+    }
+    if (!selectedComponentId || editorMode !== "select") return;
+    const comp = placedComponents.find((c) => c.id === selectedComponentId);
+    if (!comp?.mesh) return;
+    const box = new THREE.Box3().setFromObject(comp.mesh);
+    const helper = new THREE.Box3Helper(box, 0x00ff88);
+    scene.add(helper);
+    selectionBoxRef.current = helper;
+    return () => {
+      if (selectionBoxRef.current) {
+        scene.remove(selectionBoxRef.current);
+        selectionBoxRef.current = null;
+      }
+    };
+  }, [selectedComponentId, editorMode, placedComponents]);
+
+  // ── Component Editor: cleanup all placed on unmount or mode switch ──────
+  useEffect(() => {
+    return () => {
+      // cleanup placed components on unmount
+      const scene = sceneRef.current;
+      if (!scene) return;
+      placedComponents.forEach((c) => {
+        if (c.mesh) { scene.remove(c.mesh); disposeMesh(c.mesh); }
+      });
+    };
+  }, []); // eslint-disable-line
+
   const toggleFullscreen = () => {
     const el = containerRef.current;
     if (!document.fullscreenElement) {
@@ -1091,6 +1446,186 @@ export default function PlanViewer3D() {
     const dz = pts[1].z - pts[0].z;
     return Math.sqrt(dx * dx + dy * dy + dz * dz);
   };
+
+  // ── Component Editor: handlers ────────────────────────────────────────────
+  const startPlacement = (type) => {
+    setEditorMode("place");
+    setPlacingType(type);
+    setSelectedComponentId(null);
+    setPlaceRotation(0);
+    setMeasurementMode(false);
+  };
+
+  const startSelectMode = () => {
+    setEditorMode("select");
+    setPlacingType(null);
+    setSelectedComponentId(null);
+    setMeasurementMode(false);
+  };
+
+  const startRemoveMode = () => {
+    setEditorMode("remove");
+    setPlacingType(null);
+    setSelectedComponentId(null);
+    setMeasurementMode(false);
+  };
+
+  const cancelEditor = () => {
+    setEditorMode(null);
+    setPlacingType(null);
+    setSelectedComponentId(null);
+    setPlaceRotation(0);
+  };
+
+  const placeComponent = useCallback((position) => {
+    if (!placingType) return;
+    const mesh = createComponentMesh(placingType);
+    mesh.position.set(
+      Math.round(position.x / 0.5) * 0.5,
+      0,
+      Math.round(position.z / 0.5) * 0.5
+    );
+    mesh.rotation.y = placeRotation;
+    sceneRef.current?.add(mesh);
+    const id = nextCompId();
+    const label = COMPONENT_CATALOG.find((c) => c.type === placingType)?.label || placingType;
+    setPlacedComponents((prev) => [...prev, { id, type: placingType, label, mesh, position: mesh.position.clone(), rotation: placeRotation }]);
+  }, [placingType, placeRotation]);
+
+  const removeComponent = useCallback((id) => {
+    setPlacedComponents((prev) => {
+      const comp = prev.find((c) => c.id === id);
+      if (comp?.mesh) {
+        // fade out animation
+        const mesh = comp.mesh;
+        const start = performance.now();
+        function fadeOut(now) {
+          const t = Math.min((now - start) / 400, 1);
+          mesh.traverse((c) => { if (c.isMesh && c.material) { c.material.opacity = 1 - t; c.material.transparent = true; } });
+          if (t < 1) requestAnimationFrame(fadeOut);
+          else { sceneRef.current?.remove(mesh); disposeMesh(mesh); }
+        }
+        requestAnimationFrame(fadeOut);
+      }
+      return prev.filter((c) => c.id !== id);
+    });
+    if (selectedComponentId === id) setSelectedComponentId(null);
+  }, [selectedComponentId]);
+
+  const clearAllComponents = () => {
+    placedComponents.forEach((c) => {
+      if (c.mesh) { sceneRef.current?.remove(c.mesh); disposeMesh(c.mesh); }
+    });
+    setPlacedComponents([]);
+    setSelectedComponentId(null);
+  };
+
+  // ── Canvas click handler for placement / selection / removal ──────────────
+  const handleCanvasClick = useCallback((e) => {
+    const scene = sceneRef.current;
+    const camera = cameraRef.current;
+    const renderer = rendererRef.current;
+    if (!scene || !camera || !renderer) return;
+    const rect = renderer.domElement.getBoundingClientRect();
+    const mouse = new THREE.Vector2(
+      ((e.clientX - rect.left) / rect.width) * 2 - 1,
+      -((e.clientY - rect.top) / rect.height) * 2 + 1
+    );
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse, camera);
+
+    if (editorMode === "place" && placingType) {
+      // raycast against ground plane y=0
+      const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+      const pt = new THREE.Vector3();
+      raycaster.ray.intersectPlane(plane, pt);
+      if (pt) placeComponent(pt);
+      return;
+    }
+
+    if (editorMode === "select" || editorMode === "remove") {
+      // raycast against placed components
+      const targets = placedComponents.map((c) => c.mesh).filter(Boolean);
+      const hits = raycaster.intersectObjects(targets, true);
+      if (hits.length > 0) {
+        // find which component group was hit
+        let obj = hits[0].object;
+        while (obj && !obj.userData?.isPlacedComponent) obj = obj.parent;
+        if (obj?.userData?.isPlacedComponent) {
+          const comp = placedComponents.find((c) => c.mesh === obj);
+          if (comp) {
+            if (editorMode === "remove") {
+              if (window.confirm(`Remove ${comp.label}?`)) removeComponent(comp.id);
+            } else {
+              setSelectedComponentId(comp.id);
+            }
+          }
+        }
+      }
+    }
+  }, [editorMode, placingType, placedComponents, placeComponent, removeComponent]);
+
+  // attach canvas click listener
+  useEffect(() => {
+    const renderer = rendererRef.current;
+    if (!renderer) return;
+    const el = renderer.domElement;
+    el.addEventListener("click", handleCanvasClick);
+    return () => el.removeEventListener("click", handleCanvasClick);
+  }, [handleCanvasClick]);
+
+  // ── Mouse move for ghost preview ──────────────────────────────────────────
+  useEffect(() => {
+    const renderer = rendererRef.current;
+    const camera = cameraRef.current;
+    if (!renderer || !camera) return;
+    function onMove(e) {
+      if (!ghostRef.current || editorMode !== "place") return;
+      const rect = renderer.domElement.getBoundingClientRect();
+      const mouse = new THREE.Vector2(
+        ((e.clientX - rect.left) / rect.width) * 2 - 1,
+        -((e.clientY - rect.top) / rect.height) * 2 + 1
+      );
+      const raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(mouse, camera);
+      const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+      const pt = new THREE.Vector3();
+      raycaster.ray.intersectPlane(plane, pt);
+      if (pt) {
+        ghostRef.current.visible = true;
+        ghostRef.current.position.set(
+          Math.round(pt.x / 0.5) * 0.5,
+          0,
+          Math.round(pt.z / 0.5) * 0.5
+        );
+      }
+    }
+    renderer.domElement.addEventListener("mousemove", onMove);
+    return () => renderer.domElement.removeEventListener("mousemove", onMove);
+  }, [editorMode]);
+
+  // ── Keyboard: Escape to cancel, Delete to remove selected, R to rotate ──
+  useEffect(() => {
+    function onKey(e) {
+      if (e.key === "Escape") cancelEditor();
+      if (e.key === "r" || e.key === "R") {
+        if (editorMode === "place") setPlaceRotation((r) => r + Math.PI / 2);
+        if (editorMode === "select" && selectedComponentId) {
+          const comp = placedComponents.find((c) => c.id === selectedComponentId);
+          if (comp?.mesh) {
+            comp.mesh.rotation.y += Math.PI / 2;
+            comp.rotation = comp.mesh.rotation.y;
+            setPlacedComponents((p) => [...p]);
+          }
+        }
+      }
+      if ((e.key === "Delete" || e.key === "Backspace") && editorMode === "select" && selectedComponentId) {
+        removeComponent(selectedComponentId);
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [editorMode, selectedComponentId, placedComponents, removeComponent]);
 
   const formatTime = (t) => {
     const totalMinutes = Math.round(t * 720);
@@ -1302,6 +1837,23 @@ export default function PlanViewer3D() {
         <button className={`viewer-btn ${showTerrain ? "active" : ""}`} onClick={() => setShowTerrain(!showTerrain)} title="Toggle Terrain">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M2 20L8 10l4 4 4-6 6 10H2z"/>
+          </svg>
+        </button>
+        {/* Component Editor Buttons */}
+        <div className="toolbar-divider" />
+        <button className={`viewer-btn ${editorMode === "place" ? "active" : ""}`} onClick={() => { if (editorMode === "place") cancelEditor(); else startPlacement("room"); }} title="Add Component">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+          </svg>
+        </button>
+        <button className={`viewer-btn ${editorMode === "select" ? "active" : ""}`} onClick={() => { if (editorMode === "select") cancelEditor(); else startSelectMode(); }} title="Select Component">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
+          </svg>
+        </button>
+        <button className={`viewer-btn ${editorMode === "remove" ? "active" : ""}`} onClick={() => { if (editorMode === "remove") cancelEditor(); else startRemoveMode(); }} title="Remove Component">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/>
           </svg>
         </button>
       </div>
@@ -1783,6 +2335,76 @@ export default function PlanViewer3D() {
               className="floor-slider"
             />
           </div>
+        </div>
+      )}
+
+      {/* Component Palette (when in place mode) */}
+      {editorMode === "place" && (
+        <div className="component-palette">
+          <div className="component-palette-header">
+            <h3 className="panel-title">Add Component</h3>
+            <button className="tool-reset-btn" onClick={cancelEditor}>Cancel</button>
+          </div>
+          <div className="component-grid">
+            {COMPONENT_CATALOG.map((cat) => (
+              <button
+                key={cat.type}
+                className={`component-card ${placingType === cat.type ? "active" : ""}`}
+                onClick={() => setPlacingType(cat.type)}
+                title={cat.desc}
+              >
+                <span className="component-icon">{cat.icon}</span>
+                <span className="component-label">{cat.label}</span>
+                <span className="component-desc">{cat.desc}</span>
+              </button>
+            ))}
+          </div>
+          {placingType && (
+            <div className="place-instructions">
+              <span>Click on ground to place</span>
+              <span>Scroll to rotate • Esc to cancel</span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Component List (always visible when editor active) */}
+      {editorMode && placedComponents.length > 0 && (
+        <div className="component-list-panel">
+          <div className="component-list-header">
+            <h3 className="panel-title">Components ({placedComponents.length})</h3>
+            <button className="tool-reset-btn" onClick={clearAllComponents}>Clear All</button>
+          </div>
+          <div className="component-list-scroll">
+            {placedComponents.map((comp) => (
+              <div
+                key={comp.id}
+                className={`component-list-item ${selectedComponentId === comp.id ? "selected" : ""}`}
+                onClick={() => {
+                  if (editorMode === "select") setSelectedComponentId(comp.id);
+                  if (editorMode === "remove") {
+                    if (window.confirm(`Remove ${comp.label}?`)) removeComponent(comp.id);
+                  }
+                }}
+              >
+                <span className="comp-list-icon">{COMPONENT_CATALOG.find((c) => c.type === comp.type)?.icon}</span>
+                <div className="comp-list-info">
+                  <span className="comp-list-name">{comp.label}</span>
+                  <span className="comp-list-pos">({comp.position.x.toFixed(1)}, {comp.position.z.toFixed(1)})</span>
+                </div>
+                <button className="comp-list-delete" onClick={(e) => { e.stopPropagation(); removeComponent(comp.id); }} title="Remove">✕</button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Editor Mode Indicator */}
+      {editorMode && (
+        <div className="editor-mode-badge">
+          {editorMode === "place" && `Placing: ${COMPONENT_CATALOG.find((c) => c.type === placingType)?.label || "..."}`}
+          {editorMode === "select" && (selectedComponentId ? `Selected: ${placedComponents.find((c) => c.id === selectedComponentId)?.label} — Press R to rotate, Del to remove` : "Click a component to select")}
+          {editorMode === "remove" && "Click a component to remove it"}
         </div>
       )}
     </div>

@@ -1125,4 +1125,242 @@
     right: 12px;
     width: 180px;
   }
+
+  .component-palette {
+    left: 12px;
+    width: calc(100% - 24px);
+    max-width: 300px;
+  }
+
+  .component-list-panel {
+    right: 12px;
+    width: 200px;
+  }
+}
+
+/* ── Component Editor ─────────────────────────────────────────────────── */
+.toolbar-divider {
+  width: 1px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.15);
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+.component-palette {
+  position: absolute;
+  bottom: 80px;
+  left: 16px;
+  background: rgba(15, 20, 35, 0.95);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(100, 140, 200, 0.25);
+  border-radius: 14px;
+  padding: 14px;
+  z-index: 40;
+  min-width: 320px;
+  max-width: 400px;
+  animation: slideInLeft 0.2s ease-out;
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.component-palette-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.component-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+.component-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #ccc;
+  font-size: 11px;
+}
+
+.component-card:hover {
+  background: rgba(74, 144, 217, 0.15);
+  border-color: rgba(74, 144, 217, 0.4);
+}
+
+.component-card.active {
+  background: rgba(74, 144, 217, 0.25);
+  border-color: #4a90d9;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(74, 144, 217, 0.3);
+}
+
+.component-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.component-label {
+  font-weight: 600;
+  font-size: 10px;
+  text-align: center;
+}
+
+.component-desc {
+  font-size: 9px;
+  opacity: 0.5;
+  text-align: center;
+  display: none;
+}
+
+.component-card:hover .component-desc,
+.component-card.active .component-desc {
+  display: block;
+}
+
+.place-instructions {
+  margin-top: 10px;
+  padding: 8px 10px;
+  background: rgba(0, 200, 100, 0.1);
+  border: 1px solid rgba(0, 200, 100, 0.3);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11px;
+  color: #6f6;
+  text-align: center;
+}
+
+/* ── Component List Panel ─────────────────────────────────────────────── */
+.component-list-panel {
+  position: absolute;
+  top: 80px;
+  right: 16px;
+  background: rgba(15, 20, 35, 0.95);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(100, 140, 200, 0.25);
+  border-radius: 14px;
+  padding: 14px;
+  z-index: 40;
+  min-width: 220px;
+  max-width: 280px;
+  max-height: 400px;
+  display: flex;
+  flex-direction: column;
+  animation: slideInRight 0.2s ease-out;
+}
+
+.component-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.component-list-scroll {
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 320px;
+}
+
+.component-list-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.component-list-item:hover {
+  background: rgba(74, 144, 217, 0.12);
+  border-color: rgba(74, 144, 217, 0.3);
+}
+
+.component-list-item.selected {
+  background: rgba(0, 200, 100, 0.12);
+  border-color: #00c864;
+}
+
+.comp-list-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.comp-list-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.comp-list-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #eee;
+}
+
+.comp-list-pos {
+  font-size: 10px;
+  color: #888;
+}
+
+.comp-list-delete {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.comp-list-delete:hover {
+  background: rgba(255, 60, 60, 0.2);
+  color: #ff4444;
+}
+
+/* ── Editor Mode Badge ────────────────────────────────────────────────── */
+.editor-mode-badge {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 20, 35, 0.95);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 200, 100, 0.4);
+  border-radius: 20px;
+  padding: 8px 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #00c864;
+  z-index: 50;
+  white-space: nowrap;
+  animation: fadeInDown 0.2s ease-out;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translate(-50%, -10px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
 }
