@@ -639,6 +639,10 @@ export default function PlanViewer3D() {
   const [terrainHeight, setTerrainHeight] = useState(5);
   const terrainRef = useRef(null);
 
+  // Flat Ground
+  const [flatGround, setFlatGround] = useState(false);
+  const flatGroundRef = useRef(null);
+
   // Component Editor
   const [editorMode, setEditorMode] = useState(null); // null | "place" | "select" | "remove"
   const [placingType, setPlacingType] = useState(null);
@@ -1389,6 +1393,39 @@ export default function PlanViewer3D() {
     };
   }, [showTerrain, terrainSize, terrainHeight, preset]);
 
+  // Flat Ground effect
+  useEffect(() => {
+    const scene = sceneRef.current;
+    if (!scene) return;
+    if (flatGroundRef.current) {
+      scene.remove(flatGroundRef.current);
+      disposeMesh(flatGroundRef.current);
+      flatGroundRef.current = null;
+    }
+    if (!flatGround) return;
+
+    const size = 60;
+    const geo = new THREE.PlaneGeometry(size, size);
+    geo.rotateX(-Math.PI / 2);
+    const mat = new THREE.MeshPhysicalMaterial({
+      color: 0x5a7c4f, roughness: 0.9, metalness: 0, flatShading: false,
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.y = -0.49;
+    mesh.receiveShadow = true;
+    mesh.name = "flat-ground";
+    scene.add(mesh);
+    flatGroundRef.current = mesh;
+
+    return () => {
+      if (flatGroundRef.current) {
+        scene.remove(flatGroundRef.current);
+        disposeMesh(flatGroundRef.current);
+        flatGroundRef.current = null;
+      }
+    };
+  }, [flatGround]);
+
   // ── Component Editor: ghost preview for placement ────────────────────────
   useEffect(() => {
     const scene = sceneRef.current;
@@ -1522,6 +1559,7 @@ export default function PlanViewer3D() {
     setSelectedComponentId(null);
     setPlaceRotation(0);
     setMeasurementMode(false);
+    setAutoRotate(false);
   };
 
   const startSelectMode = () => {
@@ -1529,6 +1567,7 @@ export default function PlanViewer3D() {
     setPlacingType(null);
     setSelectedComponentId(null);
     setMeasurementMode(false);
+    setAutoRotate(false);
   };
 
   const startRemoveMode = () => {
@@ -1536,6 +1575,7 @@ export default function PlanViewer3D() {
     setPlacingType(null);
     setSelectedComponentId(null);
     setMeasurementMode(false);
+    setAutoRotate(false);
   };
 
   const cancelEditor = () => {
@@ -1692,10 +1732,14 @@ export default function PlanViewer3D() {
     return () => renderer.domElement.removeEventListener("mousemove", onMove);
   }, [editorMode]);
 
-  // ── Keyboard: Escape to cancel, Delete to remove selected, R to rotate ──
+  // ── Keyboard: Escape to cancel, Delete to remove selected, R to rotate, Space to stop rotation ──
   useEffect(() => {
     function onKey(e) {
       if (e.key === "Escape") cancelEditor();
+      if (e.key === " " && !editorMode) {
+        e.preventDefault();
+        setAutoRotate((r) => !r);
+      }
       if (e.key === "r" || e.key === "R") {
         if (editorMode === "place") setPlaceRotation((r) => r + Math.PI / 2);
         if (editorMode === "select" && selectedComponentId) {
@@ -1925,6 +1969,11 @@ export default function PlanViewer3D() {
         <button className={`viewer-btn ${showTerrain ? "active" : ""}`} onClick={() => setShowTerrain(!showTerrain)} title="Toggle Terrain">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M2 20L8 10l4 4 4-6 6 10H2z"/>
+          </svg>
+        </button>
+        <button className={`viewer-btn ${flatGround ? "active" : ""}`} onClick={() => setFlatGround(!flatGround)} title="Flat Ground (plain land for building)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="3" y="11" width="18" height="8" rx="1"/><line x1="3" y1="15" x2="21" y2="15"/>
           </svg>
         </button>
         {/* Component Editor Buttons */}
